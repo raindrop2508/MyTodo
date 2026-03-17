@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="main_hello_from_viewmodel">Hello from ViewModel!</string>
+    <string name="main_text_updated">Text updated via LiveData!</string>
+    <string name="main_update_text_button">Update Text</string>
+</resources>

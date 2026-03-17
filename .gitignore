@@ -22,7 +22,6 @@ local.properties
 !**/.ideakeep
 
 # Built application files
-*~
 *.apk
 *.ap_
 *.aab
@@ -84,3 +83,4 @@ Thumbs.db
 .fuse_hidden*
 .Trash-*
 .nfs*
+.vscode/settings.json
