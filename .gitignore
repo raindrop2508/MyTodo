@@ -1,0 +1,86 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Android Studio
+.idea/
+*.hprof
+*.orig
+*~
+!**/.ideakeep
+
+# Built application files
+*~
+*.apk
+*.ap_
+*.aab
+
+# Files for the ART/Dalvik VM
+*.dex
+
+# Java class files
+*.class
+
+# Generated files
+bin/
+gen/
+out/
+release/
+
+# Gradle files
+.gradle/
+build/
+
+# Keystore files
+*.jks
+*.keystore
+!gradle/wrapper/gradle-wrapper.jar
+
+# Google Services (e.g. Maps or Firebase)
+google-services.json
+
+# Freeline
+freeline.py
+freeline/
+freeline_project_description.json
+
+# Kotlin
+*.kotlin_module
+
+# Log files
+*.log
+
+# NDK
+obj/
+external-native-build/
+.cxx/
+
+# Intellij
+*.ipr
+.idea
+
+# Eclipse
+.android
+.classpath
+.project
+.settings/
+
+# Windows
+Thumbs.db
+
+# Linux
+.fuse_hidden*
+.Trash-*
+.nfs*
