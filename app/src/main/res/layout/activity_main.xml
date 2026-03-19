@@ -5,6 +5,7 @@
 
     <data>
 
+        <import type="android.view.View" />
         <variable
             name="viewModel"
             type="com.gordon.mypotato.MainViewModel" />
@@ -42,6 +43,17 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textview_db_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text='@{viewModel.latestAppInfo == null ? "No DB Data" : "DB v" + viewModel.latestAppInfo.dbVersion + "\n" + viewModel.formatTime(viewModel.latestAppInfo.createTime)}'
+                android:gravity="center"
+                app:layout_constraintTop_toBottomOf="@id/button_update"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="16dp" />
 
             <Button
                 android:id="@+id/button_update"
