@@ -43,6 +43,18 @@ UI 风格遵循 Material Design 3（Material3）规范，交互参考 Microsoft 
   - MPAndroidChart（成熟度高）
   - Vico（Compose 生态较新，可按后期技术栈评估）
 
+### 3.1 Material3 统一主题规范
+- 主题继承链统一：
+  - `Theme.MyPotato` -> `Base.Theme.MyPotato`
+  - `Base.Theme.MyPotato` -> `Theme.Material3.DayNight.NoActionBar`
+- 禁止再引入 `Theme.MaterialComponents.*` 作为应用主主题父类。
+- 配色策略：
+  - Android 12+ 优先 Dynamic Color（动态配色）
+  - Android 10/11 使用静态品牌色回退（Static Fallback）
+- 主题职责约束：
+  - `values/themes.xml` 与 `values-night/themes.xml` 维护昼夜配色 token
+  - `values-v23/themes.xml` 仅维护系统栏相关差异项（如透明状态栏）
+
 ## 4. 功能模块设计
 ### 4.1 任务管理（Task Management）
 - 支持任务增删改查（CRUD）。
@@ -267,45 +279,56 @@ UI 风格遵循 Material Design 3（Material3）规范，交互参考 Microsoft 
 - 类别步骤完成时刻 -> Timeline List + LineChart
 
 ## 10. 分阶段构建方案（可直接按步骤执行）
-### Phase 0：工程初始化
-- 新建基础模块：data/domain/ui/common
-- 集成 Room、ViewModel、LiveData、Navigation、Material3
-- 建立主题与暗黑模式框架
+### Stage A：MVP 体验定义（先 UI 原型）
+- 目标：先做可演示最小闭环，不先从技术分层开始。
+- 开发内容：
+  - 搭建 Today、Tasks 两个核心页面的静态 UI 骨架
+  - 优先完成 Material3 主题统一与基础导航结构
+  - 图标统一使用 Material Symbols Outlined（先覆盖核心操作）
+- 产出物：
+  - 可运行页面壳
+  - 浅色/深色主题预览图
+  - 首版交互走查脚本
 
-### Phase 1：数据层落地
-- 建立 Entity/Dao/Database
-- 完成 Repository 接口与本地实现
-- 完成基础假数据与迁移策略（Migration）
+### Stage B：核心流程跑通（假数据优先）
+- 目标：不依赖数据库，先把任务主流程跑通。
+- 开发内容：
+  - 使用 Fake Data/Fake Repository 提供任务列表与详情数据
+  - 打通创建任务、编辑任务、标记完成三条主流程
+  - 页面间参数传递（taskId）与回传刷新机制
+- 产出物：
+  - 从 Today 到 Task Detail/Task Edit 的完整交互链路
+  - 关键状态（未完成/已完成）可视化验证
 
-### Phase 2：任务管理 MVP
-- 完成 Today、Tasks、Task Detail、Task Edit 页面
-- 打通任务 CRUD 与四象限展示
-- 支持任务类型（单次/长时）选择
+### Stage C：轻量数据结构落地（再接入 Room）
+- 目标：把已验证的交互映射为最小可用数据结构。
+- 开发内容：
+  - 落地 `Task`、`TaskStep`、`Category`、`PomodoroSession` 的最小字段
+  - 建立 Room Entity/DAO/Database
+  - 替换 Fake Repository 为本地存储实现
+- 产出物：
+  - 应用重启后数据持久化有效
+  - 与 Stage B 交互行为保持一致
 
-### Phase 3：步骤任务能力
-- 在 Task Detail 中增加步骤列表与步骤 CRUD
-- 支持步骤完成时间记录
-- 支持按步骤维度查看进度
+### Stage D：长时任务 + 统计闭环
+- 目标：完成长时任务计时与统计最小闭环。
+- 开发内容：
+  - 仅长时任务显示番茄钟入口并记录会话
+  - 完成时间段统计、完成率统计、类别步骤完成时间统计
+  - 接入统计图（柱状图/折线图/环形图）
+- 产出物：
+  - 长时任务可计时并入统计
+  - 单次任务不支持番茄钟且不纳入时间段统计
 
-### Phase 4：番茄钟能力
-- 仅对长时任务开放番茄钟入口
-- 打通计时会话落库（PomodoroSession）
-- 增加中断、继续、完成状态处理
-
-### Phase 5：统计系统
-- 完成时间段统计、完成率统计、类别步骤完成统计
-- 接入图表组件，支持日/周/月筛选
-
-### Phase 6：设置与增强
-- 完成暗黑模式切换
-- 完成多语言切换与语言持久化
-- 完成检查更新入口（可先占位）
-- 完成导入导出（可选）
-
-### Phase 7：测试与发布准备
-- 单元测试：Repository、统计聚合、时间计算
-- UI 测试：关键流程（创建任务、完成步骤、启动番茄钟）
-- 性能与稳定性检查
+### Stage E：架构补齐 + 质量加固
+- 目标：在功能稳定后进行工程化收敛。
+- 开发内容：
+  - 补齐 Repository/MVVM 分层边界
+  - i18n 清理（禁止硬编码文案）
+  - 完成主题一致性排查、关键测试与发布前检查
+- 产出物：
+  - 结构清晰、可维护版本
+  - 验收清单可闭环通过
 
 ## 11. 验收标准（Definition of Done）
 - 单次任务不可启动番茄钟。
@@ -357,6 +380,7 @@ UI 风格遵循 Material Design 3（Material3）规范，交互参考 Microsoft 
 
 ### 12.7 素材命名字段定义（可直接用于重命名）
 命名规范建议：`<模块>_<语义>_<状态可选>`，统一小写下划线。
+- 图标来源优先级：`Material Symbols Outlined` -> 自绘矢量补充 -> 位图（仅必要场景）。
 
 #### 图标命名（`app/src/main/res/drawable`）
 | 素材用途 | 名称字段（资源名） | 说明 |
