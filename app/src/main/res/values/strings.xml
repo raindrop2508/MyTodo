@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">MyPotato</string>
+    <string name="nav_today">今天</string>
+    <string name="nav_tasks">任务</string>
+    <string name="nav_statistics">统计</string>
+    <string name="nav_settings">设置</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>

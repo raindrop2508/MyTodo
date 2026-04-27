@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/today"
+        android:icon="@drawable/ic_nav_today"
+        android:title="@string/nav_today" />
+
+    <item
+        android:id="@+id/tasks"
+        android:icon="@drawable/ic_nav_tasks"
+        android:title="@string/nav_tasks" />
+
+    <item
+        android:id="@+id/statistics"
+        android:icon="@drawable/ic_nav_statistics"
+        android:title="@string/nav_statistics" />
+
+    <item
+        android:id="@+id/settings"
+        android:icon="@drawable/ic_nav_settings"
+        android:title="@string/nav_settings" />
+
+</menu>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_nav_graph"
+    app:startDestination="@id/today">
+
+    <fragment
+        android:id="@+id/today"
+        android:name="com.gordon.mypotato.ui.today.TodayFragment"
+        android:label="@string/nav_today"
+        tools:layout="@layout/fragment_today" />
+
+    <fragment
+        android:id="@+id/tasks"
+        android:name="com.gordon.mypotato.ui.tasks.TasksFragment"
+        android:label="@string/nav_tasks"
+        tools:layout="@layout/fragment_tasks" />
+
+    <fragment
+        android:id="@+id/statistics"
+        android:name="com.gordon.mypotato.ui.statistics.StatisticsFragment"
+        android:label="@string/nav_statistics"
+        tools:layout="@layout/fragment_statistics" />
+
+    <fragment
+        android:id="@+id/settings"
+        android:name="com.gordon.mypotato.ui.settings.SettingsFragment"
+        android:label="@string/nav_settings"
+        tools:layout="@layout/fragment_settings" />
+
+</navigation>
