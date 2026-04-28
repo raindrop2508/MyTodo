@@ -3,22 +3,22 @@
 
     <item
         android:id="@+id/today"
-        android:icon="@drawable/ic_nav_today"
+        android:icon="@mipmap/ic_nav_calendar"
         android:title="@string/nav_today" />
 
     <item
         android:id="@+id/tasks"
-        android:icon="@drawable/ic_nav_tasks"
+        android:icon="@mipmap/ic_nav_list_todo"
         android:title="@string/nav_tasks" />
 
     <item
         android:id="@+id/statistics"
-        android:icon="@drawable/ic_nav_statistics"
+        android:icon="@mipmap/ic_nav_chart"
         android:title="@string/nav_statistics" />
 
     <item
         android:id="@+id/settings"
-        android:icon="@drawable/ic_nav_settings"
+        android:icon="@mipmap/ic_nav_setting"
         android:title="@string/nav_settings" />
 
 </menu>
