@@ -1,0 +1,155 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* MyPotato — warm earthy Material 3 palette */
+    --background: 39 38% 97%;
+    --foreground: 30 15% 14%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 30 15% 14%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 30 15% 14%;
+
+    --primary: 32 78% 52%;
+    --primary-foreground: 40 50% 98%;
+    --primary-soft: 36 90% 92%;
+
+    --secondary: 36 30% 94%;
+    --secondary-foreground: 30 20% 22%;
+
+    --muted: 36 25% 94%;
+    --muted-foreground: 30 8% 45%;
+
+    --accent: 168 55% 42%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 4 78% 56%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 55% 42%;
+    --warning: 38 92% 52%;
+    --info: 212 80% 56%;
+
+    --urgent-important: 4 78% 56%;
+    --important: 32 78% 52%;
+    --urgent: 38 92% 52%;
+    --neither: 168 55% 42%;
+
+    --border: 30 15% 90%;
+    --input: 30 15% 90%;
+    --ring: 32 78% 52%;
+
+    --radius: 1rem;
+
+    --shadow-sm: 0 1px 2px 0 hsl(30 20% 20% / 0.05);
+    --shadow-md: 0 4px 16px -2px hsl(30 25% 25% / 0.08);
+    --shadow-lg: 0 12px 32px -8px hsl(32 60% 30% / 0.18);
+    --gradient-primary: linear-gradient(135deg, hsl(32 85% 58%), hsl(22 80% 52%));
+    --gradient-surface: linear-gradient(180deg, hsl(39 50% 98%), hsl(36 30% 94%));
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 28 14% 9%;
+    --foreground: 36 30% 94%;
+
+    --card: 28 14% 12%;
+    --card-foreground: 36 30% 94%;
+
+    --popover: 28 14% 12%;
+    --popover-foreground: 36 30% 94%;
+
+    --primary: 32 80% 58%;
+    --primary-foreground: 28 30% 10%;
+    --primary-soft: 30 30% 18%;
+
+    --secondary: 28 10% 16%;
+    --secondary-foreground: 36 30% 94%;
+
+    --muted: 28 10% 16%;
+    --muted-foreground: 30 10% 65%;
+
+    --accent: 168 50% 48%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 4 70% 58%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 50% 50%;
+    --warning: 38 90% 58%;
+    --info: 212 80% 62%;
+
+    --urgent-important: 4 75% 60%;
+    --important: 32 80% 58%;
+    --urgent: 38 90% 58%;
+    --neither: 168 50% 48%;
+
+    --border: 28 10% 20%;
+    --input: 28 10% 20%;
+    --ring: 32 80% 58%;
+
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
+    --shadow-md: 0 4px 16px -2px hsl(0 0% 0% / 0.4);
+    --shadow-lg: 0 12px 32px -8px hsl(0 0% 0% / 0.5);
+    --gradient-primary: linear-gradient(135deg, hsl(32 85% 60%), hsl(22 75% 50%));
+    --gradient-surface: linear-gradient(180deg, hsl(28 14% 12%), hsl(28 14% 9%));
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  h1, h2, h3, h4, h5 {
+    font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer utilities {
+  .shadow-soft { box-shadow: var(--shadow-sm); }
+  .shadow-elev { box-shadow: var(--shadow-md); }
+  .shadow-pop  { box-shadow: var(--shadow-lg); }
+  .bg-gradient-primary { background: var(--gradient-primary); }
+  .bg-gradient-surface { background: var(--gradient-surface); }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}
