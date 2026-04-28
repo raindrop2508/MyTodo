@@ -9,7 +9,12 @@
         android:id="@+id/today"
         android:name="com.gordon.mypotato.ui.today.TodayFragment"
         android:label="@string/nav_today"
-        tools:layout="@layout/fragment_today" />
+        tools:layout="@layout/fragment_today">
+
+        <action
+            android:id="@+id/action_today_to_taskDetail"
+            app:destination="@id/taskDetail" />
+    </fragment>
 
     <fragment
         android:id="@+id/tasks"
@@ -28,5 +33,22 @@
         android:name="com.gordon.mypotato.ui.settings.SettingsFragment"
         android:label="@string/nav_settings"
         tools:layout="@layout/fragment_settings" />
+
+    <fragment
+        android:id="@+id/taskDetail"
+        android:name="com.gordon.mypotato.ui.tasks.TaskDetailFragment"
+        android:label="@string/task_detail_title"
+        tools:layout="@layout/fragment_task_detail">
+
+        <argument
+            android:name="taskId"
+            app:argType="string"
+            android:defaultValue="" />
+
+        <argument
+            android:name="taskTitle"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
 
 </navigation>
