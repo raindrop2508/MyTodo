@@ -84,6 +84,20 @@
     <string name="settings_export_csv_placeholder">导出 CSV 仅为占位演示，暂未接入真实文件导出。</string>
     <string name="settings_import_json_placeholder">导入 JSON 仅为占位演示，暂未接入真实文件导入。</string>
     <string name="settings_version_format">%1$s · v%2$s</string>
+    <string name="statistics_title">统计</string>
+    <string name="statistics_subtitle">专注概览</string>
+    <string name="statistics_mode_day">日</string>
+    <string name="statistics_mode_month">月</string>
+    <string name="statistics_mode_year">年</string>
+    <string name="statistics_focus_minutes_label">专注时间（分钟）</string>
+    <string name="statistics_completed_count_label">完成数</string>
+    <string name="statistics_day_section_title">今日时间流</string>
+    <string name="statistics_month_chart_title">本月专注时间分布</string>
+    <string name="statistics_year_chart_title">年度专注时间分布</string>
+    <string name="statistics_legend_title">分类图例</string>
+    <string name="statistics_single_series_label">专注时间</string>
+    <string name="statistics_timeline_empty_label">当前时间段暂无任务</string>
+    <string name="statistics_category_other">未分类</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
