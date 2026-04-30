@@ -82,7 +82,8 @@
     <string name="settings_theme_system">跟随系统</string>
     <string name="settings_theme_light">浅色</string>
     <string name="settings_theme_dark">深色</string>
-    <string name="settings_theme_selected_hint">当前为演示切换：%1$s（未持久化）</string>
+    <string name="settings_theme_selected_hint">当前应用已锁定浅色主题：%1$s</string>
+    <string name="settings_theme_locked_hint">当前版本暂未适配深色主题，已固定使用浅色显示。</string>
     <string name="settings_pomodoro_section">番茄钟</string>
     <string name="settings_focus_minutes">专注分钟</string>
     <string name="settings_break_minutes">休息分钟</string>

@@ -19,7 +19,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     private val binding: FragmentSettingsBinding
         get() = _binding!!
 
-    private var selectedThemeMode: ThemeMode = ThemeMode.SYSTEM
+    private var selectedThemeMode: ThemeMode = ThemeMode.LIGHT
     private var focusMinutes: Int = DEFAULT_FOCUS_MINUTES
     private var breakMinutes: Int = DEFAULT_BREAK_MINUTES
 
@@ -52,16 +52,26 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     }
 
     private fun setupThemeButtons() {
-        binding.btnThemeSystem.setOnClickListener { selectThemeMode(ThemeMode.SYSTEM) }
+        binding.btnThemeSystem.apply {
+            alpha = DISABLED_THEME_ALPHA
+            setOnClickListener { showToast(getString(R.string.settings_theme_locked_hint)) }
+        }
         binding.btnThemeLight.setOnClickListener { selectThemeMode(ThemeMode.LIGHT) }
-        binding.btnThemeDark.setOnClickListener { selectThemeMode(ThemeMode.DARK) }
+        binding.btnThemeDark.apply {
+            alpha = DISABLED_THEME_ALPHA
+            setOnClickListener { showToast(getString(R.string.settings_theme_locked_hint)) }
+        }
         renderThemeButtons()
     }
 
     private fun selectThemeMode(mode: ThemeMode) {
         selectedThemeMode = mode
         renderThemeButtons()
-        showToast(getString(R.string.settings_theme_selected_hint, getString(mode.labelRes)))
+        if (mode == ThemeMode.LIGHT) {
+            showToast(getString(R.string.settings_theme_selected_hint, getString(mode.labelRes)))
+        } else {
+            showToast(getString(R.string.settings_theme_locked_hint))
+        }
     }
 
     private fun renderThemeButtons() {
@@ -175,6 +185,6 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         private const val MIN_MINUTES = 1
         private const val MAX_MINUTES = 120
         private const val DEFAULT_VERSION_NAME = "1.0"
+        private const val DISABLED_THEME_ALPHA = 0.45f
     }
 }
-
