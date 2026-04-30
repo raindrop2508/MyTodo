@@ -5,11 +5,15 @@
     <!-- Base application theme (Material3 - dark). -->
     <style name="Base.Theme.MyPotato" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/purple_200</item>
-        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorOnPrimary">@color/ink_primary</item>
         <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorOnSecondary">@color/black</item>
-        <item name="colorSurface">@color/black</item>
+        <item name="colorOnSecondary">@color/ink_primary</item>
+        <item name="colorSurface">#FF191411</item>
+        <item name="colorSurfaceVariant">#FF261F1A</item>
         <item name="colorOnSurface">@color/white</item>
+        <item name="colorOnSurfaceVariant">#FFD9CFC6</item>
+        <item name="colorOutline">#FFE8D9CD</item>
+        <item name="colorOutlineVariant">#FF8E7F74</item>
         <item name="android:statusBarColor">?attr/colorSurface</item>
     </style>
 </resources>

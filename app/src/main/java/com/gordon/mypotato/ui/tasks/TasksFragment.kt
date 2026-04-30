@@ -35,6 +35,7 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
     private var typeFilter: TypeFilter = TypeFilter.ALL
     private var priorityFilter: PriorityFilter = PriorityFilter.ALL
     private var keyword: String = ""
+    private var filtersExpanded: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,6 +51,7 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         setupHeader()
         setupTaskList()
         setupSearch()
+        setupFilterSummaryCard()
         setupStatusFilter()
         setupTypeFilter()
         setupPriorityFilter()
@@ -103,6 +105,19 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
             renderTasks()
         }
         Log.d(TAG, "setupSearch out")
+    }
+
+    /**
+     * 功能：初始化筛选摘要卡片并绑定展开/收起交互。
+     * 入参：无。
+     * 出参：无。
+     * 异常：无。
+     */
+    private fun setupFilterSummaryCard() {
+        binding.cardFilterSummary.setOnClickListener { toggleFilterPanel() }
+        binding.btnToggleFilters.setOnClickListener { toggleFilterPanel() }
+        updateFilterSummary()
+        updateFilterPanel()
     }
 
     /**
@@ -204,7 +219,75 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         }
         adapter.submitData(filtered)
         binding.layoutTasksEmptyState.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+        updateFilterSummary()
         Log.d(TAG, "renderTasks out filteredCount=${filtered.size}")
+    }
+
+    /**
+     * 功能：切换筛选区的展开/收起状态。
+     * 入参：无。
+     * 出参：无。
+     * 异常：无。
+     */
+    private fun toggleFilterPanel() {
+        filtersExpanded = !filtersExpanded
+        updateFilterPanel()
+    }
+
+    /**
+     * 功能：刷新筛选区显隐与按钮文案。
+     * 入参：无。
+     * 出参：无。
+     * 异常：无。
+     */
+    private fun updateFilterPanel() {
+        binding.layoutFilterPanel.visibility = if (filtersExpanded) View.VISIBLE else View.GONE
+        binding.btnToggleFilters.text = if (filtersExpanded) {
+            getString(R.string.tasks_filters_collapse)
+        } else {
+            getString(R.string.tasks_filters_expand)
+        }
+    }
+
+    /**
+     * 功能：根据当前筛选状态生成摘要文案。
+     * 入参：无。
+     * 出参：无。
+     * 异常：无。
+     */
+    private fun updateFilterSummary() {
+        val summary = listOf(
+            getStatusFilterLabel(),
+            getTypeFilterLabel(),
+            getPriorityFilterLabel()
+        ).joinToString(" · ")
+        binding.tvFilterSummary.text = getString(R.string.tasks_filter_summary_format, summary)
+    }
+
+    private fun getStatusFilterLabel(): String {
+        return when (statusFilter) {
+            StatusFilter.TODO -> getString(R.string.tasks_filter_pending)
+            StatusFilter.DONE -> getString(R.string.tasks_filter_completed)
+            StatusFilter.ALL -> getString(R.string.tasks_filter_all)
+        }
+    }
+
+    private fun getTypeFilterLabel(): String {
+        return when (typeFilter) {
+            TypeFilter.ONE_TIME -> getString(R.string.tasks_filter_one_time)
+            TypeFilter.LONG -> getString(R.string.tasks_filter_long_task)
+            TypeFilter.ALL -> getString(R.string.tasks_filter_all_types)
+        }
+    }
+
+    private fun getPriorityFilterLabel(): String {
+        return when (priorityFilter) {
+            PriorityFilter.UI -> getString(R.string.tasks_filter_ui)
+            PriorityFilter.I -> getString(R.string.tasks_filter_i)
+            PriorityFilter.U -> getString(R.string.tasks_filter_u)
+            PriorityFilter.N -> getString(R.string.tasks_filter_n)
+            PriorityFilter.ALL -> getString(R.string.tasks_filter_all_priorities)
+        }
     }
 
     /**

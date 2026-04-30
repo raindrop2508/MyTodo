@@ -1,3 +1,14 @@
 <resources>
-    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="page_horizontal_padding">16dp</dimen>
+    <dimen name="page_top_padding">12dp</dimen>
+    <dimen name="page_bottom_padding">24dp</dimen>
+    <dimen name="page_title_size">28sp</dimen>
+    <dimen name="page_subtitle_size">14sp</dimen>
+    <dimen name="section_title_size">18sp</dimen>
+    <dimen name="body_small_size">12sp</dimen>
+    <dimen name="body_medium_size">14sp</dimen>
+    <dimen name="card_corner_radius">16dp</dimen>
+    <dimen name="tag_corner_radius">16dp</dimen>
+    <dimen name="button_corner_radius">16dp</dimen>
+    <dimen name="fab_margin">20dp</dimen>
 </resources>

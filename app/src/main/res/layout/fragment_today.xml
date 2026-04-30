@@ -4,9 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingStart="16dp"
-    android:paddingTop="12dp"
-    android:paddingEnd="16dp">
+    android:background="@color/warm_background"
+    android:paddingStart="@dimen/page_horizontal_padding"
+    android:paddingTop="@dimen/page_top_padding"
+    android:paddingEnd="@dimen/page_horizontal_padding">
 
     <TextView
         android:id="@+id/tv_today_title"
@@ -14,7 +15,7 @@
         android:layout_height="wrap_content"
         android:text="@string/today_title"
         android:textColor="?attr/colorOnSurface"
-        android:textSize="34sp"
+        android:textSize="@dimen/page_title_size"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -24,8 +25,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:textColor="?attr/colorOnSurface"
-        android:textSize="16sp"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textSize="@dimen/page_subtitle_size"
         app:layout_constraintStart_toStartOf="@id/tv_today_title"
         app:layout_constraintTop_toBottomOf="@id/tv_today_title"
         tools:text="4月28日 星期二" />
@@ -35,9 +36,11 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
-        app:cardBackgroundColor="@color/purple_500"
-        app:cardCornerRadius="20dp"
+        app:cardBackgroundColor="@color/brand_fill_soft"
+        app:cardCornerRadius="@dimen/card_corner_radius"
         app:cardElevation="0dp"
+        app:strokeColor="?attr/colorOutline"
+        app:strokeWidth="1dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_today_date">
@@ -53,8 +56,8 @@
                 android:layout_height="wrap_content"
                 android:text="@string/today_summary_greeting"
                 android:textAllCaps="true"
-                android:textColor="@android:color/white"
-                android:textSize="12sp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="@dimen/body_small_size"
                 android:textStyle="bold" />
 
             <TextView
@@ -63,8 +66,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="@string/today_summary_focus"
-                android:textColor="@android:color/white"
-                android:textSize="30sp"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="@dimen/page_title_size"
                 android:textStyle="bold" />
 
             <LinearLayout
@@ -84,8 +87,8 @@
                         android:id="@+id/tv_done_count"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@android:color/white"
-                        android:textSize="30sp"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="@dimen/page_title_size"
                         android:textStyle="bold"
                         tools:text="0" />
 
@@ -93,8 +96,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/today_metric_done"
-                        android:textColor="@android:color/white"
-                        android:textSize="14sp" />
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textSize="@dimen/body_medium_size" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -107,8 +110,8 @@
                         android:id="@+id/tv_focus_min"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@android:color/white"
-                        android:textSize="30sp"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="@dimen/page_title_size"
                         android:textStyle="bold"
                         tools:text="0" />
 
@@ -116,8 +119,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/today_metric_focus"
-                        android:textColor="@android:color/white"
-                        android:textSize="14sp" />
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textSize="@dimen/body_medium_size" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -130,8 +133,8 @@
                         android:id="@+id/tv_streak"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@android:color/white"
-                        android:textSize="30sp"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="@dimen/page_title_size"
                         android:textStyle="bold"
                         tools:text="0" />
 
@@ -139,8 +142,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/today_metric_streak"
-                        android:textColor="@android:color/white"
-                        android:textSize="14sp" />
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textSize="@dimen/body_medium_size" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
@@ -233,7 +236,7 @@
             android:background="@drawable/ic_launcher_background"
             android:padding="20dp"
             android:src="@android:drawable/ic_menu_my_calendar"
-            app:tint="@color/purple_500" />
+            app:tint="@color/brand_primary" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -241,7 +244,7 @@
             android:layout_marginTop="14dp"
             android:text="@string/today_empty_title"
             android:textColor="?attr/colorOnSurface"
-            android:textSize="28sp"
+            android:textSize="@dimen/page_title_size"
             android:textStyle="bold" />
 
         <TextView
@@ -249,19 +252,19 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:text="@string/today_empty_hint"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="16sp" />
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="@dimen/body_medium_size" />
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_task"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="6dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginEnd="@dimen/page_horizontal_padding"
+        android:layout_marginBottom="@dimen/fab_margin"
         android:contentDescription="@string/today_fab_add_task"
         android:src="@android:drawable/ic_input_add"
-        app:backgroundTint="@color/purple_500"
+        app:backgroundTint="@color/brand_primary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:tint="@android:color/white" />

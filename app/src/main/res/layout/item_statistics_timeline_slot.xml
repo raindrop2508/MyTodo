@@ -34,9 +34,9 @@
             android:layout_height="wrap_content"
             android:visibility="gone"
             app:cardBackgroundColor="?attr/colorSurface"
-            app:cardCornerRadius="18dp"
+            app:cardCornerRadius="@dimen/card_corner_radius"
             app:cardElevation="0dp"
-            app:strokeColor="?attr/colorOutlineVariant"
+            app:strokeColor="?attr/colorOutline"
             app:strokeWidth="1dp">
 
             <LinearLayout

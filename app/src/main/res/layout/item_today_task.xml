@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="10dp"
+    android:layout_marginBottom="12dp"
     app:cardBackgroundColor="?attr/colorSurface"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="1dp"
+    app:cardCornerRadius="@dimen/card_corner_radius"
+    app:cardElevation="0dp"
     app:strokeColor="?attr/colorOutline"
     app:strokeWidth="1dp">
 
@@ -15,14 +15,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="14dp">
+        android:padding="16dp">
 
         <TextView
             android:id="@+id/tv_task_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="?attr/colorOnSurface"
-            android:textSize="17sp"
+            android:textSize="@dimen/section_title_size"
             android:textStyle="bold"
             tools:text="完成周报并发送团队邮件" />
 
@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:textColor="?attr/colorOnSurface"
-            android:textSize="14sp"
+            android:textSize="@dimen/body_medium_size"
             android:visibility="gone"
             tools:text="同步项目进度和风险事项"
             tools:visibility="visible" />
@@ -54,7 +54,7 @@
                 android:paddingEnd="8dp"
                 android:paddingBottom="4dp"
                 android:textColor="?attr/colorOnSurface"
-                android:textSize="12sp"
+                android:textSize="@dimen/body_small_size"
                 tools:text="长时任务" />
 
             <TextView
@@ -68,7 +68,7 @@
                 android:paddingEnd="8dp"
                 android:paddingBottom="4dp"
                 android:textColor="?attr/colorOnSurface"
-                android:textSize="12sp"
+                android:textSize="@dimen/body_small_size"
                 tools:text="紧急且重要" />
         </LinearLayout>
     </LinearLayout>

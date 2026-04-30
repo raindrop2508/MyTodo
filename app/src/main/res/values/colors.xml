@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
+    <color name="purple_200">#FFD8C4FF</color>
+    <color name="purple_500">#FF7C3AED</color>
+    <color name="purple_700">#FF5B21B6</color>
+    <color name="teal_200">#FF8CD9CC</color>
+    <color name="teal_700">#FF167C74</color>
+    <color name="warm_background">#FFF8F1</color>
+    <color name="warm_surface">#FFFFFCF7</color>
+    <color name="warm_surface_variant">#FFF4E9DD</color>
+    <color name="ink_primary">#FF1E1916</color>
+    <color name="ink_muted">#FF6B625C</color>
+    <color name="outline_strong">#FF2F241D</color>
+    <color name="outline_soft">#FFB7A99B</color>
+    <color name="brand_primary">#FF7C3AED</color>
+    <color name="brand_primary_dark">#FF5B21B6</color>
+    <color name="brand_fill_soft">#FFF0E7FF</color>
     <color name="task_category_work">#E69524</color>
     <color name="task_category_life">#12A594</color>
     <color name="task_category_study">#3A7BE0</color>
