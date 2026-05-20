@@ -64,7 +64,7 @@
     <string name="tasks_filter_group_status">状态</string>
     <string name="tasks_filter_group_type">类型</string>
     <string name="tasks_filter_group_priority">优先级</string>
-    <string name="tasks_empty_title">这里还没有任务 🗂️</string>
+    <string name="tasks_empty_title">这里还没有任务</string>
     <string name="tasks_empty_hint">点击右下角按钮，创建你的第一条任务</string>
     <string name="tasks_fab_add_task">新增任务</string>
     <string name="tasks_type_long_task">长时任务</string>

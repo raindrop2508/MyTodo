@@ -21,6 +21,7 @@
     <color name="task_category_health">#E14A3D</color>
     <color name="task_urgent_highlight">#D97706</color>
     <color name="task_important_highlight">#B45309</color>
+    <color name="task_done_green">#03C078</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>

@@ -16,5 +16,12 @@
         <item name="colorOutlineVariant">@color/outline_soft</item>
         <item name="android:forceDarkAllowed">false</item>
         <item name="android:statusBarColor">?attr/colorSurface</item>
+        <item name="checkboxStyle">@style/Widget.MyPotato.CheckBox</item>
+    </style>
+
+    <style name="Widget.MyPotato.CheckBox" parent="Widget.Material3.CompoundButton.CheckBox">
+        <item name="android:button">@drawable/sel_checkbox_circle</item>
+        <item name="buttonTint">@null</item>
+        <item name="useMaterialThemeColors">false</item>
     </style>
 </resources>

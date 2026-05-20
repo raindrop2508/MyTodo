@@ -337,12 +337,10 @@
         app:layout_constraintTop_toTopOf="@id/rv_tasks">
 
         <ImageView
-            android:layout_width="72dp"
-            android:layout_height="72dp"
-            android:background="@drawable/ic_launcher_background"
-            android:padding="20dp"
-            android:src="@android:drawable/ic_menu_my_calendar"
-            app:tint="@color/brand_primary" />
+            android:layout_width="144dp"
+            android:layout_height="144dp"
+            android:padding="12dp"
+            android:src="@drawable/ic_data_none" />
 
         <TextView
             android:layout_width="wrap_content"

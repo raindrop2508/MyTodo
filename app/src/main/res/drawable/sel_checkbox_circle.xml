@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true">
+        <layer-list>
+            <item>
+                <shape android:shape="oval">
+                    <solid android:color="@color/task_done_green" />
+                    <size android:width="22dp" android:height="22dp" />
+                </shape>
+            </item>
+            <item android:drawable="@drawable/ic_check_white" android:bottom="4dp" android:left="4dp" android:right="4dp" android:top="4dp"/>
+        </layer-list>
+    </item>
+    <item>
+        <layer-list>
+            <item>
+                <shape android:shape="oval">
+                    <stroke android:width="2dp" android:color="?attr/colorOutline" />
+                    <solid android:color="@android:color/transparent" />
+                    <size android:width="22dp" android:height="22dp" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+</selector>

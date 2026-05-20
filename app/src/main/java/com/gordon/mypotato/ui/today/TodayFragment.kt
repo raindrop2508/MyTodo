@@ -1,5 +1,6 @@
 package com.gordon.mypotato.ui.today
 
+import android.graphics.Paint
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -13,6 +14,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gordon.mypotato.R
+import com.gordon.mypotato.databinding.BottomSheetAddTaskPlaceholderBinding
 import com.gordon.mypotato.databinding.FragmentTodayBinding
 import com.gordon.mypotato.databinding.ItemTodayTaskBinding
 import com.google.android.material.button.MaterialButton
@@ -30,8 +32,8 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
     private val binding: FragmentTodayBinding
         get() = _binding!!
 
-    private val allTasks: List<TodayTask> = buildMockTasks()
-    private val adapter = TodayTaskAdapter(::onTaskClicked)
+    private val allTasks: MutableList<TodayTask> = buildMockTasks().toMutableList()
+    private val adapter = TodayTaskAdapter(::onTaskClicked, ::onTaskCheckChanged)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -130,13 +132,14 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
     }
 
     /**
-     * 功能：按筛选条件过滤写死任务并刷新列表与空状态。
+     * 功能：按筛选条件过滤写死任务并刷新列表与空状态，已完成的任务自动排在未完成的后边。
      * 入参：filter 当前优先级筛选项。
      * 出参：无。
      * 异常：无。
      */
     private fun renderTasks(filter: PriorityFilter) {
         val filtered = allTasks.filter { task -> filter == PriorityFilter.ALL || task.priority == filter }
+            .sortedBy { it.done }
         Log.d(TAG, "renderTasks filter=$filter count=${filtered.size}")
         adapter.submitData(filtered)
         binding.layoutEmptyState.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
@@ -158,6 +161,33 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
     }
 
     /**
+     * 功能：处理任务勾选状态变更，更新数据并重新排序列表。
+     * 入参：task 当前任务，isChecked 勾选状态。
+     * 出参：无。
+     * 异常：无。
+     */
+    private fun onTaskCheckChanged(task: TodayTask, isChecked: Boolean) {
+        Log.d(TAG, "onTaskCheckChanged id=${task.id} isChecked=$isChecked")
+        val index = allTasks.indexOfFirst { it.id == task.id }
+        if (index != -1) {
+            allTasks[index] = allTasks[index].copy(done = isChecked)
+            
+            // 获取当前筛选条件并刷新列表
+            val checkedIds = binding.chipGroupPriority.checkedChipIds
+            val checkedId = checkedIds.firstOrNull() ?: R.id.chip_all
+            val filter = when (checkedId) {
+                R.id.chip_ui -> PriorityFilter.UI
+                R.id.chip_i -> PriorityFilter.I
+                R.id.chip_u -> PriorityFilter.U
+                R.id.chip_n -> PriorityFilter.N
+                else -> PriorityFilter.ALL
+            }
+            renderTasks(filter)
+            setupSummaryCard()
+        }
+    }
+
+    /**
      * 功能：展示“新增任务”BottomSheet 最小实现内容，支持字段输入、选中态切换与标题必填校验。
      * 入参：无。
      * 出参：无。
@@ -166,41 +196,22 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
     private fun showAddTaskBottomSheet() {
         val dialog = BottomSheetDialog(requireContext())
         val content = layoutInflater.inflate(R.layout.bottom_sheet_add_task_placeholder, null)
-
-        val titleLayout = content.findViewById<TextInputLayout>(R.id.til_task_title)
-        val titleInput = content.findViewById<TextInputEditText>(R.id.et_task_title)
-        val descriptionInput = content.findViewById<TextInputEditText>(R.id.et_task_content)
-        val noteInput = content.findViewById<TextInputEditText>(R.id.et_task_note)
-        val typeButtonGroup = content.findViewById<com.google.android.material.button.MaterialButtonToggleGroup>(R.id.group_task_type)
-        val categoryChipGroup = content.findViewById<ChipGroup>(R.id.group_task_category)
-        val urgentButton = content.findViewById<MaterialButton>(R.id.btn_task_urgent)
-        val importantButton = content.findViewById<MaterialButton>(R.id.btn_task_important)
-        val closeButton = content.findViewById<View>(R.id.btn_bottom_sheet_close)
-        val cancelButton = content.findViewById<View>(R.id.btn_bottom_sheet_cancel)
-        val saveButton = content.findViewById<View>(R.id.btn_bottom_sheet_create)
-
-        if (titleLayout == null || titleInput == null || descriptionInput == null || noteInput == null ||
-            typeButtonGroup == null || categoryChipGroup == null || urgentButton == null ||
-            importantButton == null || closeButton == null || cancelButton == null || saveButton == null
-        ) {
-            Log.e(TAG, "showAddTaskBottomSheet requiredViewMissing")
-            return
-        }
+        val sheetBinding = BottomSheetAddTaskPlaceholderBinding.bind(content)
 
         var selectedType = "one-time"
         var selectedCategory = "none"
         var urgent = false
         var important = false
 
-        typeButtonGroup.check(R.id.btn_type_one_time)
-        typeButtonGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+        sheetBinding.groupTaskType.check(R.id.btn_type_one_time)
+        sheetBinding.groupTaskType.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (!isChecked) return@addOnButtonCheckedListener
             selectedType = if (checkedId == R.id.btn_type_long_task) "long" else "one-time"
             Log.d(TAG, "showAddTaskBottomSheet typeChanged selectedType=$selectedType")
         }
 
-        categoryChipGroup.check(R.id.chip_category_none)
-        categoryChipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
+        sheetBinding.groupTaskCategory.check(R.id.chip_category_none)
+        sheetBinding.groupTaskCategory.setOnCheckedStateChangeListener { group, checkedIds ->
             if (checkedIds.isEmpty()) {
                 group.check(R.id.chip_category_none)
                 return@setOnCheckedStateChangeListener
@@ -215,39 +226,39 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
             Log.d(TAG, "showAddTaskBottomSheet categoryChanged selectedCategory=$selectedCategory")
         }
 
-        urgentButton.setOnClickListener {
+        sheetBinding.btnTaskUrgent.setOnClickListener {
             urgent = !urgent
-            updateToggleButtonStyle(urgentButton, urgent, R.color.task_urgent_highlight)
+            updateToggleButtonStyle(sheetBinding.btnTaskUrgent, urgent, R.color.task_urgent_highlight)
             Log.d(TAG, "showAddTaskBottomSheet urgentChanged urgent=$urgent")
         }
 
-        importantButton.setOnClickListener {
+        sheetBinding.btnTaskImportant.setOnClickListener {
             important = !important
-            updateToggleButtonStyle(importantButton, important, R.color.task_important_highlight)
+            updateToggleButtonStyle(sheetBinding.btnTaskImportant, important, R.color.task_important_highlight)
             Log.d(TAG, "showAddTaskBottomSheet importantChanged important=$important")
         }
 
-        closeButton.setOnClickListener {
+        sheetBinding.btnBottomSheetClose.setOnClickListener {
             Log.d(TAG, "showAddTaskBottomSheet clickClose")
             dialog.dismiss()
         }
 
-        cancelButton.setOnClickListener {
+        sheetBinding.btnBottomSheetCancel.setOnClickListener {
             Log.d(TAG, "showAddTaskBottomSheet clickCancel")
             dialog.dismiss()
         }
 
-        saveButton.setOnClickListener {
-            val title = titleInput.text?.toString()?.trim().orEmpty()
+        sheetBinding.btnBottomSheetCreate.setOnClickListener {
+            val title = sheetBinding.etTaskTitle.text?.toString()?.trim().orEmpty()
             Log.d(TAG, "showAddTaskBottomSheet clickSave title=$title type=$selectedType category=$selectedCategory urgent=$urgent important=$important")
             if (title.isBlank()) {
-                titleLayout.error = getString(R.string.today_bottom_sheet_title_required)
+                sheetBinding.tilTaskTitle.error = getString(R.string.today_bottom_sheet_title_required)
                 Log.d(TAG, "showAddTaskBottomSheet saveBlocked reason=blankTitle")
                 return@setOnClickListener
             }
-            titleLayout.error = null
-            val description = descriptionInput.text?.toString()?.trim().orEmpty()
-            val note = noteInput.text?.toString()?.trim().orEmpty()
+            sheetBinding.tilTaskTitle.error = null
+            val description = sheetBinding.etTaskContent.text?.toString()?.trim().orEmpty()
+            val note = sheetBinding.etTaskNote.text?.toString()?.trim().orEmpty()
             Log.d(TAG, "showAddTaskBottomSheet savePayload title=$title description=$description note=$note type=$selectedType category=$selectedCategory urgent=$urgent important=$important")
             // TODO: 接入新建任务表单保存逻辑（Room/Repository）。
             dialog.dismiss()
@@ -319,7 +330,8 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
     }
 
     private class TodayTaskAdapter(
-        private val onItemClick: (TodayTask) -> Unit
+        private val onItemClick: (TodayTask) -> Unit,
+        private val onCheckChanged: (TodayTask, Boolean) -> Unit
     ) : RecyclerView.Adapter<TodayTaskAdapter.TodayTaskViewHolder>() {
 
         private val data = mutableListOf<TodayTask>()
@@ -333,7 +345,7 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TodayTaskViewHolder {
             val inflater = LayoutInflater.from(parent.context)
             val binding = ItemTodayTaskBinding.inflate(inflater, parent, false)
-            return TodayTaskViewHolder(binding, onItemClick)
+            return TodayTaskViewHolder(binding, onItemClick, onCheckChanged)
         }
 
         override fun onBindViewHolder(holder: TodayTaskViewHolder, position: Int) {
@@ -344,11 +356,20 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
 
         class TodayTaskViewHolder(
             private val binding: ItemTodayTaskBinding,
-            private val onItemClick: (TodayTask) -> Unit
+            private val onItemClick: (TodayTask) -> Unit,
+            private val onCheckChanged: (TodayTask, Boolean) -> Unit
         ) : RecyclerView.ViewHolder(binding.root) {
 
             fun bind(item: TodayTask) {
                 binding.tvTaskTitle.text = item.title
+                if (item.done) {
+                    binding.tvTaskTitle.paintFlags = binding.tvTaskTitle.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                    binding.tvTaskTitle.alpha = 0.5f
+                } else {
+                    binding.tvTaskTitle.paintFlags = binding.tvTaskTitle.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                    binding.tvTaskTitle.alpha = 1.0f
+                }
+
                 binding.tvTaskContent.visibility = if (item.content.isNullOrBlank()) View.GONE else View.VISIBLE
                 binding.tvTaskContent.text = item.content.orEmpty()
                 binding.tvTypeTag.text = if (item.isLongTask) {
@@ -357,6 +378,13 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
                     binding.root.context.getString(R.string.today_task_type_once)
                 }
                 binding.tvPriorityTag.text = getPriorityText(item)
+
+                binding.cbTaskDone.setOnCheckedChangeListener(null)
+                binding.cbTaskDone.isChecked = item.done
+                binding.cbTaskDone.setOnCheckedChangeListener { _, isChecked ->
+                    onCheckChanged(item, isChecked)
+                }
+
                 binding.root.setOnClickListener { onItemClick(item) }
             }
 
