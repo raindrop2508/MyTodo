@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/warm_background"
+    android:background="@color/page_bg_light"
     android:paddingStart="@dimen/page_horizontal_padding"
     android:paddingTop="@dimen/page_top_padding"
     android:paddingEnd="@dimen/page_horizontal_padding">
@@ -14,37 +14,40 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/tasks_title"
-        android:textColor="?attr/colorOnSurface"
+        android:textColor="@color/text_primary"
         android:textSize="@dimen/page_title_size"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/tv_tasks_total"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:textColor="?attr/colorOnSurfaceVariant"
-        android:textSize="@dimen/page_subtitle_size"
-        app:layout_constraintStart_toStartOf="@id/tv_tasks_title"
-        app:layout_constraintTop_toBottomOf="@id/tv_tasks_title"
-        tools:text="0 条任务" />
+    <ImageView
+        android:id="@+id/iv_tasks_filter"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_dropdown"
+        app:tint="@color/text_primary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tv_tasks_title"
+        app:layout_constraintBottom_toBottomOf="@id/tv_tasks_title" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_tasks_search"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        app:boxCornerRadiusBottomEnd="@dimen/button_corner_radius"
-        app:boxCornerRadiusBottomStart="@dimen/button_corner_radius"
-        app:boxCornerRadiusTopEnd="@dimen/button_corner_radius"
-        app:boxCornerRadiusTopStart="@dimen/button_corner_radius"
+        android:layout_marginTop="16dp"
+        app:boxBackgroundColor="@color/card_bg_white"
+        app:boxCornerRadiusBottomEnd="@dimen/search_bar_radius"
+        app:boxCornerRadiusBottomStart="@dimen/search_bar_radius"
+        app:boxCornerRadiusTopEnd="@dimen/search_bar_radius"
+        app:boxCornerRadiusTopStart="@dimen/search_bar_radius"
+        app:boxStrokeWidth="0dp"
+        app:boxStrokeWidthFocused="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_tasks_total"
-        app:startIconDrawable="@android:drawable/ic_menu_search">
+        app:layout_constraintTop_toBottomOf="@id/tv_tasks_title"
+        app:startIconDrawable="@android:drawable/ic_menu_search"
+        app:startIconTint="@color/text_secondary">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_tasks_search"
@@ -54,274 +57,137 @@
             android:imeOptions="actionDone"
             android:inputType="text"
             android:maxLines="1"
+            android:textColorHint="@color/text_hint"
             android:textSize="@dimen/body_medium_size" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_filter_summary"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        app:cardBackgroundColor="?attr/colorSurface"
-        app:cardCornerRadius="@dimen/card_corner_radius"
-        app:cardElevation="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/til_tasks_search"
-        app:strokeColor="?attr/colorOutline"
-        app:strokeWidth="1dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="16dp">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tv_filter_summary_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/tasks_filters_title"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="@dimen/body_medium_size"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tv_filter_summary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    android:textSize="@dimen/body_small_size"
-                    tools:text="已选：全部状态 · 全部类型 · 全部优先级" />
-            </LinearLayout>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_toggle_filters"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:minWidth="0dp"
-                android:text="@string/tasks_filters_expand"
-                android:textAllCaps="false" />
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
     <LinearLayout
-        android:id="@+id/layout_filter_panel"
+        android:id="@+id/layout_tabs"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:orientation="vertical"
-        android:visibility="gone"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal"
+        android:weightSum="3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/card_filter_summary"
-        tools:visibility="visible">
+        app:layout_constraintTop_toBottomOf="@id/til_tasks_search">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tab_category"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/tasks_filter_group_status"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="@dimen/body_small_size"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="按类别"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/body_medium_size"
             android:textStyle="bold" />
-
-        <HorizontalScrollView
-            android:id="@+id/hsv_status"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:overScrollMode="never"
-            android:scrollbars="none">
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chip_group_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:chipSpacingHorizontal="8dp"
-                app:selectionRequired="true"
-                app:singleLine="true"
-                app:singleSelection="true">
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_status_all"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checkable="true"
-                    android:checked="true"
-                    android:text="@string/tasks_filter_all" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_status_todo"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checkable="true"
-                    android:text="@string/tasks_filter_pending" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_status_done"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checkable="true"
-                    android:text="@string/tasks_filter_completed" />
-            </com.google.android.material.chip.ChipGroup>
-        </HorizontalScrollView>
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tab_quadrant"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="@string/tasks_filter_group_type"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="@dimen/body_small_size"
-            android:textStyle="bold" />
-
-        <HorizontalScrollView
-            android:id="@+id/hsv_type"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:overScrollMode="never"
-            android:scrollbars="none">
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chip_group_type"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:chipSpacingHorizontal="8dp"
-                app:selectionRequired="true"
-                app:singleLine="true"
-                app:singleSelection="true">
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_type_all"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checkable="true"
-                    android:checked="true"
-                    android:text="@string/tasks_filter_all_types" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_type_one_time"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checkable="true"
-                    android:text="@string/tasks_filter_one_time" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_type_long"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checkable="true"
-                    android:text="@string/tasks_filter_long_task" />
-            </com.google.android.material.chip.ChipGroup>
-        </HorizontalScrollView>
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="按象限"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/body_medium_size" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tab_status"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="@string/tasks_filter_group_priority"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="@dimen/body_small_size"
-            android:textStyle="bold" />
-
-        <HorizontalScrollView
-            android:id="@+id/hsv_priority"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:overScrollMode="never"
-            android:scrollbars="none">
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chip_group_priority"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:chipSpacingHorizontal="8dp"
-                app:selectionRequired="true"
-                app:singleLine="true"
-                app:singleSelection="true">
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_priority_all"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checkable="true"
-                    android:checked="true"
-                    android:text="@string/tasks_filter_all_priorities" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_priority_ui"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checkable="true"
-                    android:text="@string/tasks_filter_ui"
-                    app:chipIcon="@drawable/ic_dot_red"
-                    app:chipIconVisible="true" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_priority_i"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checkable="true"
-                    android:text="@string/tasks_filter_i"
-                    app:chipIcon="@drawable/ic_dot_orange"
-                    app:chipIconVisible="true" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_priority_u"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checkable="true"
-                    android:text="@string/tasks_filter_u"
-                    app:chipIcon="@drawable/ic_dot_orange"
-                    app:chipIconVisible="true" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_priority_n"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checkable="true"
-                    android:text="@string/tasks_filter_n"
-                    app:chipIcon="@drawable/ic_dot_teal"
-                    app:chipIconVisible="true" />
-            </com.google.android.material.chip.ChipGroup>
-        </HorizontalScrollView>
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="按状态"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/body_medium_size" />
     </LinearLayout>
+
+    <View
+        android:id="@+id/tab_indicator"
+        android:layout_width="60dp"
+        android:layout_height="2dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/brand_primary"
+        app:layout_constraintEnd_toEndOf="@id/layout_tabs"
+        app:layout_constraintHorizontal_bias="0.16"
+        app:layout_constraintStart_toStartOf="@id/layout_tabs"
+        app:layout_constraintTop_toBottomOf="@id/layout_tabs" />
+
+    <HorizontalScrollView
+        android:id="@+id/hsv_category_filters"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:scrollbars="none"
+        android:overScrollMode="never"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tab_indicator">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chip_group_category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:chipSpacingHorizontal="8dp"
+            app:singleLine="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_cat_all"
+                style="@style/Widget.MyPotato.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:checked="true"
+                android:text="全部" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_cat_study"
+                style="@style/Widget.MyPotato.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="学习   1" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_cat_work"
+                style="@style/Widget.MyPotato.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="工作   2" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_cat_life"
+                style="@style/Widget.MyPotato.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="生活" />
+                
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_cat_health"
+                style="@style/Widget.MyPotato.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="健康   1" />
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_tasks"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:clipToPadding="false"
         android:paddingBottom="100dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/layout_filter_panel"
+        app:layout_constraintTop_toBottomOf="@id/hsv_category_filters"
         tools:listitem="@layout/item_today_task" />
 
     <LinearLayout
@@ -337,17 +203,17 @@
         app:layout_constraintTop_toTopOf="@id/rv_tasks">
 
         <ImageView
-            android:layout_width="144dp"
-            android:layout_height="144dp"
-            android:padding="12dp"
-            android:src="@drawable/ic_data_none" />
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:src="@drawable/ic_calendar"
+            app:tint="@color/text_hint" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             android:text="@string/tasks_empty_title"
-            android:textColor="?attr/colorOnSurface"
+            android:textColor="@color/text_primary"
             android:textSize="@dimen/page_title_size"
             android:textStyle="bold" />
 
@@ -356,7 +222,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:text="@string/tasks_empty_hint"
-            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textColor="@color/text_secondary"
             android:textSize="@dimen/body_medium_size" />
     </LinearLayout>
 
@@ -368,9 +234,9 @@
         android:layout_marginBottom="@dimen/fab_margin"
         android:contentDescription="@string/tasks_fab_add_task"
         android:src="@android:drawable/ic_input_add"
-        app:backgroundTint="@color/brand_primary"
+        app:backgroundTint="@color/brand_fab_bg"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:tint="@android:color/white" />
+        app:tint="@color/text_primary" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

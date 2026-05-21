@@ -47,7 +47,6 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupHeaderDate()
-        setupSummaryCard()
         setupTaskList()
         setupPriorityFilter()
         setupFab()
@@ -69,22 +68,6 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
         val dateText = SimpleDateFormat("M月d日 EEEE", Locale.CHINA).format(Date())
         Log.d(TAG, "setupHeaderDate dateText=$dateText")
         binding.tvTodayDate.text = dateText
-    }
-
-    /**
-     * 功能：设置统计卡片数据（最小实现使用写死数据）。
-     * 入参：无。
-     * 出参：无。
-     * 异常：无。
-     */
-    private fun setupSummaryCard() {
-        val done = allTasks.count { it.done }
-        val focusMin = 95
-        val streak = 3
-        Log.d(TAG, "setupSummaryCard done=$done focusMin=$focusMin streak=$streak")
-        binding.tvDoneCount.text = done.toString()
-        binding.tvFocusMin.text = focusMin.toString()
-        binding.tvStreak.text = streak.toString()
     }
 
     /**
@@ -183,7 +166,6 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
                 else -> PriorityFilter.ALL
             }
             renderTasks(filter)
-            setupSummaryCard()
         }
     }
 
@@ -228,13 +210,13 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
 
         sheetBinding.btnTaskUrgent.setOnClickListener {
             urgent = !urgent
-            updateToggleButtonStyle(sheetBinding.btnTaskUrgent, urgent, R.color.task_urgent_highlight)
+            updateToggleButtonStyle(sheetBinding.btnTaskUrgent, urgent, R.color.state_error_red)
             Log.d(TAG, "showAddTaskBottomSheet urgentChanged urgent=$urgent")
         }
 
         sheetBinding.btnTaskImportant.setOnClickListener {
             important = !important
-            updateToggleButtonStyle(sheetBinding.btnTaskImportant, important, R.color.task_important_highlight)
+            updateToggleButtonStyle(sheetBinding.btnTaskImportant, important, R.color.state_chart_orange)
             Log.d(TAG, "showAddTaskBottomSheet importantChanged important=$important")
         }
 
@@ -307,10 +289,11 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
     private fun buildMockTasks(): List<TodayTask> {
         // TODO: 接入 Room/Repository 真实任务数据并替换当前写死数据源。
         return listOf(
-            TodayTask("task_001", "完成周报并发送团队邮件", "同步项目进度和风险事项", true, false, true, PriorityFilter.UI),
-            TodayTask("task_002", "整理下周需求评审材料", "准备评审议程与需求变更说明", false, true, true, PriorityFilter.I),
-            TodayTask("task_003", "预约体检时间", "联系医院并确认可预约时段", false, false, true, PriorityFilter.U),
-            TodayTask("task_004", "阅读技术文章并记录摘要", "输入输出模型相关文章", false, false, false, PriorityFilter.N)
+            TodayTask("task_001", "完成项目原型设计", "同步项目进度和风险事项", true, false, true, PriorityFilter.UI, category = "工作", minutes = 60, steps = 5),
+            TodayTask("task_002", "购买生活用品", "准备评审议程与需求变更说明", false, true, true, PriorityFilter.I, category = "购物", minutes = 0, steps = 0),
+            TodayTask("task_003", "回复客户邮件", "联系医院并确认可预约时段", false, false, true, PriorityFilter.U, category = "工作", minutes = 0, steps = 0, done = true),
+            TodayTask("task_004", "学习React新特性", "输入输出模型相关文章", true, false, false, PriorityFilter.N, category = "学习", minutes = 120, steps = 3),
+            TodayTask("task_005", "晚间跑步", "输入输出模型相关文章", true, false, false, PriorityFilter.N, category = "健康", minutes = 30, steps = 0)
         )
     }
 
@@ -322,6 +305,9 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
         val urgent: Boolean,
         val important: Boolean,
         val priority: PriorityFilter,
+        val category: String = "工作",
+        val minutes: Int = 0,
+        val steps: Int = 0,
         val done: Boolean = false
     )
 
@@ -363,21 +349,33 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
             fun bind(item: TodayTask) {
                 binding.tvTaskTitle.text = item.title
                 if (item.done) {
-                    binding.tvTaskTitle.paintFlags = binding.tvTaskTitle.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                     binding.tvTaskTitle.alpha = 0.5f
                 } else {
-                    binding.tvTaskTitle.paintFlags = binding.tvTaskTitle.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
                     binding.tvTaskTitle.alpha = 1.0f
                 }
 
-                binding.tvTaskContent.visibility = if (item.content.isNullOrBlank()) View.GONE else View.VISIBLE
-                binding.tvTaskContent.text = item.content.orEmpty()
+                binding.tvCategoryTag.text = item.category
+                bindCategoryColor(item.category, binding.tvCategoryTag)
+
                 binding.tvTypeTag.text = if (item.isLongTask) {
                     binding.root.context.getString(R.string.today_task_type_long)
                 } else {
                     binding.root.context.getString(R.string.today_task_type_once)
                 }
-                binding.tvPriorityTag.text = getPriorityText(item)
+
+                if (item.minutes > 0) {
+                    binding.tvTimeTag.visibility = View.VISIBLE
+                    binding.tvTimeTag.text = "${item.minutes}分钟"
+                } else {
+                    binding.tvTimeTag.visibility = View.GONE
+                }
+
+                if (item.steps > 0) {
+                    binding.tvStepTag.visibility = View.VISIBLE
+                    binding.tvStepTag.text = "${item.steps}个步骤"
+                } else {
+                    binding.tvStepTag.visibility = View.GONE
+                }
 
                 binding.cbTaskDone.setOnCheckedChangeListener(null)
                 binding.cbTaskDone.isChecked = item.done
@@ -388,12 +386,34 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
                 binding.root.setOnClickListener { onItemClick(item) }
             }
 
-            private fun getPriorityText(item: TodayTask): String {
-                val context = binding.root.context
-                if (item.urgent && item.important) return context.getString(R.string.today_priority_ui)
-                if (item.important) return context.getString(R.string.today_priority_i)
-                if (item.urgent) return context.getString(R.string.today_priority_u)
-                return context.getString(R.string.today_priority_n)
+            private fun bindCategoryColor(category: String, textView: TextView) {
+                val context = textView.context
+                val bgRes: Int
+                val textRes: Int
+                when (category) {
+                    "工作" -> {
+                        bgRes = R.color.tag_work_bg
+                        textRes = R.color.tag_work_text
+                    }
+                    "购物" -> {
+                        bgRes = R.color.tag_shopping_bg
+                        textRes = R.color.tag_shopping_text
+                    }
+                    "学习" -> {
+                        bgRes = R.color.tag_study_bg
+                        textRes = R.color.tag_study_text
+                    }
+                    "健康" -> {
+                        bgRes = R.color.tag_health_bg
+                        textRes = R.color.tag_health_text
+                    }
+                    else -> {
+                        bgRes = R.color.tag_default_bg
+                        textRes = R.color.tag_default_text
+                    }
+                }
+                textView.backgroundTintList = ContextCompat.getColorStateList(context, bgRes)
+                textView.setTextColor(ContextCompat.getColor(context, textRes))
             }
         }
     }

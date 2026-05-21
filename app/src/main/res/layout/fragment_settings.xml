@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/warm_background"
+    android:background="@color/page_bg_light"
     android:clipToPadding="false"
     android:fillViewport="true">
 
@@ -22,268 +22,433 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/settings_title"
-            android:textColor="?attr/colorOnSurface"
+            android:textColor="@color/text_primary"
             android:textSize="@dimen/page_title_size"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/tv_settings_subtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/settings_subtitle"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="@dimen/page_subtitle_size" />
-
+        <!-- 外观设置卡片 -->
         <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.MyPotato.Card.White"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardBackgroundColor="?attr/colorSurface"
-            app:cardCornerRadius="@dimen/card_corner_radius"
-            app:cardElevation="0dp"
-            app:strokeColor="?attr/colorOutline"
-            app:strokeWidth="1dp">
+            android:layout_marginTop="24dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="20dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/settings_theme_section"
-                    android:textColor="?attr/colorOnSurface"
+                    android:text="外观设置"
+                    android:textColor="@color/text_primary"
                     android:textSize="@dimen/section_title_size"
-                    android:textStyle="bold" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:baselineAligned="false"
-                    android:orientation="horizontal"
-                    android:weightSum="3">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_theme_system"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        android:paddingTop="14dp"
-                        android:paddingBottom="14dp"
-                        android:text="@string/settings_theme_system"
-                        android:textAllCaps="false"
-                        app:iconGravity="textTop"
-                        app:iconPadding="8dp" />
-
-                    <Space
-                        android:layout_width="8dp"
-                        android:layout_height="1dp" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_theme_light"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        android:paddingTop="14dp"
-                        android:paddingBottom="14dp"
-                        android:text="@string/settings_theme_light"
-                        android:textAllCaps="false"
-                        app:iconGravity="textTop"
-                        app:iconPadding="8dp" />
-
-                    <Space
-                        android:layout_width="8dp"
-                        android:layout_height="1dp" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_theme_dark"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        android:paddingTop="14dp"
-                        android:paddingBottom="14dp"
-                        android:text="@string/settings_theme_dark"
-                        android:textAllCaps="false"
-                        app:iconGravity="textTop"
-                        app:iconPadding="8dp" />
-                </LinearLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardBackgroundColor="?attr/colorSurface"
-            app:cardCornerRadius="@dimen/card_corner_radius"
-            app:cardElevation="0dp"
-            app:strokeColor="?attr/colorOutline"
-            app:strokeWidth="1dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                    android:textStyle="normal" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/settings_pomodoro_section"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="@dimen/section_title_size"
-                    android:textStyle="bold" />
+                    android:layout_marginTop="20dp"
+                    android:text="主题模式"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="@dimen/body_medium_size" />
 
-                <LinearLayout
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardTheme"
+                    style="@style/Widget.MyPotato.Card.SettingItem"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:baselineAligned="false"
-                    android:orientation="horizontal"
-                    android:weightSum="2">
+                    android:layout_height="56dp"
+                    android:layout_marginTop="8dp">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/til_focus_minutes"
-                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="@string/settings_focus_minutes">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/et_focus_minutes"
-                            android:layout_width="match_parent"
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_sun"
+                            app:tint="@color/text_secondary" />
+
+                        <TextView
+                            android:id="@+id/tvThemeValue"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:inputType="number"
-                            android:maxLines="1"
-                            tools:text="25" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:text="跟随系统"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp" />
 
-                    <Space
-                        android:layout_width="12dp"
-                        android:layout_height="1dp" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/til_break_minutes"
-                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="@string/settings_break_minutes">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/et_break_minutes"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="number"
-                            android:maxLines="1"
-                            tools:text="5" />
-                    </com.google.android.material.textfield.TextInputLayout>
-                </LinearLayout>
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_dropdown"
+                            app:tint="@color/text_hint" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- 语言设置卡片 -->
         <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.MyPotato.Card.White"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardBackgroundColor="?attr/colorSurface"
-            app:cardCornerRadius="@dimen/card_corner_radius"
-            app:cardElevation="0dp"
-            app:strokeColor="?attr/colorOutline"
-            app:strokeWidth="1dp">
+            android:layout_marginTop="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="20dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/settings_data_section"
-                    android:textColor="?attr/colorOnSurface"
+                    android:text="语言设置"
+                    android:textColor="@color/text_primary"
                     android:textSize="@dimen/section_title_size"
-                    android:textStyle="bold" />
+                    android:textStyle="normal" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="应用语言"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="@dimen/body_medium_size" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardLanguage"
+                    style="@style/Widget.MyPotato.Card.SettingItem"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="8dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp">
+
+                        <TextView
+                            android:id="@+id/tvLanguageValue"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="简体中文"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_dropdown"
+                            app:tint="@color/text_hint" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 数据管理卡片 -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.MyPotato.Card.White"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="数据管理"
+                    android:textColor="@color/text_primary"
+                    android:textSize="@dimen/section_title_size"
+                    android:textStyle="normal" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardExportData"
+                    style="@style/Widget.MyPotato.Card.SettingItem"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="20dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="导出数据"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp" />
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_arrow_right"
+                            app:tint="@color/text_hint" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 番茄钟设置卡片 -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.MyPotato.Card.White"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="番茄钟设置"
+                    android:textColor="@color/text_primary"
+                    android:textSize="@dimen/section_title_size"
+                    android:textStyle="normal" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="工作时长（分钟）"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="@dimen/body_medium_size" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardPomodoroFocus"
+                    style="@style/Widget.MyPotato.Card.SettingItem"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="8dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp">
+
+                        <TextView
+                            android:id="@+id/tvPomodoroFocusValue"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="25分钟"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_dropdown"
+                            app:tint="@color/text_hint" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="休息时长（分钟）"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="@dimen/body_medium_size" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardPomodoroBreak"
+                    style="@style/Widget.MyPotato.Card.SettingItem"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="8dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp">
+
+                        <TextView
+                            android:id="@+id/tvPomodoroBreakValue"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="5分钟"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_dropdown"
+                            app:tint="@color/text_hint" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:baselineAligned="false"
-                    android:orientation="horizontal"
-                    android:weightSum="2">
+                    android:layout_marginTop="20dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_export_json"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        android:minHeight="56dp"
-                        android:text="@string/settings_export_json"
-                        android:textAllCaps="false"
-                        app:icon="@android:drawable/ic_menu_save" />
+                        android:orientation="vertical">
 
-                    <Space
-                        android:layout_width="8dp"
-                        android:layout_height="1dp" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="完成提醒"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_export_csv"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:layout_width="0dp"
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="番茄钟结束时播放提示音"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="@dimen/body_small_size" />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switchPomodoroSound"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        android:minHeight="56dp"
-                        android:text="@string/settings_export_csv"
-                        android:textAllCaps="false"
-                        app:icon="@android:drawable/ic_menu_upload" />
+                        android:checked="true" />
                 </LinearLayout>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_import_json"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:minHeight="56dp"
-                    android:text="@string/settings_import_json"
-                    android:textAllCaps="false"
-                    app:icon="@android:drawable/ic_menu_upload_you_tube" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <TextView
-            android:id="@+id/tv_settings_version"
-            android:layout_width="wrap_content"
+        <!-- 关于卡片 -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.MyPotato.Card.White"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="24dp"
-            android:gravity="center"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="@dimen/body_small_size"
-            tools:text="MyPotato · v1.0" />
+            android:layout_marginTop="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="关于"
+                    android:textColor="@color/text_primary"
+                    android:textSize="@dimen/section_title_size"
+                    android:textStyle="normal" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="版本号"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/tvVersionValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="1.0.0"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@color/outline_soft" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardCheckUpdate"
+                    style="@style/Widget.MyPotato.Card.SettingItem"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    app:cardBackgroundColor="@color/card_bg_white"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="@color/outline_soft">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_info"
+                            app:tint="@color/text_primary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:text="检查更新"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_arrow_right"
+                            app:tint="@color/text_hint" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 底部留白给导航栏 -->
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="80dp" />
+            
     </LinearLayout>
-
 </androidx.core.widget.NestedScrollView>

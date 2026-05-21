@@ -12,7 +12,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.gordon.mypotato.R
 import com.gordon.mypotato.databinding.FragmentStatisticsBinding
-import com.gordon.mypotato.databinding.ItemStatisticsTimelineSlotBinding
 import com.google.android.material.button.MaterialButton
 
 class StatisticsFragment : Fragment(R.layout.fragment_statistics) {
@@ -35,7 +34,7 @@ class StatisticsFragment : Fragment(R.layout.fragment_statistics) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupHeader()
-        setupModeToggle()
+        setupModes()
         renderMode()
     }
 
@@ -46,226 +45,70 @@ class StatisticsFragment : Fragment(R.layout.fragment_statistics) {
 
     private fun setupHeader() {
         binding.tvStatisticsTitle.text = getString(R.string.statistics_title)
-        binding.tvStatisticsSubtitle.text = getString(R.string.statistics_subtitle)
     }
 
-    private fun setupModeToggle() {
-        binding.groupStatisticsMode.check(R.id.btn_mode_day)
-        binding.groupStatisticsMode.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (!isChecked) return@addOnButtonCheckedListener
-            currentMode = when (checkedId) {
-                R.id.btn_mode_month -> StatisticsMode.MONTH
-                R.id.btn_mode_year -> StatisticsMode.YEAR
+    /**
+     * 功能：绑定统计模式（时间、类别等）切换逻辑。
+     * 入参：无。
+     * 出参：无。
+     * 异常：无。
+     */
+    private fun setupModes() {
+        binding.chipGroupTime.setOnCheckedStateChangeListener { _, checkedIds ->
+            val checkedId = checkedIds.firstOrNull() ?: R.id.chip_time_today
+            val mode = when (checkedId) {
+                R.id.chip_time_today -> StatisticsMode.DAY
+                R.id.chip_time_week -> StatisticsMode.MONTH // Placeholder
+                R.id.chip_time_month -> StatisticsMode.YEAR // Placeholder
                 else -> StatisticsMode.DAY
             }
-            renderMode()
+            if (currentMode != mode) {
+                currentMode = mode
+                renderMode()
+            }
         }
     }
 
     private fun renderMode() {
-        renderModeButtons()
-        when (currentMode) {
-            StatisticsMode.DAY -> renderDayMode()
-            StatisticsMode.MONTH -> renderChartMode(
-                summary = SummaryStats(1860, 24),
-                title = getString(R.string.statistics_month_chart_title),
-                items = buildMonthlyChartItems()
+        val focusMinutes = 165
+        val completedCount = 12
+        val ongoingCount = 5
+        val rate = "48%"
+
+        binding.tvStatCompleted.text = completedCount.toString()
+        binding.tvStatOngoing.text = ongoingCount.toString()
+        binding.tvStatRate.text = rate
+
+        // Render Chart
+        val colorOrange = R.color.state_chart_orange
+        val chartData = when (currentMode) {
+            StatisticsMode.DAY -> listOf(
+                StatisticsBarItem("6时", listOf(StatisticsBarSegment("P1", 15, colorOrange))),
+                StatisticsBarItem("9时", listOf(StatisticsBarSegment("P2", 45, colorOrange), StatisticsBarSegment("P3", 20, colorOrange))),
+                StatisticsBarItem("12时", listOf(StatisticsBarSegment("P1", 30, colorOrange))),
+                StatisticsBarItem("15时", listOf(StatisticsBarSegment("P3", 50, colorOrange), StatisticsBarSegment("P4", 10, colorOrange))),
+                StatisticsBarItem("18时", listOf(StatisticsBarSegment("P1", 20, colorOrange), StatisticsBarSegment("P2", 20, colorOrange))),
+                StatisticsBarItem("21时", listOf(StatisticsBarSegment("P4", 30, colorOrange)))
             )
-            StatisticsMode.YEAR -> renderChartMode(
-                summary = SummaryStats(19480, 268),
-                title = getString(R.string.statistics_year_chart_title),
-                items = buildYearlyChartItems()
+            StatisticsMode.MONTH -> listOf(
+                StatisticsBarItem("第1周", listOf(StatisticsBarSegment("P1", 120, colorOrange), StatisticsBarSegment("P2", 80, colorOrange), StatisticsBarSegment("P3", 60, colorOrange), StatisticsBarSegment("P4", 40, colorOrange))),
+                StatisticsBarItem("第2周", listOf(StatisticsBarSegment("P1", 150, colorOrange), StatisticsBarSegment("P2", 60, colorOrange), StatisticsBarSegment("P3", 90, colorOrange), StatisticsBarSegment("P4", 30, colorOrange))),
+                StatisticsBarItem("第3周", listOf(StatisticsBarSegment("P1", 100, colorOrange), StatisticsBarSegment("P2", 100, colorOrange), StatisticsBarSegment("P3", 50, colorOrange), StatisticsBarSegment("P4", 50, colorOrange))),
+                StatisticsBarItem("第4周", listOf(StatisticsBarSegment("P1", 180, colorOrange), StatisticsBarSegment("P2", 40, colorOrange), StatisticsBarSegment("P3", 80, colorOrange), StatisticsBarSegment("P4", 20, colorOrange)))
+            )
+            StatisticsMode.YEAR -> listOf(
+                StatisticsBarItem("一季度", listOf(StatisticsBarSegment("P1", 400, colorOrange), StatisticsBarSegment("P2", 300, colorOrange), StatisticsBarSegment("P3", 200, colorOrange), StatisticsBarSegment("P4", 100, colorOrange))),
+                StatisticsBarItem("二季度", listOf(StatisticsBarSegment("P1", 500, colorOrange), StatisticsBarSegment("P2", 200, colorOrange), StatisticsBarSegment("P3", 300, colorOrange), StatisticsBarSegment("P4", 150, colorOrange))),
+                StatisticsBarItem("三季度", listOf(StatisticsBarSegment("P1", 450, colorOrange), StatisticsBarSegment("P2", 250, colorOrange), StatisticsBarSegment("P3", 250, colorOrange), StatisticsBarSegment("P4", 120, colorOrange))),
+                StatisticsBarItem("四季度", listOf(StatisticsBarSegment("P1", 600, colorOrange), StatisticsBarSegment("P2", 150, colorOrange), StatisticsBarSegment("P3", 350, colorOrange), StatisticsBarSegment("P4", 80, colorOrange)))
             )
         }
+        
+        binding.viewStatisticsChart.submitData(chartData)
     }
 
-    private fun renderDayMode() {
-        renderSummary(SummaryStats(165, 4))
-        binding.cardDailyTimeline.visibility = View.VISIBLE
-        binding.cardChart.visibility = View.GONE
-        binding.tvDailySectionTitle.text = getString(R.string.statistics_day_section_title)
-        renderDailyTimeline(buildDailyTimelineItems())
-    }
-
-    private fun renderChartMode(summary: SummaryStats, title: String, items: List<StatisticsBarItem>) {
-        renderSummary(summary)
-        binding.cardDailyTimeline.visibility = View.GONE
-        binding.cardChart.visibility = View.VISIBLE
-        binding.tvChartTitle.text = title
-        binding.viewStatisticsChart.submitData(items)
-        renderLegend(items)
-    }
-
-    private fun renderSummary(summary: SummaryStats) {
-        binding.tvFocusValue.text = summary.focusMinutes.toString()
-        binding.tvCompletedValue.text = summary.completedCount.toString()
-    }
-
-    private fun renderModeButtons() {
-        updateModeButton(binding.btnModeDay, currentMode == StatisticsMode.DAY)
-        updateModeButton(binding.btnModeMonth, currentMode == StatisticsMode.MONTH)
-        updateModeButton(binding.btnModeYear, currentMode == StatisticsMode.YEAR)
-    }
-
-    private fun updateModeButton(button: MaterialButton, selected: Boolean) {
-        val selectedBackground = resolveThemeColor(androidx.appcompat.R.attr.colorPrimary)
-        val selectedForeground = resolveThemeColor(com.google.android.material.R.attr.colorOnPrimary)
-        val defaultBackground = resolveThemeColor(com.google.android.material.R.attr.colorSurface)
-        val defaultForeground = resolveThemeColor(com.google.android.material.R.attr.colorOnSurface)
-        val defaultStroke = resolveThemeColor(com.google.android.material.R.attr.colorOutlineVariant)
-
-        button.backgroundTintList = ColorStateList.valueOf(if (selected) selectedBackground else defaultBackground)
-        button.strokeColor = ColorStateList.valueOf(if (selected) selectedBackground else defaultStroke)
-        button.setTextColor(if (selected) selectedForeground else defaultForeground)
-    }
-
-    private fun renderDailyTimeline(items: List<DailyTimelineItem>) {
-        binding.layoutDailyTimeline.removeAllViews()
-        val inflater = LayoutInflater.from(requireContext())
-        items.forEach { item ->
-            val itemBinding = ItemStatisticsTimelineSlotBinding.inflate(inflater, binding.layoutDailyTimeline, false)
-            itemBinding.tvSlotTime.text = item.timeLabel
-            if (item.isEmpty) {
-                itemBinding.cardSlotTask.visibility = View.GONE
-                itemBinding.viewSlotLine.visibility = View.VISIBLE
-            } else {
-                itemBinding.cardSlotTask.visibility = View.VISIBLE
-                itemBinding.viewSlotLine.visibility = View.GONE
-                itemBinding.tvSlotTaskTitle.text = item.taskTitle
-                itemBinding.tvSlotCategory.text = item.categoryName
-                itemBinding.viewCategoryColor.setBackgroundColor(ContextCompat.getColor(requireContext(), item.colorRes))
-            }
-            binding.layoutDailyTimeline.addView(itemBinding.root)
-        }
-    }
-
-    private fun renderLegend(items: List<StatisticsBarItem>) {
-        binding.layoutChartLegend.removeAllViews()
-        val legendEntries = LinkedHashMap<String, Int>()
-        items.flatMap { it.segments }.forEach { segment ->
-            legendEntries.putIfAbsent(segment.name, segment.colorRes)
-        }
-
-        val entries = if (legendEntries.isEmpty()) {
-            linkedMapOf(getString(R.string.statistics_single_series_label) to R.color.purple_500)
-        } else {
-            legendEntries
-        }
-
-        binding.tvLegendTitle.visibility = View.VISIBLE
-        entries.forEach { (name, colorRes) ->
-            binding.layoutChartLegend.addView(buildLegendRow(name, colorRes))
-        }
-    }
-
-    private fun buildLegendRow(name: String, colorRes: Int): View {
-        val context = requireContext()
-        val row = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = android.view.Gravity.CENTER_VERTICAL
-            setPadding(0, dp(4), 0, dp(4))
-        }
-
-        val colorDot = View(context).apply {
-            layoutParams = LinearLayout.LayoutParams(dp(10), dp(10))
-            setBackgroundColor(ContextCompat.getColor(context, colorRes))
-        }
-
-        val textView = TextView(context).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ).also { it.marginStart = dp(8) }
-            text = name
-            setTextColor(resolveThemeColor(com.google.android.material.R.attr.colorOnSurface))
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
-        }
-
-        row.addView(colorDot)
-        row.addView(textView)
-        return row
-    }
-
-    private fun buildDailyTimelineItems(): List<DailyTimelineItem> {
-        val categoryWork = getString(R.string.today_bottom_sheet_category_work)
-        val categoryStudy = getString(R.string.today_bottom_sheet_category_study)
-        val categoryLife = getString(R.string.today_bottom_sheet_category_life)
-        val scheduled = mapOf(
-            "08:00" to DailyTimelineItem("08:00", "晨间站会同步", categoryWork, R.color.task_category_work, false),
-            "09:30" to DailyTimelineItem("09:30", "实现统计页时间轴", categoryStudy, R.color.task_category_study, false),
-            "10:00" to DailyTimelineItem("10:00", "实现统计页时间轴", categoryStudy, R.color.task_category_study, false),
-            "14:00" to DailyTimelineItem("14:00", "整理周任务清单", categoryWork, R.color.task_category_work, false),
-            "18:30" to DailyTimelineItem("18:30", "晚间散步记录", categoryLife, R.color.task_category_life, false)
-        )
-
-        val result = mutableListOf<DailyTimelineItem>()
-        for (hour in 0..23) {
-            for (minute in listOf(0, 30)) {
-                val label = String.format("%02d:%02d", hour, minute)
-                result += scheduled[label]
-                    ?: DailyTimelineItem(label, "", getString(R.string.statistics_timeline_empty_label), R.color.purple_500, true)
-            }
-        }
-        return result
-    }
-
-    private fun buildMonthlyChartItems(): List<StatisticsBarItem> {
-        val work = getString(R.string.today_bottom_sheet_category_work)
-        val study = getString(R.string.today_bottom_sheet_category_study)
-        val life = getString(R.string.today_bottom_sheet_category_life)
-        val health = getString(R.string.today_bottom_sheet_category_health)
-        val focus = getString(R.string.statistics_single_series_label)
-
-        return (1..30).map { day ->
-            val segments = mutableListOf<StatisticsBarSegment>()
-            if (day % 6 == 0) {
-                segments += StatisticsBarSegment(focus, 80 + (day % 3) * 20, R.color.purple_500)
-            } else {
-                if (day % 2 == 0) segments += StatisticsBarSegment(work, 50 + (day % 4) * 10, R.color.task_category_work)
-                if (day % 3 == 0) segments += StatisticsBarSegment(study, 30 + (day % 5) * 8, R.color.task_category_study)
-                if (day % 5 == 0) segments += StatisticsBarSegment(life, 20 + (day % 4) * 10, R.color.task_category_life)
-                if (day % 7 == 0) segments += StatisticsBarSegment(health, 18 + (day % 3) * 8, R.color.task_category_health)
-                if (segments.isEmpty()) {
-                    segments += StatisticsBarSegment(focus, 40 + (day % 6) * 12, R.color.purple_500)
-                }
-            }
-            StatisticsBarItem(label = day.toString(), segments = segments)
-        }
-    }
-
-    private fun buildYearlyChartItems(): List<StatisticsBarItem> {
-        val work = getString(R.string.today_bottom_sheet_category_work)
-        val study = getString(R.string.today_bottom_sheet_category_study)
-        val life = getString(R.string.today_bottom_sheet_category_life)
-        val focus = getString(R.string.statistics_single_series_label)
-
-        return (1..12).map { month ->
-            val segments = mutableListOf<StatisticsBarSegment>()
-            if (month % 4 == 0) {
-                segments += StatisticsBarSegment(focus, 980 + month * 30, R.color.purple_500)
-            } else {
-                segments += StatisticsBarSegment(work, 420 + month * 26, R.color.task_category_work)
-                if (month % 2 == 0) segments += StatisticsBarSegment(study, 210 + month * 18, R.color.task_category_study)
-                if (month % 3 == 0) segments += StatisticsBarSegment(life, 160 + month * 16, R.color.task_category_life)
-            }
-            StatisticsBarItem(label = "${month}月", segments = segments)
-        }
-    }
-
-    private fun resolveThemeColor(attrRes: Int): Int {
-        val outValue = TypedValue()
-        if (requireContext().theme.resolveAttribute(attrRes, outValue, true)) {
-            return outValue.data
-        }
-        return ContextCompat.getColor(requireContext(), R.color.purple_500)
-    }
-
-    private fun dp(value: Int): Int {
-        return TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            value.toFloat(),
-            resources.displayMetrics
-        ).toInt()
+    private fun setupMockData() {
+        // Prepare colors if needed
     }
 
     private enum class StatisticsMode {
@@ -274,17 +117,8 @@ class StatisticsFragment : Fragment(R.layout.fragment_statistics) {
         YEAR
     }
 
-    private data class SummaryStats(
-        val focusMinutes: Int,
-        val completedCount: Int
-    )
-
-    private data class DailyTimelineItem(
-        val timeLabel: String,
-        val taskTitle: String,
-        val categoryName: String,
-        val colorRes: Int,
-        val isEmpty: Boolean
-    )
+    private companion object {
+        private const val TAG = "StatisticsFragment"
+    }
 }
 

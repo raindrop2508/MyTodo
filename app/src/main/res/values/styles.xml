@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Figma 风格卡片样式 -->
+    <style name="Widget.MyPotato.Card.White" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardBackgroundColor">@color/card_bg_white</item>
+        <item name="cardCornerRadius">@dimen/card_corner_radius</item>
+        <item name="cardElevation">2dp</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+
+    <!-- Figma 风格筛选 Chip (单选) -->
+    <style name="Widget.MyPotato.Chip.Filter" parent="Widget.Material3.Chip.Filter">
+        <item name="chipBackgroundColor">@color/chip_bg_color_selector</item>
+        <item name="android:textColor">@color/chip_text_color_selector</item>
+        <item name="chipCornerRadius">@dimen/chip_corner_radius</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="chipStrokeColor">@color/chip_stroke_color_selector</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+    </style>
+
+    <!-- 设置页的下拉菜单容器 (作为 MaterialCardView) -->
+    <style name="Widget.MyPotato.Card.SettingItem" parent="Widget.Material3.CardView.Filled">
+        <item name="cardBackgroundColor">@color/page_bg_light</item>
+        <item name="cardCornerRadius">@dimen/button_corner_radius</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="cardElevation">0dp</item>
+    </style>
+
+</resources>

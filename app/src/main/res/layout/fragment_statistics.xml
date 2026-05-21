@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/warm_background"
+    android:background="@color/page_bg_light"
     android:clipToPadding="false"
     android:fillViewport="true">
 
@@ -22,238 +22,235 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/statistics_title"
-            android:textColor="?attr/colorOnSurface"
+            android:textColor="@color/text_primary"
             android:textSize="@dimen/page_title_size"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/tv_statistics_subtitle"
-            android:layout_width="wrap_content"
+        <HorizontalScrollView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/statistics_subtitle"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="@dimen/page_subtitle_size" />
+            android:layout_marginTop="20dp"
+            android:scrollbars="none"
+            android:overScrollMode="never">
 
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/group_statistics_mode"
-            android:layout_width="wrap_content"
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:chipSpacingHorizontal="8dp"
+                app:singleLine="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_time_today"
+                    style="@style/Widget.MyPotato.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:checked="true"
+                    android:text="今日" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_time_week"
+                    style="@style/Widget.MyPotato.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="本周" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_time_month"
+                    style="@style/Widget.MyPotato.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="本月" />
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:selectionRequired="true"
-            app:singleSelection="true">
+            android:layout_marginTop="8dp"
+            android:scrollbars="none"
+            android:overScrollMode="never">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_mode_day"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group_category"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checkable="true"
-                android:minWidth="72dp"
-                android:text="@string/statistics_mode_day"
-                android:textAllCaps="false" />
+                app:chipSpacingHorizontal="8dp"
+                app:singleLine="true"
+                app:singleSelection="true">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_mode_month"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkable="true"
-                android:minWidth="72dp"
-                android:text="@string/statistics_mode_month"
-                android:textAllCaps="false" />
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_cat_all"
+                    style="@style/Widget.MyPotato.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:checked="true"
+                    android:text="全部类别" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_mode_year"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkable="true"
-                android:minWidth="72dp"
-                android:text="@string/statistics_mode_year"
-                android:textAllCaps="false" />
-        </com.google.android.material.button.MaterialButtonToggleGroup>
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_cat_long"
+                    style="@style/Widget.MyPotato.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="仅长时任务" />
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
 
+        <!-- 三个数据概览卡片 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="24dp"
             android:baselineAligned="false"
             android:orientation="horizontal"
-            android:weightSum="2">
+            android:weightSum="3">
 
+            <!-- 已完成 -->
             <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.MyPotato.Card.White"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="100dp"
                 android:layout_weight="1"
-                app:cardBackgroundColor="?attr/colorSurface"
-                app:cardCornerRadius="@dimen/card_corner_radius"
-                app:cardElevation="0dp"
-                app:strokeColor="?attr/colorOutline"
-                app:strokeWidth="1dp">
+                android:layout_marginEnd="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:paddingStart="12dp"
-                    android:paddingTop="16dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="16dp">
+                    android:padding="8dp">
 
                     <TextView
-                        android:id="@+id/tv_focus_value"
+                        android:id="@+id/tv_stat_completed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="@dimen/page_title_size"
+                        android:textColor="@color/text_primary"
+                        android:textSize="28sp"
                         android:textStyle="bold"
-                        tools:text="165" />
+                        tools:text="12" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:gravity="center"
-                        android:text="@string/statistics_focus_minutes_label"
-                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:layout_marginTop="8dp"
+                        android:text="已完成"
+                        android:textColor="@color/text_secondary"
                         android:textSize="@dimen/body_small_size" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <Space
-                android:layout_width="12dp"
-                android:layout_height="1dp" />
-
+            <!-- 进行中 -->
             <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.MyPotato.Card.White"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="100dp"
                 android:layout_weight="1"
-                app:cardBackgroundColor="?attr/colorSurface"
-                app:cardCornerRadius="@dimen/card_corner_radius"
-                app:cardElevation="0dp"
-                app:strokeColor="?attr/colorOutline"
-                app:strokeWidth="1dp">
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:paddingStart="12dp"
-                    android:paddingTop="16dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="16dp">
+                    android:padding="8dp">
 
                     <TextView
-                        android:id="@+id/tv_completed_value"
+                        android:id="@+id/tv_stat_ongoing"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="@dimen/page_title_size"
+                        android:textColor="@color/state_success_green"
+                        android:textSize="28sp"
                         android:textStyle="bold"
-                        tools:text="4" />
+                        tools:text="5" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:gravity="center"
-                        android:text="@string/statistics_completed_count_label"
-                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:layout_marginTop="8dp"
+                        android:text="进行中"
+                        android:textColor="@color/text_secondary"
                         android:textSize="@dimen/body_small_size" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
+
+            <!-- 完成率 -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.MyPotato.Card.White"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+
+                    <TextView
+                        android:id="@+id/tv_stat_rate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="28sp"
+                        android:textStyle="bold"
+                        tools:text="48%" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="完成率"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="@dimen/body_small_size" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
         </LinearLayout>
 
+        <!-- 图表卡片 -->
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/card_daily_timeline"
+            id="@+id/card_chart"
+            style="@style/Widget.MyPotato.Card.White"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardBackgroundColor="?attr/colorSurface"
-            app:cardCornerRadius="@dimen/card_corner_radius"
-            app:cardElevation="0dp"
-            app:strokeColor="?attr/colorOutline"
-            app:strokeWidth="1dp">
+            android:layout_marginTop="20dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:id="@+id/tv_daily_section_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/statistics_day_section_title"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="@dimen/section_title_size"
-                    android:textStyle="bold" />
-
-                <LinearLayout
-                    android:id="@+id/layout_daily_timeline"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:orientation="vertical" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/card_chart"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:visibility="gone"
-            app:cardBackgroundColor="?attr/colorSurface"
-            app:cardCornerRadius="@dimen/card_corner_radius"
-            app:cardElevation="0dp"
-            app:strokeColor="?attr/colorOutline"
-            app:strokeWidth="1dp"
-            tools:visibility="visible">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="20dp">
 
                 <TextView
                     android:id="@+id/tv_chart_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/statistics_month_chart_title"
-                    android:textColor="?attr/colorOnSurface"
+                    android:drawableStart="@drawable/ic_calendar"
+                    android:drawablePadding="8dp"
+                    android:text="时间段分布"
+                    android:textColor="@color/text_primary"
                     android:textSize="@dimen/section_title_size"
-                    android:textStyle="bold" />
+                    android:textStyle="normal" />
 
+                <!-- 这里使用项目已有的 StatisticsStackBarView，后续可能需要改柱子颜色 -->
                 <com.gordon.mypotato.ui.statistics.StatisticsStackBarView
                     android:id="@+id/view_statistics_chart"
                     android:layout_width="match_parent"
                     android:layout_height="240dp"
-                    android:layout_marginTop="16dp" />
+                    android:layout_marginTop="24dp" />
 
-                <TextView
-                    android:id="@+id/tv_legend_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/statistics_legend_title"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="@dimen/body_medium_size"
-                    android:textStyle="bold" />
-
-                <LinearLayout
-                    android:id="@+id/layout_chart_legend"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="vertical" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
+
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>

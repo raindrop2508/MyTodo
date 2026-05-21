@@ -52,10 +52,7 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         setupHeader()
         setupTaskList()
         setupSearch()
-        setupFilterSummaryCard()
-        setupStatusFilter()
-        setupTypeFilter()
-        setupPriorityFilter()
+        setupCategoryFilter()
         setupFab()
         renderTasks()
     }
@@ -75,8 +72,7 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         val total = allTasks.size
         Log.d(TAG, "setupHeader in total=$total")
         binding.tvTasksTitle.text = getString(R.string.tasks_title)
-        binding.tvTasksTotal.text = getString(R.string.tasks_total_format, total)
-        Log.d(TAG, "setupHeader out title=${binding.tvTasksTitle.text} total=${binding.tvTasksTotal.text}")
+        Log.d(TAG, "setupHeader out title=${binding.tvTasksTitle.text}")
     }
 
     /**
@@ -108,77 +104,26 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         Log.d(TAG, "setupSearch out")
     }
 
-    /**
-     * 功能：初始化筛选摘要卡片并绑定展开/收起交互。
-     * 入参：无。
-     * 出参：无。
-     * 异常：无。
-     */
-    private fun setupFilterSummaryCard() {
-        binding.cardFilterSummary.setOnClickListener { toggleFilterPanel() }
-        binding.btnToggleFilters.setOnClickListener { toggleFilterPanel() }
-        updateFilterSummary()
-        updateFilterPanel()
-    }
+    private var categoryFilter: String = "全部"
 
     /**
-     * 功能：绑定完成状态筛选 Chip 监听。
+     * 功能：绑定分类筛选 Chip 监听。
      * 入参：无。
      * 出参：无。
      * 异常：无。
      */
-    private fun setupStatusFilter() {
-        Log.d(TAG, "setupStatusFilter in")
-        binding.chipGroupStatus.setOnCheckedStateChangeListener { _, checkedIds ->
-            val checkedId = checkedIds.firstOrNull() ?: R.id.chip_status_all
-            statusFilter = when (checkedId) {
-                R.id.chip_status_todo -> StatusFilter.TODO
-                R.id.chip_status_done -> StatusFilter.DONE
-                else -> StatusFilter.ALL
+    private fun setupCategoryFilter() {
+        Log.d(TAG, "setupCategoryFilter in")
+        binding.chipGroupCategory.setOnCheckedStateChangeListener { _, checkedIds ->
+            val checkedId = checkedIds.firstOrNull() ?: R.id.chip_cat_all
+            categoryFilter = when (checkedId) {
+                R.id.chip_cat_study -> "学习"
+                R.id.chip_cat_work -> "工作"
+                R.id.chip_cat_life -> "生活"
+                R.id.chip_cat_health -> "健康"
+                else -> "全部"
             }
-            Log.d(TAG, "setupStatusFilter out checkedId=$checkedId statusFilter=$statusFilter")
-            renderTasks()
-        }
-    }
-
-    /**
-     * 功能：绑定任务类型筛选 Chip 监听。
-     * 入参：无。
-     * 出参：无。
-     * 异常：无。
-     */
-    private fun setupTypeFilter() {
-        Log.d(TAG, "setupTypeFilter in")
-        binding.chipGroupType.setOnCheckedStateChangeListener { _, checkedIds ->
-            val checkedId = checkedIds.firstOrNull() ?: R.id.chip_type_all
-            typeFilter = when (checkedId) {
-                R.id.chip_type_one_time -> TypeFilter.ONE_TIME
-                R.id.chip_type_long -> TypeFilter.LONG
-                else -> TypeFilter.ALL
-            }
-            Log.d(TAG, "setupTypeFilter out checkedId=$checkedId typeFilter=$typeFilter")
-            renderTasks()
-        }
-    }
-
-    /**
-     * 功能：绑定优先级筛选 Chip 监听。
-     * 入参：无。
-     * 出参：无。
-     * 异常：无。
-     */
-    private fun setupPriorityFilter() {
-        Log.d(TAG, "setupPriorityFilter in")
-        binding.chipGroupPriority.setOnCheckedStateChangeListener { _, checkedIds ->
-            val checkedId = checkedIds.firstOrNull() ?: R.id.chip_priority_all
-            priorityFilter = when (checkedId) {
-                R.id.chip_priority_ui -> PriorityFilter.UI
-                R.id.chip_priority_i -> PriorityFilter.I
-                R.id.chip_priority_u -> PriorityFilter.U
-                R.id.chip_priority_n -> PriorityFilter.N
-                else -> PriorityFilter.ALL
-            }
-            Log.d(TAG, "setupPriorityFilter out checkedId=$checkedId priorityFilter=$priorityFilter")
+            Log.d(TAG, "setupCategoryFilter out checkedId=$checkedId categoryFilter=$categoryFilter")
             renderTasks()
         }
     }
@@ -207,88 +152,16 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
     private fun renderTasks() {
         Log.d(
             TAG,
-            "renderTasks in statusFilter=$statusFilter typeFilter=$typeFilter priorityFilter=$priorityFilter keyword=$keyword"
+            "renderTasks in categoryFilter=$categoryFilter keyword=$keyword"
         )
         val filtered = allTasks.filter { task ->
-            if (statusFilter == StatusFilter.TODO && task.done) return@filter false
-            if (statusFilter == StatusFilter.DONE && !task.done) return@filter false
-            if (typeFilter == TypeFilter.ONE_TIME && task.isLongTask) return@filter false
-            if (typeFilter == TypeFilter.LONG && !task.isLongTask) return@filter false
-            if (priorityFilter != PriorityFilter.ALL && getPriorityOf(task) != priorityFilter) return@filter false
+            if (categoryFilter != "全部" && task.category != categoryFilter) return@filter false
             if (keyword.isNotBlank() && !task.title.contains(keyword, ignoreCase = true)) return@filter false
             true
         }.sortedBy { it.done }
         adapter.submitData(filtered)
         binding.layoutTasksEmptyState.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
-        updateFilterSummary()
         Log.d(TAG, "renderTasks out filteredCount=${filtered.size}")
-    }
-
-    /**
-     * 功能：切换筛选区的展开/收起状态。
-     * 入参：无。
-     * 出参：无。
-     * 异常：无。
-     */
-    private fun toggleFilterPanel() {
-        filtersExpanded = !filtersExpanded
-        updateFilterPanel()
-    }
-
-    /**
-     * 功能：刷新筛选区显隐与按钮文案。
-     * 入参：无。
-     * 出参：无。
-     * 异常：无。
-     */
-    private fun updateFilterPanel() {
-        binding.layoutFilterPanel.visibility = if (filtersExpanded) View.VISIBLE else View.GONE
-        binding.btnToggleFilters.text = if (filtersExpanded) {
-            getString(R.string.tasks_filters_collapse)
-        } else {
-            getString(R.string.tasks_filters_expand)
-        }
-    }
-
-    /**
-     * 功能：根据当前筛选状态生成摘要文案。
-     * 入参：无。
-     * 出参：无。
-     * 异常：无。
-     */
-    private fun updateFilterSummary() {
-        val summary = listOf(
-            getStatusFilterLabel(),
-            getTypeFilterLabel(),
-            getPriorityFilterLabel()
-        ).joinToString(" · ")
-        binding.tvFilterSummary.text = getString(R.string.tasks_filter_summary_format, summary)
-    }
-
-    private fun getStatusFilterLabel(): String {
-        return when (statusFilter) {
-            StatusFilter.TODO -> getString(R.string.tasks_filter_pending)
-            StatusFilter.DONE -> getString(R.string.tasks_filter_completed)
-            StatusFilter.ALL -> getString(R.string.tasks_filter_all)
-        }
-    }
-
-    private fun getTypeFilterLabel(): String {
-        return when (typeFilter) {
-            TypeFilter.ONE_TIME -> getString(R.string.tasks_filter_one_time)
-            TypeFilter.LONG -> getString(R.string.tasks_filter_long_task)
-            TypeFilter.ALL -> getString(R.string.tasks_filter_all_types)
-        }
-    }
-
-    private fun getPriorityFilterLabel(): String {
-        return when (priorityFilter) {
-            PriorityFilter.UI -> getString(R.string.tasks_filter_ui)
-            PriorityFilter.I -> getString(R.string.tasks_filter_i)
-            PriorityFilter.U -> getString(R.string.tasks_filter_u)
-            PriorityFilter.N -> getString(R.string.tasks_filter_n)
-            PriorityFilter.ALL -> getString(R.string.tasks_filter_all_priorities)
-        }
     }
 
     /**
@@ -364,13 +237,13 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
 
         sheetBinding.btnTaskUrgent.setOnClickListener {
             urgent = !urgent
-            updateToggleButtonStyle(sheetBinding.btnTaskUrgent, urgent, R.color.task_urgent_highlight)
+            updateToggleButtonStyle(sheetBinding.btnTaskUrgent, urgent, R.color.state_error_red)
             Log.d(TAG, "showAddTaskBottomSheet urgentChanged urgent=$urgent")
         }
 
         sheetBinding.btnTaskImportant.setOnClickListener {
             important = !important
-            updateToggleButtonStyle(sheetBinding.btnTaskImportant, important, R.color.task_important_highlight)
+            updateToggleButtonStyle(sheetBinding.btnTaskImportant, important, R.color.state_chart_orange)
             Log.d(TAG, "showAddTaskBottomSheet importantChanged important=$important")
         }
 
@@ -471,39 +344,47 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         val result = listOf(
             TaskUiModel(
                 id = "task_001",
-                title = "完成周报并发送团队邮件",
+                title = "完成项目原型设计",
                 content = "同步项目进度和风险事项",
                 done = false,
                 isLongTask = true,
                 urgent = true,
-                important = true
+                important = true,
+                category = "工作",
+                minutes = 60,
+                steps = 5
             ),
             TaskUiModel(
                 id = "task_002",
-                title = "整理下周需求评审材料",
+                title = "购买生活用品",
                 content = "准备评审议程与需求变更说明",
                 done = true,
                 isLongTask = false,
                 urgent = false,
-                important = true
+                important = true,
+                category = "购物"
             ),
             TaskUiModel(
                 id = "task_003",
-                title = "预约体检时间",
+                title = "回复客户邮件",
                 content = "联系医院并确认可预约时段",
                 done = false,
                 isLongTask = false,
                 urgent = true,
-                important = false
+                important = false,
+                category = "工作"
             ),
             TaskUiModel(
                 id = "task_004",
-                title = "阅读技术文章并记录摘要",
+                title = "学习React新特性",
                 content = "输入输出模型相关文章",
                 done = true,
                 isLongTask = true,
                 urgent = false,
-                important = false
+                important = false,
+                category = "学习",
+                minutes = 120,
+                steps = 3
             )
         )
         Log.d(TAG, "buildMockTasks out count=${result.size}")
@@ -517,7 +398,10 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         val done: Boolean,
         val isLongTask: Boolean,
         val urgent: Boolean,
-        val important: Boolean
+        val important: Boolean,
+        val category: String = "工作",
+        val minutes: Int = 0,
+        val steps: Int = 0
     )
 
     private enum class StatusFilter {
@@ -565,16 +449,34 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
 
             fun bind(item: TaskUiModel) {
                 binding.tvTaskTitle.text = item.title
-                binding.tvTaskContent.text = item.content.orEmpty()
-                binding.tvTaskContent.visibility = if (item.content.isNullOrBlank()) View.GONE else View.VISIBLE
-                binding.tvTypeTag.text = if (item.isLongTask) {
-                    binding.root.context.getString(R.string.tasks_type_long_task)
+                if (item.done) {
+                    binding.tvTaskTitle.alpha = 0.5f
                 } else {
-                    binding.root.context.getString(R.string.tasks_type_one_time)
+                    binding.tvTaskTitle.alpha = 1.0f
                 }
-                binding.tvPriorityTag.text = getPriorityText(item)
-                binding.tvTaskTitle.paint.isStrikeThruText = item.done
-                binding.root.alpha = if (item.done) 0.72f else 1f
+
+                binding.tvCategoryTag.text = item.category
+                bindCategoryColor(item.category, binding.tvCategoryTag)
+
+                binding.tvTypeTag.text = if (item.isLongTask) {
+                    binding.root.context.getString(R.string.today_task_type_long)
+                } else {
+                    binding.root.context.getString(R.string.today_task_type_once)
+                }
+
+                if (item.minutes > 0) {
+                    binding.tvTimeTag.visibility = View.VISIBLE
+                    binding.tvTimeTag.text = "${item.minutes}分钟"
+                } else {
+                    binding.tvTimeTag.visibility = View.GONE
+                }
+
+                if (item.steps > 0) {
+                    binding.tvStepTag.visibility = View.VISIBLE
+                    binding.tvStepTag.text = "${item.steps}个步骤"
+                } else {
+                    binding.tvStepTag.visibility = View.GONE
+                }
 
                 binding.cbTaskDone.setOnCheckedChangeListener(null)
                 binding.cbTaskDone.isChecked = item.done
@@ -585,12 +487,34 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
                 binding.root.setOnClickListener { onItemClick(item) }
             }
 
-            private fun getPriorityText(item: TaskUiModel): String {
-                val context = binding.root.context
-                if (item.urgent && item.important) return context.getString(R.string.tasks_filter_ui)
-                if (item.important) return context.getString(R.string.tasks_filter_i)
-                if (item.urgent) return context.getString(R.string.tasks_filter_u)
-                return context.getString(R.string.tasks_filter_n)
+            private fun bindCategoryColor(category: String, textView: android.widget.TextView) {
+                val context = textView.context
+                val bgRes: Int
+                val textRes: Int
+                when (category) {
+                    "工作" -> {
+                        bgRes = R.color.tag_work_bg
+                        textRes = R.color.tag_work_text
+                    }
+                    "购物" -> {
+                        bgRes = R.color.tag_shopping_bg
+                        textRes = R.color.tag_shopping_text
+                    }
+                    "学习" -> {
+                        bgRes = R.color.tag_study_bg
+                        textRes = R.color.tag_study_text
+                    }
+                    "健康" -> {
+                        bgRes = R.color.tag_health_bg
+                        textRes = R.color.tag_health_text
+                    }
+                    else -> {
+                        bgRes = R.color.tag_default_bg
+                        textRes = R.color.tag_default_text
+                    }
+                }
+                textView.backgroundTintList = ContextCompat.getColorStateList(context, bgRes)
+                textView.setTextColor(ContextCompat.getColor(context, textRes))
             }
         }
     }
