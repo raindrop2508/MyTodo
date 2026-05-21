@@ -33,7 +33,9 @@
     <string name="today_bottom_sheet_category_study">学习</string>
     <string name="today_bottom_sheet_category_health">健康</string>
     <string name="today_bottom_sheet_urgent">紧急</string>
+    <string name="today_bottom_sheet_urgent_desc">需要立即处理的任务</string>
     <string name="today_bottom_sheet_important">重要</string>
+    <string name="today_bottom_sheet_important_desc">对目标有重大影响的任务</string>
     <string name="today_bottom_sheet_cancel_btn">取消</string>
     <string name="today_bottom_sheet_create_btn">保存</string>
     <string name="today_bottom_sheet_title_required">请输入任务标题</string>

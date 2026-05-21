@@ -13,16 +13,12 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.button.MaterialButton
 import com.gordon.mypotato.R
 import com.gordon.mypotato.databinding.BottomSheetAddTaskPlaceholderBinding
 import com.gordon.mypotato.databinding.FragmentTasksBinding
 import com.gordon.mypotato.databinding.ItemTodayTaskBinding
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.button.MaterialButtonToggleGroup
-import com.google.android.material.chip.ChipGroup
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 
 class TasksFragment : Fragment(R.layout.fragment_tasks) {
 
@@ -252,11 +248,15 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
      */
     private fun onTaskClicked(task: TaskUiModel) {
         Log.d(TAG, "onTaskClicked in taskId=${task.id} title=${task.title}")
-        val bundle = Bundle().apply {
-            putString("taskId", task.id)
-            putString("taskTitle", task.title)
+        val intent = android.content.Intent(requireContext(), TaskDetailActivity::class.java).apply {
+            putExtra("taskId", task.id)
+            putExtra("taskTitle", task.title)
+            putExtra("isLongTask", task.isLongTask)
+            putExtra("category", task.category)
+            putExtra("urgent", task.urgent)
+            putExtra("important", task.important)
         }
-        findNavController().navigate(R.id.taskDetail, bundle)
+        startActivity(intent)
         Log.d(TAG, "onTaskClicked out navigated=true")
     }
 
@@ -315,15 +315,13 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
             Log.d(TAG, "showAddTaskBottomSheet categoryChanged selectedCategory=$selectedCategory")
         }
 
-        sheetBinding.btnTaskUrgent.setOnClickListener {
-            urgent = !urgent
-            updateToggleButtonStyle(sheetBinding.btnTaskUrgent, urgent, R.color.state_error_red)
+        sheetBinding.switchTaskUrgent.setOnCheckedChangeListener { _, isChecked ->
+            urgent = isChecked
             Log.d(TAG, "showAddTaskBottomSheet urgentChanged urgent=$urgent")
         }
 
-        sheetBinding.btnTaskImportant.setOnClickListener {
-            important = !important
-            updateToggleButtonStyle(sheetBinding.btnTaskImportant, important, R.color.state_chart_orange)
+        sheetBinding.switchTaskImportant.setOnCheckedChangeListener { _, isChecked ->
+            important = isChecked
             Log.d(TAG, "showAddTaskBottomSheet importantChanged important=$important")
         }
 
@@ -364,21 +362,6 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         Log.d(TAG, "showAddTaskBottomSheet out shown=true")
     }
 
-    /**
-     * 功能：根据选中状态刷新“紧急/重要”按钮视觉。
-     * 入参：button 目标按钮；selected 是否选中；selectedColorRes 选中时边框与文字颜色资源。
-     * 出参：无。
-     * 异常：无，颜色解析失败时使用主题主色回退。
-     */
-    private fun updateToggleButtonStyle(button: MaterialButton, selected: Boolean, selectedColorRes: Int) {
-        Log.d(TAG, "updateToggleButtonStyle in selected=$selected selectedColorRes=$selectedColorRes")
-        val selectedColor = ContextCompat.getColor(requireContext(), selectedColorRes)
-        val defaultStrokeColor = resolveThemeColor(com.google.android.material.R.attr.colorOutlineVariant)
-        val defaultTextColor = resolveThemeColor(com.google.android.material.R.attr.colorOnSurface)
-        button.strokeColor = ColorStateList.valueOf(if (selected) selectedColor else defaultStrokeColor)
-        button.setTextColor(if (selected) selectedColor else defaultTextColor)
-        Log.d(TAG, "updateToggleButtonStyle out applied=true")
-    }
 
     /**
      * 功能：解析主题属性对应的颜色值。

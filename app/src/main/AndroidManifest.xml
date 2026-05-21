@@ -22,6 +22,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".ui.tasks.TaskDetailActivity"
+            android:theme="@style/Theme.MyPotato" />
+
+        <activity
+            android:name=".ui.pomodoro.PomodoroActivity"
+            android:theme="@style/Theme.MyPotato" />
     </application>
 
 </manifest>

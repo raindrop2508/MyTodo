@@ -10,6 +10,7 @@
     <color name="text_hint">#BDBDBD</color>
     
     <!-- 品牌色与状态色 -->
+    <color name="brand_indigo">#4F46E5</color>
     <color name="brand_fab_bg">#E8EAF6</color>
     <color name="state_success_green">#10B981</color>
     <color name="state_error_red">#EF4444</color>
@@ -17,7 +18,7 @@
 
     <!-- 动态分类标签颜色 (背景/文字) -->
     <color name="tag_work_bg">#F3E8FF</color>
-    <color name="tag_work_text">#7E22CE</color>
+    <color name="tag_work_text">#1A1A1A</color>
     
     <color name="tag_shopping_bg">#FFEDD5</color>
     <color name="tag_shopping_text">#C2410C</color>
@@ -44,9 +45,9 @@
     <color name="ink_muted">#757575</color>
     <color name="outline_strong">#E0E0E0</color>   <!-- 淡化边框 -->
     <color name="outline_soft">#F0F0F0</color>     <!-- 淡化边框 -->
-    <color name="brand_primary">#FF7C3AED</color>
-    <color name="brand_primary_dark">#FF5B21B6</color>
-    <color name="brand_fill_soft">#FFF0E7FF</color>
+    <color name="brand_primary">#1A1A1A</color>
+    <color name="brand_primary_dark">#757575</color>
+    <color name="brand_fill_soft">#E0E0E0</color>
     
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
