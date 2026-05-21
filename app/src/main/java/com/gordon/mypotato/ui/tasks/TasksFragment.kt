@@ -32,11 +32,15 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
 
     private val allTasks: MutableList<TaskUiModel> = buildMockTasks().toMutableList()
     private val adapter = TasksAdapter(::onTaskClicked, ::onTaskCheckChanged)
-    private var statusFilter: StatusFilter = StatusFilter.ALL
-    private var typeFilter: TypeFilter = TypeFilter.ALL
-    private var priorityFilter: PriorityFilter = PriorityFilter.ALL
     private var keyword: String = ""
-    private var filtersExpanded: Boolean = false
+
+    private enum class FilterDimension {
+        CATEGORY, QUADRANT, STATUS
+    }
+    private var currentDimension: FilterDimension = FilterDimension.CATEGORY
+    private var currentCategory: String = "全部"
+    private var currentQuadrant: String = "全部"
+    private var currentStatus: String = "全部"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,7 +56,8 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         setupHeader()
         setupTaskList()
         setupSearch()
-        setupCategoryFilter()
+        setupDimensionTabs()
+        setupChips()
         setupFab()
         renderTasks()
     }
@@ -104,7 +109,30 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         Log.d(TAG, "setupSearch out")
     }
 
-    private var categoryFilter: String = "全部"
+    /**
+     * 功能：绑定维度分段控制器监听。
+     * 入参：无。
+     * 出参：无。
+     * 异常：无。
+     */
+    private fun setupDimensionTabs() {
+        Log.d(TAG, "setupDimensionTabs in")
+        binding.rgDimension.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.rb_dim_category -> switchDimension(FilterDimension.CATEGORY)
+                R.id.rb_dim_quadrant -> switchDimension(FilterDimension.QUADRANT)
+                R.id.rb_dim_status -> switchDimension(FilterDimension.STATUS)
+            }
+        }
+    }
+
+    private fun switchDimension(dimension: FilterDimension) {
+        currentDimension = dimension
+        binding.chipGroupCategory.visibility = if (dimension == FilterDimension.CATEGORY) View.VISIBLE else View.GONE
+        binding.chipGroupQuadrant.visibility = if (dimension == FilterDimension.QUADRANT) View.VISIBLE else View.GONE
+        binding.chipGroupStatus.visibility = if (dimension == FilterDimension.STATUS) View.VISIBLE else View.GONE
+        renderTasks()
+    }
 
     /**
      * 功能：绑定分类筛选 Chip 监听。
@@ -112,19 +140,41 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
      * 出参：无。
      * 异常：无。
      */
-    private fun setupCategoryFilter() {
-        Log.d(TAG, "setupCategoryFilter in")
+    private fun setupChips() {
+        Log.d(TAG, "setupChips in")
         binding.chipGroupCategory.setOnCheckedStateChangeListener { _, checkedIds ->
             val checkedId = checkedIds.firstOrNull() ?: R.id.chip_cat_all
-            categoryFilter = when (checkedId) {
+            currentCategory = when (checkedId) {
                 R.id.chip_cat_study -> "学习"
                 R.id.chip_cat_work -> "工作"
                 R.id.chip_cat_life -> "生活"
                 R.id.chip_cat_health -> "健康"
                 else -> "全部"
             }
-            Log.d(TAG, "setupCategoryFilter out checkedId=$checkedId categoryFilter=$categoryFilter")
-            renderTasks()
+            if (currentDimension == FilterDimension.CATEGORY) renderTasks()
+        }
+        
+        binding.chipGroupQuadrant.setOnCheckedStateChangeListener { _, checkedIds ->
+            val checkedId = checkedIds.firstOrNull() ?: R.id.chip_quadrant_all
+            currentQuadrant = when (checkedId) {
+                R.id.chip_quadrant_ui -> "紧急且重要"
+                R.id.chip_quadrant_i -> "重要"
+                R.id.chip_quadrant_u -> "紧急"
+                R.id.chip_quadrant_other -> "其他"
+                else -> "全部"
+            }
+            if (currentDimension == FilterDimension.QUADRANT) renderTasks()
+        }
+        
+        binding.chipGroupStatus.setOnCheckedStateChangeListener { _, checkedIds ->
+            val checkedId = checkedIds.firstOrNull() ?: R.id.chip_status_all
+            currentStatus = when (checkedId) {
+                R.id.chip_status_done -> "已完成"
+                R.id.chip_status_doing -> "进行中"
+                R.id.chip_status_todo -> "未完成"
+                else -> "全部"
+            }
+            if (currentDimension == FilterDimension.STATUS) renderTasks()
         }
     }
 
@@ -150,13 +200,43 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
      * 异常：无。
      */
     private fun renderTasks() {
-        Log.d(
-            TAG,
-            "renderTasks in categoryFilter=$categoryFilter keyword=$keyword"
-        )
+        Log.d(TAG, "renderTasks in dimension=$currentDimension keyword=$keyword")
         val filtered = allTasks.filter { task ->
-            if (categoryFilter != "全部" && task.category != categoryFilter) return@filter false
             if (keyword.isNotBlank() && !task.title.contains(keyword, ignoreCase = true)) return@filter false
+            
+            when (currentDimension) {
+                FilterDimension.CATEGORY -> {
+                    if (currentCategory != "全部" && task.category != currentCategory) return@filter false
+                }
+                FilterDimension.QUADRANT -> {
+                    if (currentQuadrant != "全部") {
+                        val isUI = task.urgent && task.important
+                        val isI = !task.urgent && task.important
+                        val isU = task.urgent && !task.important
+                        val isOther = !task.urgent && !task.important
+                        
+                        val match = when (currentQuadrant) {
+                            "紧急且重要" -> isUI
+                            "重要" -> isI
+                            "紧急" -> isU
+                            "其他" -> isOther
+                            else -> true
+                        }
+                        if (!match) return@filter false
+                    }
+                }
+                FilterDimension.STATUS -> {
+                    if (currentStatus != "全部") {
+                        val match = when (currentStatus) {
+                            "已完成" -> task.done
+                            "进行中" -> !task.done
+                            "未完成" -> !task.done
+                            else -> true
+                        }
+                        if (!match) return@filter false
+                    }
+                }
+            }
             true
         }.sortedBy { it.done }
         adapter.submitData(filtered)

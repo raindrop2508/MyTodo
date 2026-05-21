@@ -31,7 +31,7 @@
             android:layout_marginTop="4dp"
             android:textColor="@color/text_primary"
             android:textSize="@dimen/section_title_size"
-            app:layout_constraintEnd_toStartOf="@id/iv_urgent_alert"
+            app:layout_constraintEnd_toStartOf="@id/iv_arrow_right"
             app:layout_constraintStart_toEndOf="@id/cb_task_done"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="完成项目原型设计" />
