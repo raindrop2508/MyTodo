@@ -51,9 +51,10 @@
 
                         <com.google.android.material.checkbox.MaterialCheckBox
                             android:id="@+id/cb_task_done"
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
-                            android:layout_marginTop="2dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="48dp"
+                            android:minHeight="48dp"
                             android:button="@drawable/sel_checkbox_circle"
                             app:buttonTint="@null"
                             app:useMaterialThemeColors="false" />
@@ -63,7 +64,8 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginStart="12dp"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginTop="8dp"
                             android:textSize="22sp"
                             android:textStyle="bold"
                             android:textColor="@color/text_primary"

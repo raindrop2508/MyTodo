@@ -120,7 +120,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_type_one_time"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/Widget.MyPotato.Button.OutlinedToggle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -129,7 +129,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_type_long_task"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/Widget.MyPotato.Button.OutlinedToggle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -160,7 +160,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_category_none"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/Widget.MyPotato.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checkable="true"
@@ -169,7 +169,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_category_work"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/Widget.MyPotato.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checkable="true"
@@ -179,7 +179,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_category_life"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/Widget.MyPotato.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checkable="true"
@@ -189,7 +189,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_category_study"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/Widget.MyPotato.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checkable="true"
@@ -199,7 +199,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_category_health"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/Widget.MyPotato.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checkable="true"

@@ -27,6 +27,7 @@
         app:elevation="0dp"
         app:itemIconTint="@color/bottom_nav_item_colors"
         app:itemTextColor="@color/bottom_nav_item_colors"
+        app:itemActiveIndicatorStyle="@style/Widget.MyPotato.BottomNav.ActiveIndicator"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

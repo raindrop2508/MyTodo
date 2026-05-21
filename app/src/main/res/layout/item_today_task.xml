@@ -74,13 +74,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="24dp"
                 android:layout_marginStart="8dp"
-                android:background="@drawable/bg_tag_rounded"
+                android:background="@drawable/bg_tag_outline"
                 android:gravity="center"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
                 android:textColor="@color/tag_default_text"
                 android:textSize="@dimen/body_small_size"
-                app:backgroundTint="@color/tag_default_bg"
                 tools:text="长时" />
 
             <TextView
