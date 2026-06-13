@@ -135,4 +135,58 @@
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
+    <!-- 新提取的硬编码字符串 -->
+    <string name="tasks_segment_category">按类别</string>
+    <string name="tasks_segment_quadrant">按象限</string>
+    <string name="tasks_segment_status">按状态</string>
+    <string name="tasks_filter_chip_all">全部</string>
+    <string name="tasks_filter_chip_study">学习</string>
+    <string name="tasks_filter_chip_work">工作</string>
+    <string name="tasks_filter_chip_life">生活</string>
+    <string name="tasks_filter_chip_health">健康</string>
+    <string name="tasks_filter_chip_ui">紧急且重要</string>
+    <string name="tasks_filter_chip_i">重要</string>
+    <string name="tasks_filter_chip_u">紧急</string>
+    <string name="tasks_filter_chip_n">其他</string>
+    <string name="tasks_filter_chip_done">已完成</string>
+    <string name="tasks_filter_chip_doing">进行中</string>
+    <string name="tasks_filter_chip_todo">未完成</string>
+
+    <string name="task_detail_tag_u">紧急</string>
+    <string name="task_detail_tag_i">重要</string>
+    <string name="task_detail_task_desc">参考Material Design 3规范</string>
+    <string name="task_detail_no_pomodoro">单次任务不支持番茄钟计时</string>
+    <string name="task_detail_start_pomodoro">开始番茄钟</string>
+    <string name="task_detail_steps_title">任务步骤</string>
+    <string name="task_detail_add_step">+ 添加步骤</string>
+    <string name="task_detail_progress_title">完成进度</string>
+
+    <string name="settings_group_appearance">外观设置</string>
+    <string name="settings_item_theme">主题模式</string>
+    <string name="settings_item_theme_desc">跟随系统</string>
+    <string name="settings_group_language">语言设置</string>
+    <string name="settings_item_language">应用语言</string>
+    <string name="settings_item_language_desc">简体中文</string>
+    <string name="settings_group_data">数据管理</string>
+    <string name="settings_item_export">导出数据</string>
+    <string name="settings_group_pomodoro">番茄钟设置</string>
+    <string name="settings_item_work_duration">工作时长（分钟）</string>
+    <string name="settings_item_work_duration_desc">25分钟</string>
+    <string name="settings_item_break_duration">休息时长（分钟）</string>
+    <string name="settings_item_break_duration_desc">5分钟</string>
+    <string name="settings_item_sound">完成提醒</string>
+    <string name="settings_item_sound_desc">番茄钟结束时播放提示音</string>
+    <string name="settings_group_about">关于</string>
+    <string name="settings_item_version">版本号</string>
+    <string name="settings_item_check_update">检查更新</string>
+
+    <string name="statistics_tab_today">今日</string>
+    <string name="statistics_tab_week">本周</string>
+    <string name="statistics_tab_month">本月</string>
+    <string name="statistics_filter_all_categories">全部类别</string>
+    <string name="statistics_filter_long_task_only">仅长时任务</string>
+    <string name="statistics_card_completed">已完成</string>
+    <string name="statistics_card_doing">进行中</string>
+    <string name="statistics_card_rate">完成率</string>
+    <string name="statistics_chart_time_dist">时间段分布</string>
 </resources>

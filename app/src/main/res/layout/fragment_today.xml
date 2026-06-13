@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/page_bg_light"
+    android:background="?android:attr/colorBackground"
     android:paddingStart="@dimen/page_horizontal_padding"
     android:paddingTop="@dimen/page_top_padding"
     android:paddingEnd="@dimen/page_horizontal_padding">
@@ -14,7 +14,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/today_title"
-        android:textColor="@color/text_primary"
+        android:textColor="?attr/colorOnSurface"
         android:textSize="@dimen/page_title_size"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -25,9 +25,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:drawableStart="@drawable/ic_calendar"
+        android:drawableStart="@drawable/ic_calendar" android:drawableTint="?attr/colorOnSurfaceVariant"
         android:drawablePadding="8dp"
-        android:textColor="@color/text_secondary"
+        android:textColor="?attr/colorOnSurfaceVariant"
         android:textSize="@dimen/body_medium_size"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_today_title"
@@ -125,14 +125,14 @@
             android:layout_width="72dp"
             android:layout_height="72dp"
             android:src="@drawable/ic_calendar"
-            app:tint="@color/text_hint" />
+            app:tint="?attr/colorOnSurfaceVariant" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             android:text="@string/today_empty_title"
-            android:textColor="@color/text_primary"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="@dimen/section_title_size"
             android:textStyle="bold" />
 
@@ -141,7 +141,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:text="@string/today_empty_hint"
-            android:textColor="@color/text_secondary"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:textSize="@dimen/body_medium_size" />
     </LinearLayout>
 
@@ -153,9 +153,9 @@
         android:layout_marginBottom="@dimen/fab_margin"
         android:contentDescription="@string/today_fab_add_task"
         android:src="@android:drawable/ic_input_add"
-        app:backgroundTint="@color/brand_fab_bg"
+        app:backgroundTint="?attr/colorPrimaryContainer"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:tint="@color/brand_indigo" />
+        app:tint="?attr/colorPrimary" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

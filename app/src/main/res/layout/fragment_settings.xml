@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/page_bg_light"
+    android:background="?android:attr/colorBackground"
     android:clipToPadding="false"
     android:fillViewport="true">
 
@@ -22,7 +22,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/settings_title"
-            android:textColor="@color/text_primary"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="@dimen/page_title_size"
             android:textStyle="bold" />
 
@@ -42,8 +42,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="外观设置"
-                    android:textColor="@color/text_primary"
+                    android:text="@string/settings_group_appearance"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="@dimen/section_title_size"
                     android:textStyle="normal" />
 
@@ -51,8 +51,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
-                    android:text="主题模式"
-                    android:textColor="@color/text_secondary"
+                    android:text="@string/settings_item_theme"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="@dimen/body_medium_size" />
 
                 <com.google.android.material.card.MaterialCardView
@@ -74,7 +74,7 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_sun"
-                            app:tint="@color/text_secondary" />
+                            app:tint="?attr/colorOnSurfaceVariant" />
 
                         <TextView
                             android:id="@+id/tvThemeValue"
@@ -82,15 +82,15 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="12dp"
                             android:layout_weight="1"
-                            android:text="跟随系统"
-                            android:textColor="@color/text_primary"
+                            android:text="@string/settings_item_theme_desc"
+                            android:textColor="?attr/colorOnSurface"
                             android:textSize="16sp" />
 
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_dropdown"
-                            app:tint="@color/text_hint" />
+                            app:tint="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
@@ -112,8 +112,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="语言设置"
-                    android:textColor="@color/text_primary"
+                    android:text="@string/settings_group_language"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="@dimen/section_title_size"
                     android:textStyle="normal" />
 
@@ -121,8 +121,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
-                    android:text="应用语言"
-                    android:textColor="@color/text_secondary"
+                    android:text="@string/settings_item_language"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="@dimen/body_medium_size" />
 
                 <com.google.android.material.card.MaterialCardView
@@ -145,15 +145,15 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="简体中文"
-                            android:textColor="@color/text_primary"
+                            android:text="@string/settings_item_language_desc"
+                            android:textColor="?attr/colorOnSurface"
                             android:textSize="16sp" />
 
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_dropdown"
-                            app:tint="@color/text_hint" />
+                            app:tint="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
@@ -175,8 +175,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="数据管理"
-                    android:textColor="@color/text_primary"
+                    android:text="@string/settings_group_data"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="@dimen/section_title_size"
                     android:textStyle="normal" />
 
@@ -197,14 +197,14 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="导出数据"
-                            android:textColor="@color/text_primary"
+                            android:text="@string/settings_item_export"
+                            android:textColor="?attr/colorOnSurface"
                             android:textSize="16sp" />
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_arrow_right"
-                            app:tint="@color/text_hint" />
+                            app:tint="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
@@ -226,8 +226,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="番茄钟设置"
-                    android:textColor="@color/text_primary"
+                    android:text="@string/settings_group_pomodoro"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="@dimen/section_title_size"
                     android:textStyle="normal" />
 
@@ -235,8 +235,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
-                    android:text="工作时长（分钟）"
-                    android:textColor="@color/text_secondary"
+                    android:text="@string/settings_item_work_duration"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="@dimen/body_medium_size" />
 
                 <com.google.android.material.card.MaterialCardView
@@ -259,15 +259,15 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="25分钟"
-                            android:textColor="@color/text_primary"
+                            android:text="@string/settings_item_work_duration_desc"
+                            android:textColor="?attr/colorOnSurface"
                             android:textSize="16sp" />
 
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_dropdown"
-                            app:tint="@color/text_hint" />
+                            app:tint="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -275,8 +275,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="休息时长（分钟）"
-                    android:textColor="@color/text_secondary"
+                    android:text="@string/settings_item_break_duration"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="@dimen/body_medium_size" />
 
                 <com.google.android.material.card.MaterialCardView
@@ -299,15 +299,15 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="5分钟"
-                            android:textColor="@color/text_primary"
+                            android:text="@string/settings_item_break_duration_desc"
+                            android:textColor="?attr/colorOnSurface"
                             android:textSize="16sp" />
 
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_dropdown"
-                            app:tint="@color/text_hint" />
+                            app:tint="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -327,16 +327,16 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="完成提醒"
-                            android:textColor="@color/text_primary"
+                            android:text="@string/settings_item_sound"
+                            android:textColor="?attr/colorOnSurface"
                             android:textSize="16sp" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="番茄钟结束时播放提示音"
-                            android:textColor="@color/text_secondary"
+                            android:text="@string/settings_item_sound_desc"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="@dimen/body_small_size" />
                     </LinearLayout>
 
@@ -365,8 +365,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="关于"
-                    android:textColor="@color/text_primary"
+                    android:text="@string/settings_group_about"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="@dimen/section_title_size"
                     android:textStyle="normal" />
 
@@ -381,8 +381,8 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="版本号"
-                        android:textColor="@color/text_secondary"
+                        android:text="@string/settings_item_version"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:textSize="16sp" />
 
                     <TextView
@@ -390,7 +390,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="1.0.0"
-                        android:textColor="@color/text_primary"
+                        android:textColor="?attr/colorOnSurface"
                         android:textSize="16sp" />
                 </LinearLayout>
 
@@ -399,16 +399,16 @@
                     android:layout_height="1dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginBottom="16dp"
-                    android:background="@color/outline_soft" />
+                    android:background="?attr/colorOutlineVariant" />
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardCheckUpdate"
                     style="@style/Widget.MyPotato.Card.SettingItem"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
-                    app:cardBackgroundColor="@color/card_bg_white"
+                    app:cardBackgroundColor="?attr/colorSurface"
                     app:strokeWidth="1dp"
-                    app:strokeColor="@color/outline_soft">
+                    app:strokeColor="?attr/colorOutlineVariant">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -422,15 +422,15 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_info"
-                            app:tint="@color/text_primary" />
+                            app:tint="?attr/colorOnSurfaceVariant" />
 
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="12dp"
                             android:layout_weight="1"
-                            android:text="检查更新"
-                            android:textColor="@color/text_primary"
+                            android:text="@string/settings_item_check_update"
+                            android:textColor="?attr/colorOnSurface"
                             android:textSize="16sp"
                             android:textStyle="bold" />
 
@@ -438,7 +438,7 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_arrow_right"
-                            app:tint="@color/text_hint" />
+                            app:tint="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 

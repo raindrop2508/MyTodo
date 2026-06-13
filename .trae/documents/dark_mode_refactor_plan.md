@@ -1,86 +1,89 @@
-# 深色模式适配与资源重构计划
+# 资源重构与深色模式预适配详细计划 (全项目范围)
 
 ## 摘要与方案评估
 
-您提出“将所有颜色以及文字都统一整理至 `res/values/` 并将颜色按照使用场景进行命名”的思路**非常合理且必要**，这是消除硬编码、规范项目资源的第一步。
+为了**为后续深色模式适配做好铺垫，同时避免现在就陷入全面的深色模式开发**，我们将采用 **Material Design 主题属性（Theme Attributes）** 与 **矢量图动态着色（Icon Tinting）** 的最佳实践进行项目级的架构调整。
 
-**有没有更好的方案？**
-**有。** 仅仅将颜色按场景命名（如 `@color/text_primary`）然后写死在布局文件中，在切换深色模式时，仍然需要维护两套 `colors.xml`（`values` 和 `values-night`），并且会导致同一种颜色产生大量别名，难以维护。
+本阶段的**核心目标**是：对整个项目所有布局和相关资源文件进行精确的清理和替换，搭建基于 Theme 属性的引用架构。未来需要支持深色模式时，只需在 `values-night/themes.xml` 中配置一套颜色映射即可。**本次修改必须保证当前浅色模式下的 UI 视觉效果完全保持不变。**
 
-业界更推荐的**最佳实践**是结合 **Material Design 主题属性（Theme Attributes）** 与 **矢量图动态着色（Icon Tinting）**：
+本计划已进行了详尽的全局扫描，**明确列出了所有需要修改的文件，绝无任何省略（不使用“等”字）**。
 
-1. **语义化主题属性**：布局文件中不再直接引用 `@color/xxx`，而是引用主题属性 `?attr/colorOnSurface`（代表表面上的文字颜色）、`?attr/colorSurface`（代表卡片背景色）等。系统会根据当前是深色还是浅色模式，自动从 `themes.xml` 中提取对应的实际颜色。
-2. **单一矢量图 + 动态着色**：不再区分 `ic_pause_white` 和 `ic_reset_black`。图标文件只需一份（如 `ic_pause.xml`，内部使用纯黑或纯白），在布局中通过 `app:tint="?attr/colorOnSurface"` 或 `app:iconTint="?attr/colorOnPrimary"` 动态赋予颜色。
+***
 
-## 拟议变更（以番茄钟页面为例进行重构）
+## 拟议变更（明确到所有具体文件）
 
-### 1. 矢量图标重构
+### 第一部分：全局主题属性映射（已在前期完成）
 
-* 将带有颜色后缀的图标重命名为通用名称：
+*文件：`e:\code\MyPotato\app\src\main\res\values\themes.xml`* *及* *`values-night\themes.xml`*
 
-  * `ic_play_white_24dp.xml` -> `ic_play_24dp.xml`
+* 已在 `Base.Theme.MyPotato` 中增加了 `android:colorBackground`, `colorSurface`, `colorOnSurface`, `colorOnSurfaceVariant`, `colorOutline`, `colorOutlineVariant`, `colorError` 等属性映射，供后续布局引用。
 
-  * `ic_pause_white_24dp.xml` -> `ic_pause_24dp.xml`
+### 第二部分：矢量图标与状态选择器文件去色与引用更新
 
-  * `ic_reset_black_24dp.xml` -> `ic_reset_24dp.xml`
+将所有带有硬编码颜色的通用矢量图标的 `fillColor` 统一改为占位中性色 `#FF000000`，以便在布局中动态着色。
+**需要修改的 7 个图标文件**：
 
-* 图标内部的 `android:fillColor` 统一改为中性色（如 `#FF000000`）。
+1. `e:\code\MyPotato\app\src\main\res\drawable\ic_info.xml`
+2. `e:\code\MyPotato\app\src\main\res\drawable\ic_sun.xml`
+3. `e:\code\MyPotato\app\src\main\res\drawable\ic_dropdown.xml`
+4. `e:\code\MyPotato\app\src\main\res\drawable\ic_clock.xml`
+5. `e:\code\MyPotato\app\src\main\res\drawable\ic_arrow_right.xml`
+6. `e:\code\MyPotato\app\src\main\res\drawable\ic_calendar.xml`
+7. `e:\code\MyPotato\app\src\main\res\drawable\ic_urgent_alert.xml` （原为红色，现改为 `#FF000000`，由布局决定颜色）
 
-### 2. 主题与颜色体系完善 (`themes.xml` & `colors.xml`)
+**需要修改的 7 个 ColorStateList 文件（将内部的** **`@color/xxx`** **替换为** **`?attr/xxx`）**：
 
-* 在 `res/values/colors.xml` 中清理冗余命名，保留基础色板（如 `gray_900`, `white`, `red_500` 等）。
+1. `e:\code\MyPotato\app\src\main\res\color\bottom_nav_item_colors.xml`
+2. `e:\code\MyPotato\app\src\main\res\color\chip_bg_color_selector.xml`
+3. `e:\code\MyPotato\app\src\main\res\color\chip_stroke_color_selector.xml`
+4. `e:\code\MyPotato\app\src\main\res\color\chip_text_color_selector.xml`
+5. `e:\code\MyPotato\app\src\main\res\color\selector_segmented_text.xml`
+6. `e:\code\MyPotato\app\src\main\res\color\switch_thumb_tint.xml`
+7. `e:\code\MyPotato\app\src\main\res\color\switch_track_tint.xml`
 
-* 在 `res/values/themes.xml` (浅色主题) 中映射属性：
+**需要修改的 6 个 Shape Drawable 文件（将内部的** **`@color/xxx`** **替换为** **`?attr/xxx`）**：
 
-  * `colorSurface` -> 纯白 (卡片背景)
+1. `e:\code\MyPotato\app\src\main\res\drawable\sel_checkbox_circle.xml`
+2. `e:\code\MyPotato\app\src\main\res\drawable\bg_tag_outline.xml`
+3. `e:\code\MyPotato\app\src\main\res\drawable\bg_tag_type.xml`
+4. `e:\code\MyPotato\app\src\main\res\drawable\bg_segmented_item_checked.xml`
+5. `e:\code\MyPotato\app\src\main\res\drawable\bg_segmented_container.xml`
+6. `e:\code\MyPotato\app\src\main\res\drawable\bg_tag_rounded.xml`
 
-  * `colorOnSurface` -> 深黑 (主文本)
+*(注：原有的* *`ic_play_white_24dp.xml`* *等 4 个文件已在前期完成重命名与去色)*
 
-  * `colorOnSurfaceVariant` -> 灰色 (次要文本)
+### 第三部分：布局文件硬编码全面替换（颜色与图标动态着色）
 
-  * `android:colorBackground` -> 浅灰 (页面背景)
+对以下 **全部 11 个布局文件** 进行逐行扫描与修改。
+操作：将其中的 `@color/page_bg_light` 替换为 `?android:attr/colorBackground`，将 `@color/card_bg_white` 替换为 `?attr/colorSurface`，将 `@color/text_primary` 替换为 `?attr/colorOnSurface` 等。同时，为引用了矢量图标的 `ImageView` 和 `MaterialButton` 添加 `app:tint="?attr/..."` 或 `app:iconTint="?attr/..."`。
+**完整的布局文件清单**：
 
-* 在 `res/values-night/themes.xml` (深色主题) 中映射属性：
+1. `e:\code\MyPotato\app\src\main\res\layout\activity_main.xml` *(已在前期完成)*
+2. `e:\code\MyPotato\app\src\main\res\layout\activity_pomodoro.xml` *(已在前期完成)*
+3. `e:\code\MyPotato\app\src\main\res\layout\activity_task_detail.xml`
+4. `e:\code\MyPotato\app\src\main\res\layout\bottom_sheet_add_task_placeholder.xml`
+5. `e:\code\MyPotato\app\src\main\res\layout\fragment_settings.xml`
+6. `e:\code\MyPotato\app\src\main\res\layout\fragment_statistics.xml`
+7. `e:\code\MyPotato\app\src\main\res\layout\fragment_tasks.xml`
+8. `e:\code\MyPotato\app\src\main\res\layout\fragment_today.xml`
+9. `e:\code\MyPotato\app\src\main\res\layout\item_statistics_timeline_slot.xml`
+10. `e:\code\MyPotato\app\src\main\res\layout\item_step.xml`
+11. `e:\code\MyPotato\app\src\main\res\layout\item_today_task.xml`
 
-  * `colorSurface` -> 深灰 (暗色卡片背景)
+### 第四部分：字符串硬编码全局提取
 
-  * `colorOnSurface` -> 纯白 (暗色主文本)
+通过扫描，发现仍有部分布局文件存在 `android:text` 的中文硬编码。将对以下 **4 个具体文件** 进行字符串提取，统一存入 `e:\code\MyPotato\app\src\main\res\values\strings.xml` 中：
 
-  * 依此类推。
+1. `e:\code\MyPotato\app\src\main\res\layout\fragment_tasks.xml` （包含“按类别”、“按象限”、“学习”、“工作”等硬编码文字）
+2. `e:\code\MyPotato\app\src\main\res\layout\activity_task_detail.xml` （包含“紧急”、“重要”、“单次任务不支持番茄钟计时”等文字）
+3. `e:\code\MyPotato\app\src\main\res\layout\fragment_settings.xml` （包含“外观设置”、“语言设置”、“关于”等大量文字）
+4. `e:\code\MyPotato\app\src\main\res\layout\fragment_statistics.xml` （包含“今日”、“本周”、“全部类别”、“已完成”等文字）
 
-### 3. 布局文件重构 (`activity_pomodoro.xml`)
-
-将现有的硬编码颜色替换为动态属性：
-
-* `android:background="@color/page_bg_light"` -> `?android:attr/colorBackground`
-
-* `app:cardBackgroundColor="@color/card_bg_white"` -> `?attr/colorSurface`
-
-* `android:textColor="@color/text_primary"` -> `?attr/colorOnSurface`
-
-* `android:textColor="@color/text_secondary"` -> `?attr/colorOnSurfaceVariant`
-
-* 按钮图标引入：
-
-  * `app:iconTint="?attr/colorOnPrimary"` (对于实心按钮的白色图标)
-
-  * `app:iconTint="?attr/colorOnSurface"` (对于轮廓按钮的图标)
-
-### 4. 代码逻辑更新 (`PomodoroActivity.kt`)
-
-* 倒计时逻辑中动态切换图标的引用更新为新的无颜色后缀的 drawable ID：
-
-  * `R.drawable.ic_play_24dp`
-
-  * `R.drawable.ic_pause_24dp`
-
-### 5. 字符串整理
-
-* 检查 `activity_pomodoro.xml` 中是否还有遗漏的硬编码中文字符（目前在前一任务中已基本提取至 `strings.xml`，这里做最后的兜底检查）。
+***
 
 ## 验证步骤
 
-1. **静态检查**：确认布局文件中不再包含 `@color/text_...` 或硬编码颜色，全部替换为 `?attr/...`。
-2. **编译运行**：验证项目能够正常编译，番茄钟页面在浅色模式下 UI 表现与之前一致。
-3. **深色模式测试（可选）**：若设备或模拟器切换至深色模式，页面卡片、文字与图标能自动反转颜色，不再出现白底黑字无法看清的情况。
+1. **静态检查**：确认上述所有清单中的文件均已修改完毕，不存在遗漏的 `@color/text_primary` 等静态引用和中文字符串硬编码。
+2. **编译运行**：验证项目能正常无报错编译。
+3. **全局 UI 回归**：在当前浅色模式下，启动应用并访问所有页面，确保每一处 UI 外观与重构前绝对一致。
 

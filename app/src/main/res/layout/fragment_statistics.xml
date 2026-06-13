@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/page_bg_light"
+    android:background="?android:attr/colorBackground"
     android:clipToPadding="false"
     android:fillViewport="true">
 
@@ -22,7 +22,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/statistics_title"
-            android:textColor="@color/text_primary"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="@dimen/page_title_size"
             android:textStyle="bold" />
 
@@ -48,7 +48,7 @@
                     android:layout_height="wrap_content"
                     android:checkable="true"
                     android:checked="true"
-                    android:text="今日" />
+                    android:text="@string/statistics_tab_today" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_time_week"
@@ -56,7 +56,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checkable="true"
-                    android:text="本周" />
+                    android:text="@string/statistics_tab_week" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_time_month"
@@ -64,7 +64,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checkable="true"
-                    android:text="本月" />
+                    android:text="@string/statistics_tab_month" />
             </com.google.android.material.chip.ChipGroup>
         </HorizontalScrollView>
 
@@ -90,7 +90,7 @@
                     android:layout_height="wrap_content"
                     android:checkable="true"
                     android:checked="true"
-                    android:text="全部类别" />
+                    android:text="@string/statistics_filter_all_categories" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_cat_long"
@@ -98,7 +98,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checkable="true"
-                    android:text="仅长时任务" />
+                    android:text="@string/statistics_filter_long_task_only" />
             </com.google.android.material.chip.ChipGroup>
         </HorizontalScrollView>
 
@@ -130,7 +130,7 @@
                         android:id="@+id/tv_stat_completed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/text_primary"
+                        android:textColor="?attr/colorOnSurface"
                         android:textSize="28sp"
                         android:textStyle="bold"
                         tools:text="12" />
@@ -139,8 +139,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="已完成"
-                        android:textColor="@color/text_secondary"
+                        android:text="@string/statistics_card_completed"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:textSize="@dimen/body_small_size" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -174,8 +174,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="进行中"
-                        android:textColor="@color/text_secondary"
+                        android:text="@string/statistics_card_doing"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:textSize="@dimen/body_small_size" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -199,7 +199,7 @@
                         android:id="@+id/tv_stat_rate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:textSize="28sp"
                         android:textStyle="bold"
                         tools:text="48%" />
@@ -208,8 +208,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="完成率"
-                        android:textColor="@color/text_secondary"
+                        android:text="@string/statistics_card_rate"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:textSize="@dimen/body_small_size" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -234,10 +234,10 @@
                     android:id="@+id/tv_chart_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/ic_calendar"
+                    android:drawableStart="@drawable/ic_calendar" android:drawableTint="?attr/colorOnSurfaceVariant"
                     android:drawablePadding="8dp"
-                    android:text="时间段分布"
-                    android:textColor="@color/text_primary"
+                    android:text="@string/statistics_chart_time_dist"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="@dimen/section_title_size"
                     android:textStyle="normal" />
 

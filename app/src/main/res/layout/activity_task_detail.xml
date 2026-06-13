@@ -5,13 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/page_bg_light">
+    android:background="?android:attr/colorBackground">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:title="任务详情"
+        app:title="@string/task_detail_title"
         app:navigationIcon="?attr/homeAsUpIndicator"
         app:menu="@menu/menu_task_detail" />
 
@@ -31,7 +31,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/card_bg_white"
+                app:cardBackgroundColor="?attr/colorSurface"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
                 app:strokeWidth="1dp"
@@ -68,7 +68,7 @@
                             android:layout_marginTop="8dp"
                             android:textSize="22sp"
                             android:textStyle="bold"
-                            android:textColor="@color/text_primary"
+                            android:textColor="?attr/colorOnSurface"
                             tools:text="回复客户邮件" />
                     </LinearLayout>
 
@@ -114,7 +114,7 @@
                             android:textSize="12sp"
                             android:textColor="@color/white"
                             android:background="@drawable/bg_tag_urgent"
-                            android:text="紧急" />
+                            android:text="@string/task_detail_tag_u" />
 
                         <TextView
                             android:id="@+id/tv_important"
@@ -126,7 +126,7 @@
                             android:textSize="12sp"
                             android:textColor="@color/white"
                             android:background="@drawable/bg_tag_important"
-                            android:text="重要" />
+                            android:text="@string/task_detail_tag_i" />
                     </LinearLayout>
 
                     <TextView
@@ -136,7 +136,7 @@
                         android:layout_marginTop="16dp"
                         android:layout_marginStart="40dp"
                         android:textSize="14sp"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         tools:text="回复关于产品咨询的邮件" />
 
                     <!-- 附带笔记卡片 -->
@@ -155,15 +155,15 @@
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:src="@drawable/ic_note"
-                            app:tint="@color/text_secondary" />
+                            app:tint="?attr/colorOnSurfaceVariant" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:textSize="14sp"
-                            android:textColor="@color/text_secondary"
-                            android:text="参考Material Design 3规范" />
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:text="@string/task_detail_task_desc" />
                     </LinearLayout>
 
                     <View
@@ -183,7 +183,7 @@
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:src="@drawable/ic_calendar"
-                            app:tint="@color/text_secondary" />
+                            app:tint="?attr/colorOnSurfaceVariant" />
 
                         <TextView
                             android:id="@+id/tv_create_time"
@@ -191,7 +191,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:textSize="14sp"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             tools:text="创建时间：2026/5/21 15:18:09" />
                     </LinearLayout>
 
@@ -207,7 +207,7 @@
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:src="@drawable/ic_clock"
-                            app:tint="@color/text_secondary" />
+                            app:tint="?attr/colorOnSurfaceVariant" />
 
                         <TextView
                             android:id="@+id/tv_accumulated_time"
@@ -215,7 +215,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:textSize="14sp"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             tools:text="累计用时：1小时0分钟" />
                     </LinearLayout>
 
@@ -230,8 +230,8 @@
                 android:layout_marginTop="24dp"
                 android:background="@drawable/bg_button_disabled"
                 android:gravity="center"
-                android:text="单次任务不支持番茄钟计时"
-                android:textColor="@color/text_secondary"
+                android:text="@string/task_detail_no_pomodoro"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="14sp" />
 
             <!-- 长时任务开始番茄钟按钮 -->
@@ -248,13 +248,13 @@
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:src="@drawable/ic_clock"
-                    app:tint="@color/white" />
+                    app:tint="?attr/colorOnSurfaceVariant" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="开始番茄钟"
+                    android:text="@string/task_detail_start_pomodoro"
                     android:textColor="@color/white"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -267,7 +267,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:layout_marginBottom="24dp"
-                app:cardBackgroundColor="@color/card_bg_white"
+                app:cardBackgroundColor="?attr/colorSurface"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
                 app:strokeWidth="1dp"
@@ -286,19 +286,19 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="任务步骤"
+                            android:text="@string/task_detail_steps_title"
                             android:textSize="18sp"
                             android:textStyle="bold"
-                            android:textColor="@color/text_primary" />
+                            android:textColor="?attr/colorOnSurface" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
-                            android:text="+ 添加步骤"
+                            android:text="@string/task_detail_add_step"
                             android:textSize="14sp"
                             android:textStyle="bold"
-                            android:textColor="@color/text_primary" />
+                            android:textColor="?attr/colorOnSurface" />
                     </RelativeLayout>
 
                     <RelativeLayout
@@ -309,9 +309,9 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="完成进度"
+                            android:text="@string/task_detail_progress_title"
                             android:textSize="14sp"
-                            android:textColor="@color/text_secondary" />
+                            android:textColor="?attr/colorOnSurfaceVariant" />
 
                         <TextView
                             android:id="@+id/tv_progress"
@@ -320,7 +320,7 @@
                             android:layout_alignParentEnd="true"
                             android:text="2/5"
                             android:textSize="14sp"
-                            android:textColor="@color/text_secondary" />
+                            android:textColor="?attr/colorOnSurfaceVariant" />
                     </RelativeLayout>
 
                     <ProgressBar

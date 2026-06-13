@@ -111,13 +111,13 @@ class PomodoroActivity : AppCompatActivity() {
                 updateTimerText()
                 binding.progressTimer.progress = 0
                 binding.btnToggle.setText(R.string.pomodoro_btn_start)
-                binding.btnToggle.setIconResource(R.drawable.ic_play_white_24dp)
+                binding.btnToggle.setIconResource(R.drawable.ic_play_24dp)
             }
         }.start()
 
         timerState = TimerState.RUNNING
         binding.btnToggle.setText(R.string.pomodoro_btn_pause)
-        binding.btnToggle.setIconResource(R.drawable.ic_pause_white_24dp)
+        binding.btnToggle.setIconResource(R.drawable.ic_pause_24dp)
         Log.d("PomodoroActivity", "startTimer: 计时器已启动")
     }
 
@@ -134,7 +134,7 @@ class PomodoroActivity : AppCompatActivity() {
         countDownTimer?.cancel()
         timerState = TimerState.PAUSED
         binding.btnToggle.setText(R.string.pomodoro_btn_resume)
-        binding.btnToggle.setIconResource(R.drawable.ic_play_white_24dp)
+        binding.btnToggle.setIconResource(R.drawable.ic_play_24dp)
         Log.d("PomodoroActivity", "pauseTimer: 计时器已暂停")
     }
 
@@ -152,7 +152,7 @@ class PomodoroActivity : AppCompatActivity() {
         updateTimerText()
         binding.progressTimer.progress = totalTimeMs.toInt()
         binding.btnToggle.setText(R.string.pomodoro_btn_start)
-        binding.btnToggle.setIconResource(R.drawable.ic_play_white_24dp)
+        binding.btnToggle.setIconResource(R.drawable.ic_play_24dp)
         Log.d("PomodoroActivity", "resetTimer: 重置完成")
     }
 

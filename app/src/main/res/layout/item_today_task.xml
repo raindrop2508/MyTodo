@@ -29,7 +29,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginTop="4dp"
-            android:textColor="@color/text_primary"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="@dimen/section_title_size"
             app:layout_constraintEnd_toStartOf="@id/iv_arrow_right"
             app:layout_constraintStart_toEndOf="@id/cb_task_done"
@@ -40,7 +40,7 @@
             android:id="@+id/iv_arrow_right"
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:src="@drawable/ic_arrow_right"
+            android:src="@drawable/ic_arrow_right" app:tint="?attr/colorOnSurfaceVariant"
             app:layout_constraintBottom_toBottomOf="@id/tv_task_title"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/tv_task_title" />
@@ -88,11 +88,11 @@
                 android:layout_height="match_parent"
                 android:layout_marginStart="8dp"
                 android:gravity="center_vertical"
-                android:drawableStart="@drawable/ic_clock"
+                android:drawableStart="@drawable/ic_clock" android:drawableTint="?attr/colorOnSurfaceVariant"
                 android:drawablePadding="4dp"
-                android:textColor="@color/text_secondary"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="@dimen/body_small_size"
-                app:drawableTint="@color/text_secondary"
+                app:drawableTint="?attr/colorOnSurfaceVariant"
                 tools:text="60分钟" />
 
             <TextView
@@ -101,7 +101,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginStart="8dp"
                 android:gravity="center_vertical"
-                android:textColor="@color/text_secondary"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="@dimen/body_small_size"
                 tools:text="5个步骤" />
         </LinearLayout>
