@@ -84,3 +84,4 @@ Thumbs.db
 .Trash-*
 .nfs*
 .vscode/settings.json
+.kotlin/*

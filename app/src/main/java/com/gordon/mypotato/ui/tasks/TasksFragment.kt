@@ -21,7 +21,6 @@ import com.gordon.mypotato.databinding.FragmentTasksBinding
 import com.gordon.mypotato.databinding.ItemTodayTaskBinding
 
 class TasksFragment : Fragment(R.layout.fragment_tasks) {
-
     private var _binding: FragmentTasksBinding? = null
     private val binding: FragmentTasksBinding
         get() = _binding!!
@@ -31,8 +30,11 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
     private var keyword: String = ""
 
     private enum class FilterDimension {
-        CATEGORY, QUADRANT, STATUS
+        CATEGORY,
+        QUADRANT,
+        STATUS,
     }
+
     private var currentDimension: FilterDimension = FilterDimension.CATEGORY
     private var currentCategory: String = "全部"
     private var currentQuadrant: String = "全部"
@@ -41,13 +43,16 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentTasksBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
         setupHeader()
         setupTaskList()
@@ -140,36 +145,39 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         Log.d(TAG, "setupChips in")
         binding.chipGroupCategory.setOnCheckedStateChangeListener { _, checkedIds ->
             val checkedId = checkedIds.firstOrNull() ?: R.id.chip_cat_all
-            currentCategory = when (checkedId) {
-                R.id.chip_cat_study -> "学习"
-                R.id.chip_cat_work -> "工作"
-                R.id.chip_cat_life -> "生活"
-                R.id.chip_cat_health -> "健康"
-                else -> "全部"
-            }
+            currentCategory =
+                when (checkedId) {
+                    R.id.chip_cat_study -> "学习"
+                    R.id.chip_cat_work -> "工作"
+                    R.id.chip_cat_life -> "生活"
+                    R.id.chip_cat_health -> "健康"
+                    else -> "全部"
+                }
             if (currentDimension == FilterDimension.CATEGORY) renderTasks()
         }
-        
+
         binding.chipGroupQuadrant.setOnCheckedStateChangeListener { _, checkedIds ->
             val checkedId = checkedIds.firstOrNull() ?: R.id.chip_quadrant_all
-            currentQuadrant = when (checkedId) {
-                R.id.chip_quadrant_ui -> "紧急且重要"
-                R.id.chip_quadrant_i -> "重要"
-                R.id.chip_quadrant_u -> "紧急"
-                R.id.chip_quadrant_other -> "其他"
-                else -> "全部"
-            }
+            currentQuadrant =
+                when (checkedId) {
+                    R.id.chip_quadrant_ui -> "紧急且重要"
+                    R.id.chip_quadrant_i -> "重要"
+                    R.id.chip_quadrant_u -> "紧急"
+                    R.id.chip_quadrant_other -> "其他"
+                    else -> "全部"
+                }
             if (currentDimension == FilterDimension.QUADRANT) renderTasks()
         }
-        
+
         binding.chipGroupStatus.setOnCheckedStateChangeListener { _, checkedIds ->
             val checkedId = checkedIds.firstOrNull() ?: R.id.chip_status_all
-            currentStatus = when (checkedId) {
-                R.id.chip_status_done -> "已完成"
-                R.id.chip_status_doing -> "进行中"
-                R.id.chip_status_todo -> "未完成"
-                else -> "全部"
-            }
+            currentStatus =
+                when (checkedId) {
+                    R.id.chip_status_done -> "已完成"
+                    R.id.chip_status_doing -> "进行中"
+                    R.id.chip_status_todo -> "未完成"
+                    else -> "全部"
+                }
             if (currentDimension == FilterDimension.STATUS) renderTasks()
         }
     }
@@ -197,44 +205,50 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
      */
     private fun renderTasks() {
         Log.d(TAG, "renderTasks in dimension=$currentDimension keyword=$keyword")
-        val filtered = allTasks.filter { task ->
-            if (keyword.isNotBlank() && !task.title.contains(keyword, ignoreCase = true)) return@filter false
-            
-            when (currentDimension) {
-                FilterDimension.CATEGORY -> {
-                    if (currentCategory != "全部" && task.category != currentCategory) return@filter false
-                }
-                FilterDimension.QUADRANT -> {
-                    if (currentQuadrant != "全部") {
-                        val isUI = task.urgent && task.important
-                        val isI = !task.urgent && task.important
-                        val isU = task.urgent && !task.important
-                        val isOther = !task.urgent && !task.important
-                        
-                        val match = when (currentQuadrant) {
-                            "紧急且重要" -> isUI
-                            "重要" -> isI
-                            "紧急" -> isU
-                            "其他" -> isOther
-                            else -> true
+        val filtered =
+            allTasks
+                .filter { task ->
+                    if (keyword.isNotBlank() && !task.title.contains(keyword, ignoreCase = true)) return@filter false
+
+                    when (currentDimension) {
+                        FilterDimension.CATEGORY -> {
+                            if (currentCategory != "全部" && task.category != currentCategory) return@filter false
                         }
-                        if (!match) return@filter false
-                    }
-                }
-                FilterDimension.STATUS -> {
-                    if (currentStatus != "全部") {
-                        val match = when (currentStatus) {
-                            "已完成" -> task.done
-                            "进行中" -> !task.done
-                            "未完成" -> !task.done
-                            else -> true
+
+                        FilterDimension.QUADRANT -> {
+                            if (currentQuadrant != "全部") {
+                                val isUI = task.urgent && task.important
+                                val isI = !task.urgent && task.important
+                                val isU = task.urgent && !task.important
+                                val isOther = !task.urgent && !task.important
+
+                                val match =
+                                    when (currentQuadrant) {
+                                        "紧急且重要" -> isUI
+                                        "重要" -> isI
+                                        "紧急" -> isU
+                                        "其他" -> isOther
+                                        else -> true
+                                    }
+                                if (!match) return@filter false
+                            }
                         }
-                        if (!match) return@filter false
+
+                        FilterDimension.STATUS -> {
+                            if (currentStatus != "全部") {
+                                val match =
+                                    when (currentStatus) {
+                                        "已完成" -> task.done
+                                        "进行中" -> !task.done
+                                        "未完成" -> !task.done
+                                        else -> true
+                                    }
+                                if (!match) return@filter false
+                            }
+                        }
                     }
-                }
-            }
-            true
-        }.sortedBy { it.done }
+                    true
+                }.sortedBy { it.done }
         adapter.submitData(filtered)
         binding.layoutTasksEmptyState.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
         Log.d(TAG, "renderTasks out filteredCount=${filtered.size}")
@@ -248,14 +262,15 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
      */
     private fun onTaskClicked(task: TaskUiModel) {
         Log.d(TAG, "onTaskClicked in taskId=${task.id} title=${task.title}")
-        val intent = android.content.Intent(requireContext(), TaskDetailActivity::class.java).apply {
-            putExtra("taskId", task.id)
-            putExtra("taskTitle", task.title)
-            putExtra("isLongTask", task.isLongTask)
-            putExtra("category", task.category)
-            putExtra("urgent", task.urgent)
-            putExtra("important", task.important)
-        }
+        val intent =
+            android.content.Intent(requireContext(), TaskDetailActivity::class.java).apply {
+                putExtra("taskId", task.id)
+                putExtra("taskTitle", task.title)
+                putExtra("isLongTask", task.isLongTask)
+                putExtra("category", task.category)
+                putExtra("urgent", task.urgent)
+                putExtra("important", task.important)
+            }
         startActivity(intent)
         Log.d(TAG, "onTaskClicked out navigated=true")
     }
@@ -266,7 +281,10 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
      * 出参：无。
      * 异常：无。
      */
-    private fun onTaskCheckChanged(task: TaskUiModel, isChecked: Boolean) {
+    private fun onTaskCheckChanged(
+        task: TaskUiModel,
+        isChecked: Boolean,
+    ) {
         Log.d(TAG, "onTaskCheckChanged id=${task.id} isChecked=$isChecked")
         val index = allTasks.indexOfFirst { it.id == task.id }
         if (index != -1) {
@@ -305,13 +323,14 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
                 group.check(R.id.chip_category_none)
                 return@setOnCheckedStateChangeListener
             }
-            selectedCategory = when (checkedIds.first()) {
-                R.id.chip_category_work -> "work"
-                R.id.chip_category_life -> "life"
-                R.id.chip_category_study -> "study"
-                R.id.chip_category_health -> "health"
-                else -> "none"
-            }
+            selectedCategory =
+                when (checkedIds.first()) {
+                    R.id.chip_category_work -> "work"
+                    R.id.chip_category_life -> "life"
+                    R.id.chip_category_study -> "study"
+                    R.id.chip_category_health -> "health"
+                    else -> "none"
+                }
             Log.d(TAG, "showAddTaskBottomSheet categoryChanged selectedCategory=$selectedCategory")
         }
 
@@ -336,10 +355,14 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         }
 
         sheetBinding.btnBottomSheetCreate.setOnClickListener {
-            val title = sheetBinding.etTaskTitle.text?.toString()?.trim().orEmpty()
+            val title =
+                sheetBinding.etTaskTitle.text
+                    ?.toString()
+                    ?.trim()
+                    .orEmpty()
             Log.d(
                 TAG,
-                "showAddTaskBottomSheet clickSave title=$title type=$selectedType category=$selectedCategory urgent=$urgent important=$important"
+                "showAddTaskBottomSheet clickSave title=$title type=$selectedType category=$selectedCategory urgent=$urgent important=$important",
             )
             if (title.isBlank()) {
                 sheetBinding.tilTaskTitle.error = getString(R.string.today_bottom_sheet_title_required)
@@ -347,11 +370,19 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
                 return@setOnClickListener
             }
             sheetBinding.tilTaskTitle.error = null
-            val description = sheetBinding.etTaskContent.text?.toString()?.trim().orEmpty()
-            val note = sheetBinding.etTaskNote.text?.toString()?.trim().orEmpty()
+            val description =
+                sheetBinding.etTaskContent.text
+                    ?.toString()
+                    ?.trim()
+                    .orEmpty()
+            val note =
+                sheetBinding.etTaskNote.text
+                    ?.toString()
+                    ?.trim()
+                    .orEmpty()
             Log.d(
                 TAG,
-                "showAddTaskBottomSheet savePayload title=$title description=$description note=$note type=$selectedType category=$selectedCategory urgent=$urgent important=$important"
+                "showAddTaskBottomSheet savePayload title=$title description=$description note=$note type=$selectedType category=$selectedCategory urgent=$urgent important=$important",
             )
             // TODO: 接入新建任务表单保存逻辑（Room/Repository）。
             dialog.dismiss()
@@ -361,7 +392,6 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         dialog.show()
         Log.d(TAG, "showAddTaskBottomSheet out shown=true")
     }
-
 
     /**
      * 功能：解析主题属性对应的颜色值。
@@ -404,52 +434,53 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
      */
     private fun buildMockTasks(): List<TaskUiModel> {
         Log.d(TAG, "buildMockTasks in")
-        val result = listOf(
-            TaskUiModel(
-                id = "task_001",
-                title = "完成项目原型设计",
-                content = "同步项目进度和风险事项",
-                done = false,
-                isLongTask = true,
-                urgent = true,
-                important = true,
-                category = "工作",
-                minutes = 60,
-                steps = 5
-            ),
-            TaskUiModel(
-                id = "task_002",
-                title = "购买生活用品",
-                content = "准备评审议程与需求变更说明",
-                done = true,
-                isLongTask = false,
-                urgent = false,
-                important = true,
-                category = "购物"
-            ),
-            TaskUiModel(
-                id = "task_003",
-                title = "回复客户邮件",
-                content = "联系医院并确认可预约时段",
-                done = false,
-                isLongTask = false,
-                urgent = true,
-                important = false,
-                category = "工作"
-            ),
-            TaskUiModel(
-                id = "task_004",
-                title = "学习React新特性",
-                content = "输入输出模型相关文章",
-                done = true,
-                isLongTask = true,
-                urgent = false,
-                important = false,
-                category = "学习",
-                minutes = 120,
-                steps = 3
+        val result =
+            listOf(
+                TaskUiModel(
+                    id = "task_001",
+                    title = "完成项目原型设计",
+                    content = "同步项目进度和风险事项",
+                    done = false,
+                    isLongTask = true,
+                    urgent = true,
+                    important = true,
+                    category = "工作",
+                    minutes = 60,
+                    steps = 5,
+                ),
+                TaskUiModel(
+                    id = "task_002",
+                    title = "购买生活用品",
+                    content = "准备评审议程与需求变更说明",
+                    done = true,
+                    isLongTask = false,
+                    urgent = false,
+                    important = true,
+                    category = "购物",
+                ),
+                TaskUiModel(
+                    id = "task_003",
+                    title = "回复客户邮件",
+                    content = "联系医院并确认可预约时段",
+                    done = false,
+                    isLongTask = false,
+                    urgent = true,
+                    important = false,
+                    category = "工作",
+                ),
+                TaskUiModel(
+                    id = "task_004",
+                    title = "学习React新特性",
+                    content = "输入输出模型相关文章",
+                    done = true,
+                    isLongTask = true,
+                    urgent = false,
+                    important = false,
+                    category = "学习",
+                    minutes = 120,
+                    steps = 3,
+                ),
             )
-        )
         Log.d(TAG, "buildMockTasks out count=${result.size}")
         return result
     }
@@ -464,26 +495,33 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         val important: Boolean,
         val category: String = "工作",
         val minutes: Int = 0,
-        val steps: Int = 0
+        val steps: Int = 0,
     )
 
     private enum class StatusFilter {
-        ALL, TODO, DONE
+        ALL,
+        TODO,
+        DONE,
     }
 
     private enum class TypeFilter {
-        ALL, ONE_TIME, LONG
+        ALL,
+        ONE_TIME,
+        LONG,
     }
 
     private enum class PriorityFilter {
-        ALL, UI, I, U, N
+        ALL,
+        UI,
+        I,
+        U,
+        N,
     }
 
     private class TasksAdapter(
         private val onItemClick: (TaskUiModel) -> Unit,
-        private val onCheckChanged: (TaskUiModel, Boolean) -> Unit
+        private val onCheckChanged: (TaskUiModel, Boolean) -> Unit,
     ) : RecyclerView.Adapter<TasksAdapter.TasksViewHolder>() {
-
         private val data = mutableListOf<TaskUiModel>()
 
         fun submitData(newData: List<TaskUiModel>) {
@@ -492,13 +530,19 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
             notifyDataSetChanged()
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TasksViewHolder {
+        override fun onCreateViewHolder(
+            parent: ViewGroup,
+            viewType: Int,
+        ): TasksViewHolder {
             val inflater = LayoutInflater.from(parent.context)
             val binding = ItemTodayTaskBinding.inflate(inflater, parent, false)
             return TasksViewHolder(binding, onItemClick, onCheckChanged)
         }
 
-        override fun onBindViewHolder(holder: TasksViewHolder, position: Int) {
+        override fun onBindViewHolder(
+            holder: TasksViewHolder,
+            position: Int,
+        ) {
             holder.bind(data[position])
         }
 
@@ -507,9 +551,8 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         class TasksViewHolder(
             private val binding: ItemTodayTaskBinding,
             private val onItemClick: (TaskUiModel) -> Unit,
-            private val onCheckChanged: (TaskUiModel, Boolean) -> Unit
+            private val onCheckChanged: (TaskUiModel, Boolean) -> Unit,
         ) : RecyclerView.ViewHolder(binding.root) {
-
             fun bind(item: TaskUiModel) {
                 binding.tvTaskTitle.text = item.title
                 if (item.done) {
@@ -521,11 +564,12 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
                 binding.tvCategoryTag.text = item.category
                 bindCategoryColor(item.category, binding.tvCategoryTag)
 
-                binding.tvTypeTag.text = if (item.isLongTask) {
-                    binding.root.context.getString(R.string.today_task_type_long)
-                } else {
-                    binding.root.context.getString(R.string.today_task_type_once)
-                }
+                binding.tvTypeTag.text =
+                    if (item.isLongTask) {
+                        binding.root.context.getString(R.string.today_task_type_long)
+                    } else {
+                        binding.root.context.getString(R.string.today_task_type_once)
+                    }
 
                 if (item.minutes > 0) {
                     binding.tvTimeTag.visibility = View.VISIBLE
@@ -550,7 +594,10 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
                 binding.root.setOnClickListener { onItemClick(item) }
             }
 
-            private fun bindCategoryColor(category: String, textView: android.widget.TextView) {
+            private fun bindCategoryColor(
+                category: String,
+                textView: android.widget.TextView,
+            ) {
                 val context = textView.context
                 val bgRes: Int
                 val textRes: Int
@@ -559,18 +606,22 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
                         bgRes = R.color.tag_work_bg
                         textRes = R.color.tag_work_text
                     }
+
                     "购物" -> {
                         bgRes = R.color.tag_shopping_bg
                         textRes = R.color.tag_shopping_text
                     }
+
                     "学习" -> {
                         bgRes = R.color.tag_study_bg
                         textRes = R.color.tag_study_text
                     }
+
                     "健康" -> {
                         bgRes = R.color.tag_health_bg
                         textRes = R.color.tag_health_text
                     }
+
                     else -> {
                         bgRes = R.color.tag_default_bg
                         textRes = R.color.tag_default_text

@@ -111,6 +111,25 @@
     <string name="statistics_single_series_label">专注时间</string>
     <string name="statistics_timeline_empty_label">当前时间段暂无任务</string>
     <string name="statistics_category_other">未分类</string>
+
+    <!-- 番茄钟 -->
+    <string name="pomodoro_title">番茄钟</string>
+    <string name="pomodoro_current_task">当前任务</string>
+    <string name="pomodoro_task_title_placeholder">完成项目原型设计</string>
+    <string name="pomodoro_task_desc_placeholder">设计Todo应用的主要页面和交互流程</string>
+    <string name="pomodoro_tag_work">工作</string>
+    <string name="pomodoro_tag_long">长时任务</string>
+    <string name="pomodoro_tag_urgent">紧急</string>
+    <string name="pomodoro_tag_important">重要</string>
+    <string name="pomodoro_state_focus">🍅 专注工作</string>
+    <string name="pomodoro_duration_hint">专注时长 25 分钟</string>
+    <string name="pomodoro_default_time">25:00</string>
+    <string name="pomodoro_count_hint">🍅 第 1 个番茄钟</string>
+    <string name="pomodoro_btn_start">开始</string>
+    <string name="pomodoro_btn_pause">暂停</string>
+    <string name="pomodoro_btn_resume">继续</string>
+    <string name="pomodoro_btn_reset">重置</string>
+
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
