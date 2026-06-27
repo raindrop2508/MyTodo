@@ -292,13 +292,19 @@
                             android:textColor="?attr/colorOnSurface" />
 
                         <TextView
+                            android:id="@+id/tv_add_step"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:padding="8dp"
                             android:text="@string/task_detail_add_step"
+                            android:textColor="?attr/colorOnSurface"
                             android:textSize="14sp"
                             android:textStyle="bold"
-                            android:textColor="?attr/colorOnSurface" />
+                            tools:ignore="TouchTargetSizeCheck" />
                     </RelativeLayout>
 
                     <RelativeLayout
@@ -318,7 +324,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
-                            android:text="2/5"
+                            tools:text="2/5"
                             android:textSize="14sp"
                             android:textColor="?attr/colorOnSurfaceVariant" />
                     </RelativeLayout>
@@ -331,7 +337,7 @@
                         android:layout_marginTop="8dp"
                         android:progressDrawable="@drawable/bg_progress_bar_black"
                         android:max="100"
-                        android:progress="40" />
+                        tools:progress="40" />
 
                     <LinearLayout
                         android:id="@+id/layout_step_list"

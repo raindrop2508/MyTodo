@@ -179,7 +179,7 @@
                         android:clickable="true"
                         android:focusable="true"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        android:padding="8dp" />
+                        />
                 </RelativeLayout>
 
                 <androidx.recyclerview.widget.RecyclerView

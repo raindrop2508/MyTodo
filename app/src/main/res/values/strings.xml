@@ -162,6 +162,15 @@
     <string name="task_detail_steps_title">任务步骤</string>
     <string name="task_detail_add_step">+ 添加步骤</string>
     <string name="task_detail_progress_title">完成进度</string>
+    <string name="task_detail_progress_format">%1$d/%2$d</string>
+    <string name="task_detail_new_step">新步骤</string>
+    <string name="task_detail_done_time_format">完成于 %1$s</string>
+    <string name="task_edit_title">编辑任务</string>
+    <string name="task_edit_header_title">任务编辑预览</string>
+    <string name="task_edit_task_id_format">任务 ID：%1$s</string>
+    <string name="task_edit_mock_banner">当前页面使用 Mock 数据展示，保存按钮仅提供占位反馈。</string>
+    <string name="task_edit_step_count_format">当前共有 %1$d 个步骤</string>
+    <string name="task_edit_save_placeholder">保存逻辑暂未接入，当前仅展示编辑页 UI。</string>
 
     <string name="settings_group_appearance">外观设置</string>
     <string name="settings_item_theme">主题模式</string>

@@ -28,6 +28,10 @@
             android:theme="@style/Theme.MyPotato" />
 
         <activity
+            android:name=".ui.tasks.TaskEditActivity"
+            android:theme="@style/Theme.MyPotato" />
+
+        <activity
             android:name=".ui.pomodoro.PomodoroActivity"
             android:theme="@style/Theme.MyPotato" />
     </application>
