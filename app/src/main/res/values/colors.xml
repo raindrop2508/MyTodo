@@ -10,11 +10,12 @@
     <color name="text_hint">#BDBDBD</color>
     
     <!-- 品牌色与状态色 -->
-    <color name="brand_indigo">#4F46E5</color>
+    <color name="brand_indigo">#03A9F4</color>
     <color name="brand_fab_bg">#E8EAF6</color>
     <color name="state_success_green">#10B981</color>
     <color name="state_error_red">#EF4444</color>
     <color name="state_chart_orange">#F59E0B</color>
+    <color name="overlay">#F0F0F0</color>
 
     <!-- 动态分类标签颜色 (背景/文字) -->
     <color name="tag_work_bg">#F3E8FF</color>

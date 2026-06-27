@@ -39,6 +39,8 @@
     <string name="today_bottom_sheet_cancel_btn">取消</string>
     <string name="today_bottom_sheet_create_btn">保存</string>
     <string name="today_bottom_sheet_title_required">请输入任务标题</string>
+    <string name="today_bottom_sheet_step_hint">步骤描述</string>
+    <string name="today_bottom_sheet_drag_handle">拖拽排序</string>
     <string name="today_task_type_long">长时任务</string>
     <string name="today_task_type_once">单次任务</string>
     <string name="today_priority_ui">紧急且重要</string>

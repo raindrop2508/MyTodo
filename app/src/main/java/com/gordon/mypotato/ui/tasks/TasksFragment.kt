@@ -13,12 +13,12 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import com.gordon.mypotato.R
-import com.gordon.mypotato.databinding.BottomSheetAddTaskPlaceholderBinding
 import com.gordon.mypotato.databinding.FragmentTasksBinding
 import com.gordon.mypotato.databinding.ItemTodayTaskBinding
+import com.gordon.mypotato.ui.common.AddTaskBottomSheetHelper
+import com.gordon.mypotato.ui.common.EditableStep
 
 class TasksFragment : Fragment(R.layout.fragment_tasks) {
     private var _binding: FragmentTasksBinding? = null
@@ -192,7 +192,27 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         Log.d(TAG, "setupFab in")
         binding.fabAddTask.setOnClickListener {
             Log.d(TAG, "setupFab click showAddTaskBottomSheet")
-            showAddTaskBottomSheet()
+            AddTaskBottomSheetHelper(
+                fragment = this,
+                callback = object : AddTaskBottomSheetHelper.Callback {
+                    override fun onTaskCreate(
+                        title: String,
+                        description: String,
+                        note: String,
+                        type: String,
+                        category: String,
+                        urgent: Boolean,
+                        important: Boolean,
+                        steps: List<EditableStep>
+                    ) {
+                        Log.d(
+                            TAG,
+                            "onTaskCreate title=$title type=$type category=$category urgent=$urgent important=$important stepsCount=${steps.size}"
+                        )
+                        // TODO: 接入新建任务表单保存逻辑（Room/Repository）。
+                    }
+                }
+            ).show()
         }
         Log.d(TAG, "setupFab out")
     }
@@ -291,106 +311,6 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
             allTasks[index] = allTasks[index].copy(done = isChecked)
             renderTasks()
         }
-    }
-
-    /**
-     * 功能：展示“新增任务”BottomSheet 最小实现内容，支持字段输入、选中态切换与标题必填校验。
-     * 入参：无。
-     * 出参：无。
-     * 异常：无，控件缺失时将直接返回，避免崩溃。
-     */
-    private fun showAddTaskBottomSheet() {
-        Log.d(TAG, "showAddTaskBottomSheet in")
-        val dialog = BottomSheetDialog(requireContext())
-        val content = layoutInflater.inflate(R.layout.bottom_sheet_add_task_placeholder, null)
-        val sheetBinding = BottomSheetAddTaskPlaceholderBinding.bind(content)
-
-        var selectedType = "one-time"
-        var selectedCategory = "none"
-        var urgent = false
-        var important = false
-
-        sheetBinding.groupTaskType.check(R.id.btn_type_one_time)
-        sheetBinding.groupTaskType.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (!isChecked) return@addOnButtonCheckedListener
-            selectedType = if (checkedId == R.id.btn_type_long_task) "long" else "one-time"
-            Log.d(TAG, "showAddTaskBottomSheet typeChanged selectedType=$selectedType")
-        }
-
-        sheetBinding.groupTaskCategory.check(R.id.chip_category_none)
-        sheetBinding.groupTaskCategory.setOnCheckedStateChangeListener { group, checkedIds ->
-            if (checkedIds.isEmpty()) {
-                group.check(R.id.chip_category_none)
-                return@setOnCheckedStateChangeListener
-            }
-            selectedCategory =
-                when (checkedIds.first()) {
-                    R.id.chip_category_work -> "work"
-                    R.id.chip_category_life -> "life"
-                    R.id.chip_category_study -> "study"
-                    R.id.chip_category_health -> "health"
-                    else -> "none"
-                }
-            Log.d(TAG, "showAddTaskBottomSheet categoryChanged selectedCategory=$selectedCategory")
-        }
-
-        sheetBinding.switchTaskUrgent.setOnCheckedChangeListener { _, isChecked ->
-            urgent = isChecked
-            Log.d(TAG, "showAddTaskBottomSheet urgentChanged urgent=$urgent")
-        }
-
-        sheetBinding.switchTaskImportant.setOnCheckedChangeListener { _, isChecked ->
-            important = isChecked
-            Log.d(TAG, "showAddTaskBottomSheet importantChanged important=$important")
-        }
-
-        sheetBinding.btnBottomSheetClose.setOnClickListener {
-            Log.d(TAG, "showAddTaskBottomSheet clickClose")
-            dialog.dismiss()
-        }
-
-        sheetBinding.btnBottomSheetCancel.setOnClickListener {
-            Log.d(TAG, "showAddTaskBottomSheet clickCancel")
-            dialog.dismiss()
-        }
-
-        sheetBinding.btnBottomSheetCreate.setOnClickListener {
-            val title =
-                sheetBinding.etTaskTitle.text
-                    ?.toString()
-                    ?.trim()
-                    .orEmpty()
-            Log.d(
-                TAG,
-                "showAddTaskBottomSheet clickSave title=$title type=$selectedType category=$selectedCategory urgent=$urgent important=$important",
-            )
-            if (title.isBlank()) {
-                sheetBinding.tilTaskTitle.error = getString(R.string.today_bottom_sheet_title_required)
-                Log.d(TAG, "showAddTaskBottomSheet saveBlocked reason=blankTitle")
-                return@setOnClickListener
-            }
-            sheetBinding.tilTaskTitle.error = null
-            val description =
-                sheetBinding.etTaskContent.text
-                    ?.toString()
-                    ?.trim()
-                    .orEmpty()
-            val note =
-                sheetBinding.etTaskNote.text
-                    ?.toString()
-                    ?.trim()
-                    .orEmpty()
-            Log.d(
-                TAG,
-                "showAddTaskBottomSheet savePayload title=$title description=$description note=$note type=$selectedType category=$selectedCategory urgent=$urgent important=$important",
-            )
-            // TODO: 接入新建任务表单保存逻辑（Room/Repository）。
-            dialog.dismiss()
-        }
-
-        dialog.setContentView(content)
-        dialog.show()
-        Log.d(TAG, "showAddTaskBottomSheet out shown=true")
     }
 
     /**

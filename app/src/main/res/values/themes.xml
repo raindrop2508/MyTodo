@@ -20,11 +20,16 @@
         <item name="android:forceDarkAllowed">false</item>
         <item name="android:statusBarColor">?android:attr/colorBackground</item>
         <item name="checkboxStyle">@style/Widget.MyPotato.CheckBox</item>
+        <item name="elevationOverlayColor">@color/overlay</item>
     </style>
 
     <style name="Widget.MyPotato.CheckBox" parent="Widget.Material3.CompoundButton.CheckBox">
         <item name="android:button">@drawable/sel_checkbox_circle</item>
         <item name="buttonTint">@null</item>
         <item name="useMaterialThemeColors">false</item>
+    </style>
+
+    <style name="ThemeOverlay.MyPotato.CardNoTint" parent="">
+        <item name="elevationOverlayEnabled">false</item>
     </style>
 </resources>
