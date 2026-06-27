@@ -54,6 +54,7 @@ class AddTaskBottomSheetHelper(
     }
 
     private var dialog: BottomSheetDialog? = null
+    private var stepAdapter: EditableStepAdapter? = null
     private val stepList = mutableListOf<EditableStep>()
     private var selectedType = "one-time"
     private var selectedCategory = "none"
@@ -102,7 +103,6 @@ class AddTaskBottomSheetHelper(
      * 异常：无。
      */
     private fun setupStepsRecyclerView(sheetBinding: BottomSheetAddTaskPlaceholderBinding) {
-        var stepAdapter: EditableStepAdapter? = null
         stepAdapter = EditableStepAdapter(
             steps = stepList,
             onDeleteClick = { position ->
@@ -239,6 +239,8 @@ class AddTaskBottomSheetHelper(
         }
 
         sheetBinding.btnBottomSheetCreate.setOnClickListener {
+            sheetBinding.root.findFocus()?.clearFocus()
+            stepAdapter?.syncVisibleStepInputs(sheetBinding.rvSteps)
             val title = sheetBinding.etTaskTitle.text?.toString()?.trim().orEmpty()
             Log.d(
                 TAG,

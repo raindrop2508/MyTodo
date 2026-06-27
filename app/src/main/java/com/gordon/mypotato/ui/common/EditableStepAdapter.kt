@@ -41,6 +41,12 @@ class EditableStepAdapter(
                 false
             }
         }
+
+        fun syncInputValue() {
+            val currentPosition = bindingAdapterPosition
+            if (currentPosition == RecyclerView.NO_POSITION) return
+            steps[currentPosition].title = binding.etStepTitle.text?.toString()?.trim().orEmpty()
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StepViewHolder {
@@ -54,4 +60,18 @@ class EditableStepAdapter(
     }
 
     override fun getItemCount(): Int = steps.size
+
+    /**
+     * 功能：同步当前可见步骤输入框中的最新文本到数据源。
+     * 入参：recyclerView 步骤列表控件。
+     * 出参：无。
+     * 异常：无。
+     */
+    fun syncVisibleStepInputs(recyclerView: RecyclerView) {
+        for (index in 0 until recyclerView.childCount) {
+            val child = recyclerView.getChildAt(index)
+            val viewHolder = recyclerView.getChildViewHolder(child) as? StepViewHolder ?: continue
+            viewHolder.syncInputValue()
+        }
+    }
 }
