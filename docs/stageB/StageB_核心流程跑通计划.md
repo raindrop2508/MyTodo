@@ -65,7 +65,7 @@ Stage B 的核心目标是 **引入 Repository 模式，通过 FakeRepository（
 
 ---
 
-### B2：定义 Repository 接口契约
+### B2：定义 Repository 接口契约 已完成 2026-07-02
 
 **描述：**
 按聚合根拆分定义多个 Repository 接口，方法覆盖当前 UI 需求，作为数据访问的统一入口。接口层使用 Flow 返回、suspend 异步方法、枚举类型保证类型安全。
