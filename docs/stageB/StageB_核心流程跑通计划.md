@@ -1,7 +1,7 @@
 # Stage B：核心流程跑通计划
 
-> 文档版本：v1.0  
-> 更新日期：2026-06-29  
+> 文档版本：v1.1  
+> 更新日期：2026-07-02  
 > 适用范围：MyPotato Stage B 阶段执行  
 > 前置条件：Stage A（UI 骨架）已完成
 
@@ -68,64 +68,124 @@ Stage B 的核心目标是 **引入 Repository 模式，通过 FakeRepository（
 ### B2：定义 Repository 接口契约
 
 **描述：**
-定义 `TaskRepository` 接口，方法覆盖当前 UI 需求，作为数据访问的统一入口。
+按聚合根拆分定义多个 Repository 接口，方法覆盖当前 UI 需求，作为数据访问的统一入口。接口层使用 Flow 返回、suspend 异步方法、枚举类型保证类型安全。
 
-**接口方法：**
+**接口拆分方案：**
+
+| Repository 接口 | 职责 | 说明 |
+|----------------|------|------|
+| `TaskRepository` | 任务 CRUD、筛选、状态流转 | 包含 TaskStep 操作（步骤无独立生命周期） |
+| `CategoryRepository` | 分类 CRUD | 独立聚合根 |
+| `PomodoroRepository` | 番茄钟会话 CRUD | Stage B 仅定义接口，Stage D 实现 |
+
+**TaskRepository 接口方法：**
 
 | 方法 | 返回类型 | 说明 |
 |------|---------|------|
-| `getTasks(): LiveData<List<Task>>` | LiveData | 获取所有任务，支持响应式刷新 |
-| `getTaskById(id: Long): Task?` | Task? | 根据 ID 获取单个任务 |
-| `getTasksByCategory(categoryId: Long): LiveData<List<Task>>` | LiveData | 按分类筛选任务 |
-| `getTasksByType(taskType: Int): LiveData<List<Task>>` | LiveData | 按任务类型筛选 |
-| `getTasksByQuadrant(isUrgent: Boolean, isImportant: Boolean): LiveData<List<Task>>` | LiveData | 按四象限筛选 |
-| `getStepsByTaskId(taskId: Long): LiveData<List<TaskStep>>` | LiveData | 获取任务步骤 |
-| `addTask(task: Task): Long` | Long | 添加任务，返回新 ID |
-| `updateTask(task: Task)` | Unit | 更新任务 |
-| `toggleTaskDone(id: Long)` | Unit | 切换任务完成状态 |
-| `deleteTask(id: Long)` | Unit | 删除任务 |
-| `addStep(step: TaskStep): Long` | Long | 添加步骤 |
-| `updateStep(step: TaskStep)` | Unit | 更新步骤 |
-| `deleteStep(id: Long)` | Unit | 删除步骤 |
-| `getCategories(): LiveData<List<Category>>` | LiveData | 获取所有分类 |
-| `addCategory(category: Category): Long` | Long | 添加分类 |
+| `getTasks(): Flow<List<Task>>` | Flow | 获取所有任务，支持响应式刷新 |
+| `getTaskById(id: Long): suspend Task?` | suspend Task? | 根据 ID 获取单个任务，异步返回 |
+| `getTasksByQuery(query: TaskQuery): Flow<List<Task>>` | Flow | 多条件组合查询 |
+| `getTasksByCategory(categoryId: Long): Flow<List<Task>>` | Flow | 按分类筛选任务（便捷方法） |
+| `getTasksByType(taskType: TaskType): Flow<List<Task>>` | Flow | 按任务类型筛选（ONCE/LONG） |
+| `getTasksByStatus(status: TaskStatus): Flow<List<Task>>` | Flow | 按状态筛选 |
+| `getTasksByQuadrant(isUrgent: Boolean, isImportant: Boolean): Flow<List<Task>>` | Flow | 按四象限筛选 |
+| `addTask(task: Task): suspend Long` | suspend Long | 添加任务，返回新 ID |
+| `updateTask(task: Task): suspend Unit` | suspend Unit | 更新任务 |
+| `updateTaskStatus(id: Long, status: TaskStatus): suspend Unit` | suspend Unit | 更新任务状态 |
+| `deleteTask(id: Long): suspend Unit` | suspend Unit | 删除任务及关联步骤 |
+| `getStepsByTaskId(taskId: Long): Flow<List<TaskStep>>` | Flow | 获取任务步骤 |
+| `addStep(step: TaskStep): suspend Long` | suspend Long | 添加步骤 |
+| `updateStep(step: TaskStep): suspend Unit` | suspend Unit | 更新步骤 |
+| `updateStepStatus(id: Long, status: StepStatus): suspend Unit` | suspend Unit | 更新步骤状态 |
+| `deleteStep(id: Long): suspend Unit` | suspend Unit | 删除步骤 |
+
+**CategoryRepository 接口方法：**
+
+| 方法 | 返回类型 | 说明 |
+|------|---------|------|
+| `getCategories(): Flow<List<Category>>` | Flow | 获取所有分类 |
+| `getCategoryById(id: Long): suspend Category?` | suspend Category? | 根据 ID 获取单个分类 |
+| `addCategory(category: Category): suspend Long` | suspend Long | 添加分类，返回新 ID |
+| `updateCategory(category: Category): suspend Unit` | suspend Unit | 更新分类信息 |
+| `deleteCategory(id: Long): suspend Unit` | suspend Unit | 删除分类，关联任务的 categoryId 置为 0 |
+
+**PomodoroRepository 接口方法（Stage B 仅定义）：**
+
+| 方法 | 返回类型 | 说明 |
+|------|---------|------|
+| `addSession(session: PomodoroSession): suspend Long` | suspend Long | 添加番茄钟会话 |
+| `updateSession(session: PomodoroSession): suspend Unit` | suspend Unit | 更新番茄钟会话 |
+| `updateSessionStatus(id: Long, status: SessionStatus): suspend Unit` | suspend Unit | 更新会话状态 |
+| `deleteSession(id: Long): suspend Unit` | suspend Unit | 删除番茄钟会话 |
+| `getSessionsByTaskId(taskId: Long): Flow<List<PomodoroSession>>` | Flow | 获取指定任务的番茄钟会话列表 |
+| `getSessionById(id: Long): suspend PomodoroSession?` | suspend PomodoroSession? | 根据 ID 获取单个番茄钟会话 |
+
+**组合查询数据类：**
+
+```kotlin
+data class TaskQuery(
+    val categoryId: Long? = null,
+    val taskType: TaskType? = null,
+    val status: TaskStatus? = null,
+    val isUrgent: Boolean? = null,
+    val isImportant: Boolean? = null,
+    val keyword: String? = null,
+    val offset: Int = 0,
+    val limit: Int = 50
+)
+```
 
 **影响文件：**
+- 新建 `data/repository/TaskQuery.kt`（组合查询数据类）
 - 新建 `data/repository/TaskRepository.kt`（接口）
+- 新建 `data/repository/CategoryRepository.kt`（接口）
+- 新建 `data/repository/PomodoroRepository.kt`（接口，Stage B 仅定义）
 
 **验证标准：**
-- Repository 接口文件创建完成
-- 返回类型统一使用 `LiveData` 或 `Flow`
+- 所有 Repository 接口文件创建完成
+- 查询方法返回类型统一使用 `Flow`
+- 写操作和单次查询使用 `suspend` 函数
+- 接口层使用枚举类型（`TaskStatus`, `TaskType`, `StepStatus`, `SessionStatus`）
+- 包含 `TaskQuery` 组合查询方法
 - 方法覆盖当前 UI 所有数据操作需求
+- 接口不依赖 Room 相关类
 
 ---
 
 ### B3：实现 FakeRepository（内存实现）
 
 **描述：**
-基于 `TaskRepository` 接口实现内存版 `FakeRepository`，集中管理所有 Mock 数据。
+基于拆分后的 Repository 接口实现内存版 `FakeRepository`，集中管理所有 Mock 数据。实现层负责枚举↔Int 的映射，与领域模型中的 Int 字段保持一致。
 
 **实现要点：**
 - 使用 `MutableList` 内存持有数据
 - 实现 ID 自增生成器
-- 数据变更后通过 `MutableLiveData.postValue()` 通知观察者
+- 使用 `MutableStateFlow` 持有数据，数据变更后通过 `stateFlow.value = newValue` 通知观察者
+- 实现枚举↔Int 的双向映射（`TaskStatus`, `TaskType`, `StepStatus`, `SessionStatus`）
 - 预置默认分类（学习/工作/生活/健康/购物）
 - 预置示例任务数据用于演示
+- 删除任务时级联删除关联步骤和番茄钟会话
+- 删除分类时将关联任务的 `categoryId` 置为 0（未分类）
 
 **影响文件：**
-- 新建 `data/repository/FakeRepository.kt`
+- 新建 `data/repository/FakeTaskRepository.kt`（实现 `TaskRepository`）
+- 新建 `data/repository/FakeCategoryRepository.kt`（实现 `CategoryRepository`）
 
 **验证标准：**
-- `FakeRepository` 实现 `TaskRepository` 接口所有方法
-- 数据变更后 LiveData 能正确通知
+- `FakeTaskRepository` 实现 `TaskRepository` 接口所有方法
+- `FakeCategoryRepository` 实现 `CategoryRepository` 接口所有方法
+- 数据变更后 Flow 能正确通知所有订阅者
+- 枚举↔Int 映射正确，与领域模型保持一致
 - 默认分类与示例任务数据加载完成
+- 删除任务时级联删除关联步骤
+- 删除分类时关联任务的 `categoryId` 正确置为 0
 
 ---
 
 ### B4：补齐各页面 ViewModel
 
 **描述：**
-为所有页面创建 ViewModel，持有 UI 状态并通过 LiveData 暴露数据。
+为所有页面创建 ViewModel，持有 UI 状态并通过 `StateFlow` 暴露数据。ViewModel 通过 `viewModelScope` 收集 Repository 返回的 `Flow` 数据。
 
 **需创建的 ViewModel：**
 
@@ -139,10 +199,12 @@ Stage B 的核心目标是 **引入 Repository 模式，通过 FakeRepository（
 | `SettingsViewModel` | SettingsFragment | 读取/保存设置项（主题、语言、番茄钟时长） |
 
 **实现要点：**
-- ViewModel 通过构造注入获取 Repository 实例
+- ViewModel 通过构造注入获取 Repository 实例（`TaskRepository`, `CategoryRepository`）
 - 所有数据请求通过 Repository，禁止直接访问数据源
-- UI 状态通过 LiveData/StateFlow 暴露
-- 使用 `viewModelScope` 管理协程
+- 使用 `MutableStateFlow` 持有 UI 状态，通过 `StateFlow` 暴露给 UI
+- 在 `viewModelScope.launch` 中收集 Repository 返回的 `Flow` 数据
+- 在 `viewModelScope.launch` 中调用 Repository 的 `suspend` 方法执行写操作
+- 使用 `viewModelScope` 管理协程生命周期，避免内存泄漏
 
 **影响文件：**
 - 新建 `viewmodel/TodayViewModel.kt`
@@ -155,7 +217,9 @@ Stage B 的核心目标是 **引入 Repository 模式，通过 FakeRepository（
 **验证标准：**
 - 所有页面 ViewModel 创建完成
 - ViewModel 通过 Repository 获取数据
-- UI 能正确订阅 ViewModel 的 LiveData
+- UI 能正确收集（`collect`）ViewModel 的 `StateFlow`
+- 写操作在 `viewModelScope` 中正确执行
+- 协程生命周期管理正确，无内存泄漏
 
 ---
 
@@ -193,17 +257,17 @@ Stage B 的核心目标是 **引入 Repository 模式，通过 FakeRepository（
 
 **流程 1：新建任务 → 保存 → 列表刷新**
 - Today/Tasks 页点击 FAB 打开 BottomSheet
-- 填写表单后调用 `TaskRepository.addTask()`
-- 列表页自动收到 LiveData 更新通知并刷新
+- 填写表单后调用 `TaskRepository.addTask()`（在 `viewModelScope` 中执行）
+- 列表页自动收到 Flow 更新通知并刷新
 
 **流程 2：编辑任务 → 保存 → 详情刷新**
 - TaskDetail 点击编辑跳转到 TaskEdit
-- 保存后调用 `TaskRepository.updateTask()`
+- 保存后调用 `TaskRepository.updateTask()`（在 `viewModelScope` 中执行）
 - 返回详情页时数据已更新
 
 **流程 3：标记完成 → 状态即时可见**
 - Today/Tasks/Detail 页勾选完成
-- 调用 `TaskRepository.toggleTaskDone()`
+- 调用 `TaskRepository.updateTaskStatus()`（在 `viewModelScope` 中执行）
 - 所有相关页面同步刷新状态
 
 **影响文件：**
@@ -325,8 +389,8 @@ Pomodoro 页读取设置页的 `focusMinutes`，替代硬编码的 25 分钟。
 |------|---------|------|
 | Room Entity/DAO/Database | Stage C | 数据持久化 |
 | RoomRepository | Stage C | Room 实现的 Repository |
-| LiveData/Flow 响应式刷新（Room 版） | Stage C | 当前用 FakeRepository + LiveData |
-| 番茄钟会话落库 | Stage D | PomodoroSession 实体 |
+| Flow 响应式刷新（Room 版） | Stage C | 当前用 FakeRepository + StateFlow |
+| 番茄钟会话落库 | Stage D | PomodoroSession 实体，`PomodoroRepository` 接口实现 |
 | 统计页开发 | Stage D | 需数据库落地后确定 |
 | 深色模式适配 | Stage E | 移除强制浅色、填充 values-night |
 | i18n 多语言 | Stage E | values-zh-rCN / values-en |
