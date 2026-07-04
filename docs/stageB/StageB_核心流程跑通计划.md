@@ -55,12 +55,15 @@ Stage B 的核心目标是 **引入 Repository 模式，通过 FakeRepository（
 - 新建 `domain/TaskType.kt`
 - 新建 `domain/TaskStatus.kt`
 - 新建 `domain/StepStatus.kt`
+- 新建 `domain/PomodoroSession.kt`（用于番茄钟会话，Stage D 落库）
+- 新建 `domain/SessionStatus.kt`（番茄钟会话状态枚举）
 - 页面内分散模型定义保留至 `B5` 统一迁移
 
 **验证标准：**
-- 所有领域模型文件创建完成
+- 所有领域模型文件创建完成（共 8 个）
 - 字段类型符合 Long ID、Int 枚举、Long 时间戳约束
 - `plannedStartAt` 为 `Long?`，用于表示可选的计划开始时间
+- `PomodoroSession` 的 `stepId` 为 `Long?`，用于可选关联步骤
 - 无 Room 注解（属 Stage C）
 
 ---
@@ -152,7 +155,7 @@ data class TaskQuery(
 
 ---
 
-### B3：实现 FakeRepository（内存实现）
+### B3：实现 FakeRepository（内存实现） 已完成 2026-07-04
 
 **描述：**
 基于拆分后的 Repository 接口实现内存版 `FakeRepository`，集中管理所有 Mock 数据。实现层负责枚举↔Int 的映射，与领域模型中的 Int 字段保持一致。
@@ -191,12 +194,12 @@ data class TaskQuery(
 
 | ViewModel | 页面 | 职责 |
 |-----------|------|------|
-| `TodayViewModel` | TodayFragment | 加载今日任务、四象限筛选、切换完成状态 |
-| `TasksViewModel` | TasksFragment | 加载任务列表、多维筛选（类型/日期/分类）、搜索 |
-| `TaskDetailViewModel` | TaskDetailActivity | 加载任务详情、步骤列表、标记完成、启动番茄钟 |
+| `TodayViewModel` | TodayFragment | 加载今日任务、四象限筛选、切换完成状态，添加任务，删除任务 |
+| `TasksViewModel` | TasksFragment | 加载任务列表、多维筛选（类型/日期/分类）、搜索，添加任务，删除任务 |
+| `TaskDetailViewModel` | TaskDetailActivity | 加载任务详情、步骤列表、标记完成、启动番茄钟，更新步骤状态，删除任务 |
 | `TaskEditViewModel` | TaskEditActivity | 任务/步骤的增删改、表单验证 |
-| `PomodoroViewModel` | PomodoroActivity | 计时状态机、会话记录（内存）、任务上下文 |
-| `SettingsViewModel` | SettingsFragment | 读取/保存设置项（主题、语言、番茄钟时长） |
+| `PomodoroViewModel` | PomodoroActivity | 计时状态机、会话记录（内存）、任务上下文、启动番茄钟，步骤状态管理，任务状态切换） |
+| `SettingsViewModel` | SettingsFragment | 读取/保存设置项（主题、语言、番茄钟时长）；根据实际确定设置等数据是否需要存储在数据库中 |
 
 **实现要点：**
 - ViewModel 通过构造注入获取 Repository 实例（`TaskRepository`, `CategoryRepository`）
