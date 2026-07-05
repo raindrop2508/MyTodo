@@ -95,7 +95,7 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
     }
 
     /**
-    * 添加设备弹窗
+    * 添加任务 弹窗
     * */
     private fun setupFab() {
         binding.fabAddTask.setOnClickListener {
@@ -134,7 +134,8 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
                                 finishedAt = null,
                                 totalDurationSec = 0
                             )
-                            viewModel.addTask(task)
+                            val stepTitles = steps.map { it.title }.filter { it.isNotBlank() }
+                            viewModel.addTask(task, stepTitles)
                         }
                     }
                 }

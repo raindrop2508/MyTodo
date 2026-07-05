@@ -5,8 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.gordon.mypotato.data.repository.CategoryRepository
 import com.gordon.mypotato.data.repository.TaskRepository
 import com.gordon.mypotato.domain.Category
+import com.gordon.mypotato.domain.StepStatus
 import com.gordon.mypotato.domain.Task
 import com.gordon.mypotato.domain.TaskStatus
+import com.gordon.mypotato.domain.TaskStep
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -89,8 +91,29 @@ class TodayViewModel(
         }
     }
 
-    suspend fun addTask(task: Task): Long {
-        return taskRepository.addTask(task)
+    /**
+    * 添加任务并包括添加长时任务
+    * */
+    suspend fun addTask(task: Task, stepTitles: List<String> = emptyList()): Long {
+        val taskId = taskRepository.addTask(task)
+        if (task.isLongTask()) {
+            stepTitles.forEachIndexed { index, title ->
+                if (title.isNotBlank()) {
+                    val step = TaskStep(
+                        id = 0,
+                        taskId = taskId,
+                        title = title,
+                        sortOrder = index,
+                        status = StepStatus.TODO.value,
+                        completedAt = null,
+                        spentDurationSec = 0,
+                        createdAt = System.currentTimeMillis() / 1000
+                    )
+                    taskRepository.addStep(step)
+                }
+            }
+        }
+        return taskId
     }
 
     suspend fun deleteTask(taskId: Long) {
