@@ -212,65 +212,6 @@
             app:selectionRequired="true"
             app:singleLine="false"
             app:singleSelection="true">
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_category_none"
-                style="@style/Widget.MyPotato.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkable="true"
-                android:checked="true"
-                android:text="@string/today_bottom_sheet_category_none" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_category_work"
-                style="@style/Widget.MyPotato.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkable="true"
-                app:chipIcon="@drawable/ic_dot_orange"
-                android:text="@string/today_bottom_sheet_category_work"
-                app:chipIconVisible="true" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_category_life"
-                style="@style/Widget.MyPotato.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkable="true"
-                app:chipIcon="@drawable/ic_dot_teal"
-                android:text="@string/today_bottom_sheet_category_life"
-                app:chipIconVisible="true" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_category_study"
-                style="@style/Widget.MyPotato.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkable="true"
-                app:chipIcon="@drawable/ic_dot_blue"
-                android:text="@string/today_bottom_sheet_category_study"
-                app:chipIconVisible="true" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_category_health"
-                style="@style/Widget.MyPotato.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkable="true"
-                app:chipIcon="@drawable/ic_dot_red"
-                android:text="@string/today_bottom_sheet_category_health"
-                app:chipIconVisible="true" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_category_shopping"
-                style="@style/Widget.MyPotato.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkable="true"
-                app:chipIcon="@drawable/ic_dot_orange"
-                android:text="@string/today_bottom_sheet_category_shopping"
-                app:chipIconVisible="true" />
         </com.google.android.material.chip.ChipGroup>
 
         <com.google.android.material.divider.MaterialDivider

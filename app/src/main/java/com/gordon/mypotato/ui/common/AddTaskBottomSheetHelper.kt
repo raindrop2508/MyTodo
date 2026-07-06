@@ -9,7 +9,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gordon.mypotato.R
+import com.gordon.mypotato.data.repository.FakeCategoryRepository
+import com.gordon.mypotato.data.repository.FakeTaskRepository
 import com.gordon.mypotato.databinding.BottomSheetAddTaskPlaceholderBinding
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import java.util.Collections
 
 /**
@@ -186,21 +191,18 @@ class AddTaskBottomSheetHelper(
      * 异常：无。
      */
     private fun setupCategoryChips(sheetBinding: BottomSheetAddTaskPlaceholderBinding) {
-        sheetBinding.groupTaskCategory.check(R.id.chip_category_none)
-        sheetBinding.groupTaskCategory.setOnCheckedStateChangeListener { group, checkedIds ->
-            if (checkedIds.isEmpty()) {
-                group.check(R.id.chip_category_none)
-                return@setOnCheckedStateChangeListener
-            }
-            selectedCategoryId = when (checkedIds.first()) {
-                R.id.chip_category_work -> 2L
-                R.id.chip_category_life -> 3L
-                R.id.chip_category_study -> 1L
-                R.id.chip_category_health -> 4L
-                R.id.chip_category_shopping -> 5L
-                else -> 0L
-            }
-            Log.d(TAG, "categoryChanged selectedCategoryId=$selectedCategoryId")
+        val categoryRepository = FakeCategoryRepository.getInstance(FakeTaskRepository.getInstance())
+        fragment.viewLifecycleOwner.lifecycleScope.launch {
+            val categories = categoryRepository.getCategories().first()
+            CategoryChipHelper.populateCategoryChips(
+                chipGroup = sheetBinding.groupTaskCategory,
+                categories = categories,
+                selectedCategoryId = selectedCategoryId,
+                onCategorySelected = { id ->
+                    selectedCategoryId = id
+                    Log.d(TAG, "categoryChanged selectedCategoryId=$selectedCategoryId")
+                }
+            )
         }
     }
 

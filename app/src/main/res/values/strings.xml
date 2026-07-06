@@ -28,11 +28,6 @@
     <string name="today_bottom_sheet_type_one_time">一次性任务</string>
     <string name="today_bottom_sheet_type_long_task">长任务</string>
     <string name="today_bottom_sheet_category_none">无</string>
-    <string name="today_bottom_sheet_category_work">工作</string>
-    <string name="today_bottom_sheet_category_life">生活</string>
-    <string name="today_bottom_sheet_category_study">学习</string>
-    <string name="today_bottom_sheet_category_health">健康</string>
-    <string name="today_bottom_sheet_category_shopping">购物</string>
     <string name="today_bottom_sheet_urgent">紧急</string>
     <string name="today_bottom_sheet_urgent_desc">需要立即处理的任务</string>
     <string name="today_bottom_sheet_important">重要</string>
@@ -143,11 +138,6 @@
     <string name="tasks_segment_quadrant">按象限</string>
     <string name="tasks_segment_status">按状态</string>
     <string name="tasks_filter_chip_all">全部</string>
-    <string name="tasks_filter_chip_study">学习</string>
-    <string name="tasks_filter_chip_work">工作</string>
-    <string name="tasks_filter_chip_life">生活</string>
-    <string name="tasks_filter_chip_health">健康</string>
-    <string name="tasks_filter_chip_shopping">购物</string>
     <string name="tasks_filter_chip_ui">紧急且重要</string>
     <string name="tasks_filter_chip_i">重要</string>
     <string name="tasks_filter_chip_u">紧急</string>

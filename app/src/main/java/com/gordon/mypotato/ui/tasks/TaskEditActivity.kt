@@ -13,6 +13,7 @@ import com.gordon.mypotato.R
 import com.gordon.mypotato.databinding.ActivityTaskEditBinding
 import com.gordon.mypotato.domain.TaskStep
 import com.gordon.mypotato.domain.TaskType
+import com.gordon.mypotato.ui.common.CategoryChipHelper
 import com.gordon.mypotato.viewmodel.EditableStepItem
 import com.gordon.mypotato.viewmodel.TaskEditViewModel
 import kotlinx.coroutines.launch
@@ -117,8 +118,7 @@ class TaskEditActivity : AppCompatActivity() {
         val isUrgent = binding.switchTaskUrgent.isChecked
         val isImportant = binding.switchTaskImportant.isChecked
 
-        val categoryName = getSelectedCategoryName()
-        val categoryId = viewModel.getCategoryIdByName(categoryName)
+        val categoryId = CategoryChipHelper.getSelectedCategoryId(binding.groupTaskCategory)
 
         val stepEdits = stepList
             .filter { it.title.isNotBlank() }
@@ -149,24 +149,6 @@ class TaskEditActivity : AppCompatActivity() {
 
         finish()
         Log.d(TAG, "saveTask out")
-    }
-
-    /**
-     * 功能：获取当前选中的分类名称。
-     * 入参：无。
-     * 出参：返回分类名称。
-     * 异常：无。
-     */
-    private fun getSelectedCategoryName(): String {
-        val checkedId = binding.groupTaskCategory.checkedChipId
-        return when (checkedId) {
-            R.id.chip_category_work -> getString(R.string.today_bottom_sheet_category_work)
-            R.id.chip_category_life -> getString(R.string.today_bottom_sheet_category_life)
-            R.id.chip_category_study -> getString(R.string.today_bottom_sheet_category_study)
-            R.id.chip_category_health -> getString(R.string.today_bottom_sheet_category_health)
-            R.id.chip_category_shopping -> getString(R.string.today_bottom_sheet_category_shopping)
-            else -> getString(R.string.today_bottom_sheet_category_none)
-        }
     }
 
     /**
@@ -233,13 +215,6 @@ class TaskEditActivity : AppCompatActivity() {
      */
     private fun setupCategoryChips() {
         Log.d(TAG, "setupCategoryChips in")
-        binding.groupTaskCategory.setOnCheckedStateChangeListener { group, checkedIds ->
-            if (checkedIds.isEmpty()) {
-                group.check(R.id.chip_category_none)
-                return@setOnCheckedStateChangeListener
-            }
-            Log.d(TAG, "setupCategoryChips changed categoryId=${checkedIds.first()}")
-        }
         Log.d(TAG, "setupCategoryChips out")
     }
 
@@ -256,6 +231,11 @@ class TaskEditActivity : AppCompatActivity() {
                 if (state.isLoading) {
                     return@collect
                 }
+                CategoryChipHelper.populateCategoryChips(
+                    chipGroup = binding.groupTaskCategory,
+                    categories = state.categories,
+                    selectedCategoryId = state.task?.categoryId ?: 0L
+                )
                 state.task?.let { task ->
                     renderTask(task, state.category, state.steps)
                 }
@@ -288,8 +268,7 @@ class TaskEditActivity : AppCompatActivity() {
             binding.groupTaskType.check(R.id.btn_type_one_time)
         }
 
-        val categoryName = category?.name ?: getString(R.string.today_bottom_sheet_category_none)
-        binding.groupTaskCategory.check(resolveCategoryChipId(categoryName))
+        CategoryChipHelper.selectCategory(binding.groupTaskCategory, task.categoryId)
 
         stepList.clear()
         stepList.addAll(steps.map { com.gordon.mypotato.ui.common.EditableStep(it.title) })
@@ -323,27 +302,6 @@ class TaskEditActivity : AppCompatActivity() {
         Log.d(TAG, "updateStepSectionSummary in")
         binding.tvStepSummary.text = getString(R.string.task_edit_step_count_format, stepList.size)
         Log.d(TAG, "updateStepSectionSummary out summary=${binding.tvStepSummary.text}")
-    }
-
-    /**
-     * 功能：根据分类名称映射选中的 Chip。
-     * 入参：categoryName 分类名称。
-     * 出参：返回对应分类 Chip 的资源 id。
-     * 异常：无。
-     */
-    private fun resolveCategoryChipId(categoryName: String): Int {
-        Log.d(TAG, "resolveCategoryChipId in categoryName=$categoryName")
-        val chipId =
-            when (categoryName) {
-                getString(R.string.today_bottom_sheet_category_work) -> R.id.chip_category_work
-                getString(R.string.today_bottom_sheet_category_life) -> R.id.chip_category_life
-                getString(R.string.today_bottom_sheet_category_study) -> R.id.chip_category_study
-                getString(R.string.today_bottom_sheet_category_health) -> R.id.chip_category_health
-                getString(R.string.today_bottom_sheet_category_shopping) -> R.id.chip_category_shopping
-                else -> R.id.chip_category_none
-            }
-        Log.d(TAG, "resolveCategoryChipId out chipId=$chipId")
-        return chipId
     }
 
     /**

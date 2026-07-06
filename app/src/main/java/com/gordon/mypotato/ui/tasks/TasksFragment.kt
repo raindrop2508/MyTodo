@@ -21,6 +21,7 @@ import com.gordon.mypotato.domain.Task
 import com.gordon.mypotato.domain.TaskStatus
 import com.gordon.mypotato.domain.TaskType
 import com.gordon.mypotato.ui.common.AddTaskBottomSheetHelper
+import com.gordon.mypotato.ui.common.CategoryChipHelper
 import com.gordon.mypotato.ui.common.EditableStep
 import com.gordon.mypotato.viewmodel.FilterDimension
 import com.gordon.mypotato.viewmodel.TasksViewModel
@@ -90,19 +91,6 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
     }
 
     private fun setupChips() {
-        binding.chipGroupCategory.setOnCheckedStateChangeListener { _, checkedIds ->
-            val checkedId = checkedIds.firstOrNull() ?: R.id.chip_cat_all
-            val categoryId = when (checkedId) {
-                R.id.chip_cat_study -> 1L
-                R.id.chip_cat_work -> 2L
-                R.id.chip_cat_life -> 3L
-                R.id.chip_cat_health -> 4L
-                R.id.chip_cat_shopping -> 5L
-                else -> null // Includes chip_cat_all
-            }
-            viewModel.setCategoryFilter(categoryId)
-        }
-
         binding.chipGroupQuadrant.setOnCheckedStateChangeListener { _, checkedIds ->
             val checkedId = checkedIds.firstOrNull() ?: R.id.chip_quadrant_all
             val (urgent, important) = when (checkedId) {
@@ -174,6 +162,13 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
                 binding.chipGroupCategory.visibility = if (uiState.dimension == FilterDimension.CATEGORY) View.VISIBLE else View.GONE
                 binding.chipGroupQuadrant.visibility = if (uiState.dimension == FilterDimension.QUADRANT) View.VISIBLE else View.GONE
                 binding.chipGroupStatus.visibility = if (uiState.dimension == FilterDimension.STATUS) View.VISIBLE else View.GONE
+
+                CategoryChipHelper.populateCategoryFilterChips(
+                    chipGroup = binding.chipGroupCategory,
+                    categories = uiState.categories.values.toList(),
+                    selectedCategoryId = uiState.selectedCategoryId,
+                    onCategoryFilterChanged = { viewModel.setCategoryFilter(it) }
+                )
 
                 adapter.submitData(uiState.tasks, uiState.categories)
                 binding.layoutTasksEmptyState.visibility = if (uiState.tasks.isEmpty()) View.VISIBLE else View.GONE
