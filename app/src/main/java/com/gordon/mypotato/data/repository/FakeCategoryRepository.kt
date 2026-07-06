@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.concurrent.atomic.AtomicLong
 
-class FakeCategoryRepository(
+class FakeCategoryRepository private constructor(
     private val taskRepository: TaskRepository
 ) : CategoryRepository {
 
@@ -17,6 +17,17 @@ class FakeCategoryRepository(
 
     init {
         initDefaultCategories()
+    }
+
+    companion object {
+        @Volatile
+        private var instance: FakeCategoryRepository? = null
+
+        fun getInstance(taskRepository: TaskRepository): FakeCategoryRepository {
+            return instance ?: synchronized(this) {
+                instance ?: FakeCategoryRepository(taskRepository).also { instance = it }
+            }
+        }
     }
 
     private fun initDefaultCategories() {

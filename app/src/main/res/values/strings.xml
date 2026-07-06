@@ -200,4 +200,10 @@
     <string name="statistics_card_doing">进行中</string>
     <string name="statistics_card_rate">完成率</string>
     <string name="statistics_chart_time_dist">时间段分布</string>
+    <string name="task_detail_create_time_format">创建时间：%1$s</string>
+    <string name="task_detail_accumulated_time_format">累计用时：%1$d 分钟</string>
+    <string name="task_detail_delete_title">删除任务</string>
+    <string name="task_detail_delete_message">确定要删除这个任务吗？此操作不可撤销。</string>
+    <string name="task_detail_delete_confirm">删除</string>
+    <string name="task_detail_delete_cancel">取消</string>
 </resources>

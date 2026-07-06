@@ -27,8 +27,8 @@ data class TodayUiState(
 )
 
 class TodayViewModel(
-    taskRepository: TaskRepository = com.gordon.mypotato.data.repository.FakeTaskRepository(),
-    private val categoryRepository: CategoryRepository = com.gordon.mypotato.data.repository.FakeCategoryRepository(taskRepository)
+    taskRepository: TaskRepository = com.gordon.mypotato.data.repository.FakeTaskRepository.getInstance(),
+    private val categoryRepository: CategoryRepository = com.gordon.mypotato.data.repository.FakeCategoryRepository.getInstance(taskRepository)
 ) : BaseTaskViewModel(taskRepository) {
 
     private val _uiState = MutableStateFlow(TodayUiState())

@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import java.util.concurrent.atomic.AtomicLong
 
-class FakeTaskRepository : TaskRepository {
+class FakeTaskRepository private constructor() : TaskRepository {
 
     private val tasks = mutableListOf<Task>()
     private val taskSteps = mutableListOf<TaskStep>()
@@ -29,6 +29,17 @@ class FakeTaskRepository : TaskRepository {
 
     init {
         initDefaultTasks()
+    }
+
+    companion object {
+        @Volatile
+        private var instance: FakeTaskRepository? = null
+
+        fun getInstance(): FakeTaskRepository {
+            return instance ?: synchronized(this) {
+                instance ?: FakeTaskRepository().also { instance = it }
+            }
+        }
     }
 
     private fun initDefaultTasks() {
