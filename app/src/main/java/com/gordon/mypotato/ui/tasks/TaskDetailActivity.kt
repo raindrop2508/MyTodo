@@ -66,12 +66,7 @@ class TaskDetailActivity : AppCompatActivity() {
                     if (task != null) {
                         startActivity(
                             Intent(this, TaskEditActivity::class.java).apply {
-                                putExtra(TaskEditActivity.EXTRA_TASK_ID, task.id.toString())
-                                putExtra(TaskEditActivity.EXTRA_TASK_TITLE, task.title)
-                                putExtra(TaskEditActivity.EXTRA_IS_LONG_TASK, task.isLongTask())
-                                putExtra(TaskEditActivity.EXTRA_CATEGORY, viewModel.uiState.value.category?.name ?: "")
-                                putExtra(TaskEditActivity.EXTRA_URGENT, task.isUrgent)
-                                putExtra(TaskEditActivity.EXTRA_IMPORTANT, task.isImportant)
+                                putExtra(TaskEditActivity.EXTRA_TASK_ID, task.id)
                             }
                         )
                     }

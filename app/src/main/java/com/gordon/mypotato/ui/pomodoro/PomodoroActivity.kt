@@ -13,10 +13,18 @@ class PomodoroActivity : AppCompatActivity() {
 
     private var countDownTimer: CountDownTimer? = null
     private var timerState = TimerState.IDLE
-    
-    // 总时长 25 分钟（毫秒）
+
     private val totalTimeMs: Long = 25 * 60 * 1000L
     private var timeLeftMs: Long = totalTimeMs
+
+    private var taskId: Long = -1L
+    private var taskTitle: String = ""
+
+    companion object {
+        private const val TAG = "PomodoroActivity"
+        const val EXTRA_TASK_ID = "taskId"
+        const val EXTRA_TASK_TITLE = "taskTitle"
+    }
 
     private enum class TimerState {
         IDLE, RUNNING, PAUSED
@@ -30,13 +38,27 @@ class PomodoroActivity : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("PomodoroActivity", "onCreate: 进入番茄钟页面")
-        
+        Log.d(TAG, "onCreate: 进入番茄钟页面")
+
         binding = ActivityPomodoroBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        readIntentExtras()
         initViews()
         setupListeners()
+    }
+
+    /**
+     * 功能：读取 Intent 传入的任务信息。
+     * 入参：无
+     * 出参：无
+     * 异常：无
+     */
+    private fun readIntentExtras() {
+        Log.d(TAG, "readIntentExtras in")
+        taskId = intent.getLongExtra(EXTRA_TASK_ID, -1L)
+        taskTitle = intent.getStringExtra(EXTRA_TASK_TITLE).orEmpty()
+        Log.d(TAG, "readIntentExtras out taskId=$taskId taskTitle=$taskTitle")
     }
 
     /**
@@ -46,14 +68,19 @@ class PomodoroActivity : AppCompatActivity() {
      * 异常：无
      */
     private fun initViews() {
-        Log.d("PomodoroActivity", "initViews: 开始初始化视图")
+        Log.d(TAG, "initViews: 开始初始化视图")
         binding.toolbar.setNavigationOnClickListener {
             finish()
         }
+
+        if (taskTitle.isNotEmpty()) {
+            binding.tvTaskTitle.text = taskTitle
+        }
+
         updateTimerText()
         binding.progressTimer.max = totalTimeMs.toInt()
         binding.progressTimer.progress = totalTimeMs.toInt()
-        Log.d("PomodoroActivity", "initViews: 视图初始化完成")
+        Log.d(TAG, "initViews: 视图初始化完成")
     }
 
     /**
@@ -63,7 +90,7 @@ class PomodoroActivity : AppCompatActivity() {
      * 异常：无
      */
     private fun setupListeners() {
-        Log.d("PomodoroActivity", "setupListeners: 设置事件监听")
+        Log.d(TAG, "setupListeners: 设置事件监听")
         binding.btnToggle.setOnClickListener {
             toggleTimer()
         }
@@ -79,7 +106,7 @@ class PomodoroActivity : AppCompatActivity() {
      * 异常：无
      */
     private fun toggleTimer() {
-        Log.d("PomodoroActivity", "toggleTimer: 当前状态 = $timerState")
+        Log.d(TAG, "toggleTimer: 当前状态 = $timerState")
         if (timerState == TimerState.RUNNING) {
             pauseTimer()
             return
@@ -94,7 +121,7 @@ class PomodoroActivity : AppCompatActivity() {
      * 异常：无
      */
     private fun startTimer() {
-        Log.d("PomodoroActivity", "startTimer: 开始计时，剩余时间 = $timeLeftMs")
+        Log.d(TAG, "startTimer: 开始计时，剩余时间 = $timeLeftMs")
         if (timerState == TimerState.RUNNING) return
 
         countDownTimer = object : CountDownTimer(timeLeftMs, 1000) {
@@ -105,7 +132,7 @@ class PomodoroActivity : AppCompatActivity() {
             }
 
             override fun onFinish() {
-                Log.d("PomodoroActivity", "onFinish: 计时结束")
+                Log.d(TAG, "onFinish: 计时结束")
                 timeLeftMs = 0
                 timerState = TimerState.IDLE
                 updateTimerText()
@@ -118,7 +145,7 @@ class PomodoroActivity : AppCompatActivity() {
         timerState = TimerState.RUNNING
         binding.btnToggle.setText(R.string.pomodoro_btn_pause)
         binding.btnToggle.setIconResource(R.drawable.ic_pause_24dp)
-        Log.d("PomodoroActivity", "startTimer: 计时器已启动")
+        Log.d(TAG, "startTimer: 计时器已启动")
     }
 
     /**
@@ -128,14 +155,14 @@ class PomodoroActivity : AppCompatActivity() {
      * 异常：无
      */
     private fun pauseTimer() {
-        Log.d("PomodoroActivity", "pauseTimer: 暂停计时")
+        Log.d(TAG, "pauseTimer: 暂停计时")
         if (timerState != TimerState.RUNNING) return
 
         countDownTimer?.cancel()
         timerState = TimerState.PAUSED
         binding.btnToggle.setText(R.string.pomodoro_btn_resume)
         binding.btnToggle.setIconResource(R.drawable.ic_play_24dp)
-        Log.d("PomodoroActivity", "pauseTimer: 计时器已暂停")
+        Log.d(TAG, "pauseTimer: 计时器已暂停")
     }
 
     /**
@@ -145,7 +172,7 @@ class PomodoroActivity : AppCompatActivity() {
      * 异常：无
      */
     private fun resetTimer() {
-        Log.d("PomodoroActivity", "resetTimer: 重置计时器")
+        Log.d(TAG, "resetTimer: 重置计时器")
         countDownTimer?.cancel()
         timeLeftMs = totalTimeMs
         timerState = TimerState.IDLE
@@ -153,7 +180,7 @@ class PomodoroActivity : AppCompatActivity() {
         binding.progressTimer.progress = totalTimeMs.toInt()
         binding.btnToggle.setText(R.string.pomodoro_btn_start)
         binding.btnToggle.setIconResource(R.drawable.ic_play_24dp)
-        Log.d("PomodoroActivity", "resetTimer: 重置完成")
+        Log.d(TAG, "resetTimer: 重置完成")
     }
 
     /**
@@ -177,7 +204,7 @@ class PomodoroActivity : AppCompatActivity() {
      */
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("PomodoroActivity", "onDestroy: 释放计时器资源")
+        Log.d(TAG, "onDestroy: 释放计时器资源")
         countDownTimer?.cancel()
     }
 }

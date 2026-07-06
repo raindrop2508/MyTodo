@@ -29,7 +29,7 @@ class AddTaskBottomSheetHelper(
     interface Callback {
         /**
          * 功能：当用户点击创建任务时调用。
-         * 入参：title 标题，description 描述，note 备注，type 类型，category 分类，urgent 是否紧急，important 是否重要，steps 子任务列表。
+         * 入参：title 标题，description 描述，note 备注，type 类型，categoryId 分类ID，urgent 是否紧急，important 是否重要，steps 子任务列表。
          * 出参：无。
          * 异常：无。
          */
@@ -38,7 +38,7 @@ class AddTaskBottomSheetHelper(
             description: String,
             note: String,
             type: String,
-            category: String,
+            categoryId: Long,
             urgent: Boolean,
             important: Boolean,
             steps: List<EditableStep>
@@ -57,7 +57,7 @@ class AddTaskBottomSheetHelper(
     private var stepAdapter: EditableStepAdapter? = null
     private val stepList = mutableListOf<EditableStep>()
     private var selectedType = "one-time"
-    private var selectedCategory = "none"
+    private var selectedCategoryId = 0L
     private var urgent = false
     private var important = false
 
@@ -75,7 +75,7 @@ class AddTaskBottomSheetHelper(
         Log.d(TAG, "show in")
         stepList.clear()
         selectedType = "one-time"
-        selectedCategory = "none"
+        selectedCategoryId = 0L
         urgent = false
         important = false
 
@@ -192,14 +192,15 @@ class AddTaskBottomSheetHelper(
                 group.check(R.id.chip_category_none)
                 return@setOnCheckedStateChangeListener
             }
-            selectedCategory = when (checkedIds.first()) {
-                R.id.chip_category_work -> "work"
-                R.id.chip_category_life -> "life"
-                R.id.chip_category_study -> "study"
-                R.id.chip_category_health -> "health"
-                else -> "none"
+            selectedCategoryId = when (checkedIds.first()) {
+                R.id.chip_category_work -> 2L
+                R.id.chip_category_life -> 3L
+                R.id.chip_category_study -> 1L
+                R.id.chip_category_health -> 4L
+                R.id.chip_category_shopping -> 5L
+                else -> 0L
             }
-            Log.d(TAG, "categoryChanged selectedCategory=$selectedCategory")
+            Log.d(TAG, "categoryChanged selectedCategoryId=$selectedCategoryId")
         }
     }
 
@@ -244,7 +245,7 @@ class AddTaskBottomSheetHelper(
             val title = sheetBinding.etTaskTitle.text?.toString()?.trim().orEmpty()
             Log.d(
                 TAG,
-                "clickSave title=$title type=$selectedType category=$selectedCategory urgent=$urgent important=$important"
+                "clickSave title=$title type=$selectedType categoryId=$selectedCategoryId urgent=$urgent important=$important"
             )
             if (title.isBlank()) {
                 sheetBinding.tilTaskTitle.error =
@@ -257,14 +258,14 @@ class AddTaskBottomSheetHelper(
             val note = sheetBinding.etTaskNote.text?.toString()?.trim().orEmpty()
             Log.d(
                 TAG,
-                "savePayload title=$title description=$description note=$note type=$selectedType category=$selectedCategory urgent=$urgent important=$important stepsCount=${stepList.size}"
+                "savePayload title=$title description=$description note=$note type=$selectedType categoryId=$selectedCategoryId urgent=$urgent important=$important stepsCount=${stepList.size}"
             )
             callback.onTaskCreate(
                 title = title,
                 description = description,
                 note = note,
                 type = selectedType,
-                category = selectedCategory,
+                categoryId = selectedCategoryId,
                 urgent = urgent,
                 important = important,
                 steps = stepList.toList()

@@ -97,6 +97,7 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
                 R.id.chip_cat_work -> 2L
                 R.id.chip_cat_life -> 3L
                 R.id.chip_cat_health -> 4L
+                R.id.chip_cat_shopping -> 5L
                 else -> null // Includes chip_cat_all
             }
             viewModel.setCategoryFilter(categoryId)
@@ -136,14 +137,13 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
                         description: String,
                         note: String,
                         type: String,
-                        category: String,
+                        categoryId: Long,
                         urgent: Boolean,
                         important: Boolean,
                         steps: List<EditableStep>
                     ) {
                         lifecycleScope.launch {
                             val taskType = if (type == "long") TaskType.LONG.value else TaskType.ONCE.value
-                            val categoryId = mapCategoryNameToId(category)
                             val task = Task(
                                 id = 0,
                                 title = title,
@@ -165,17 +165,6 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
                     }
                 }
             ).show()
-        }
-    }
-
-    private fun mapCategoryNameToId(categoryName: String): Long {
-        return when (categoryName) {
-            "work" -> 2L
-            "life" -> 3L
-            "study" -> 1L
-            "health" -> 4L
-            "shopping" -> 5L
-            else -> 0L
         }
     }
 

@@ -3,32 +3,30 @@ package com.gordon.mypotato.ui.tasks
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gordon.mypotato.R
 import com.gordon.mypotato.databinding.ActivityTaskEditBinding
-import com.gordon.mypotato.ui.common.EditableStep
-import com.gordon.mypotato.ui.common.EditableStepAdapter
+import com.gordon.mypotato.domain.TaskStep
+import com.gordon.mypotato.domain.TaskType
+import com.gordon.mypotato.viewmodel.EditableStepItem
+import com.gordon.mypotato.viewmodel.TaskEditViewModel
+import kotlinx.coroutines.launch
 import java.util.Collections
 
-/*
-* TODO: 当前页面中没有将单次任务转换为长时任务的功能（转换后应该支持增加任务步骤）
-* */
 class TaskEditActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityTaskEditBinding
-    private lateinit var stepAdapter: EditableStepAdapter
-    private val stepList = mutableListOf<EditableStep>()
+    private lateinit var viewModel: TaskEditViewModel
+    private lateinit var stepAdapter: com.gordon.mypotato.ui.common.EditableStepAdapter
+    private val stepList = mutableListOf<com.gordon.mypotato.ui.common.EditableStep>()
+    private val deletedStepIds = mutableListOf<Long>()
 
-    private var taskId: String = ""
-    private var taskTitle: String = ""
-    private var isLongTask: Boolean = false
-    private var category: String = ""
-    private var urgent: Boolean = false
-    private var important: Boolean = false
+    private var taskId: Long = -1
 
     companion object {
         private const val TAG = "TaskEditActivity"
@@ -46,13 +44,20 @@ class TaskEditActivity : AppCompatActivity() {
         binding = ActivityTaskEditBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        viewModel = ViewModelProvider(this)[TaskEditViewModel::class.java]
         readIntentExtras()
         setupToolbar()
         setupStepList()
         setupTypeButtons()
         setupCategoryChips()
-        populateMockData()
+        collectUiState()
 
+        if (taskId != -1L) {
+            viewModel.loadTask(taskId)
+        } else {
+            Log.e(TAG, "Invalid taskId provided")
+            finish()
+        }
         Log.d(TAG, "onCreate out")
     }
 
@@ -64,20 +69,12 @@ class TaskEditActivity : AppCompatActivity() {
      */
     private fun readIntentExtras() {
         Log.d(TAG, "readIntentExtras in")
-        taskId = intent.getStringExtra(EXTRA_TASK_ID).orEmpty()
-        taskTitle = intent.getStringExtra(EXTRA_TASK_TITLE) ?: "设计任务编辑页面"
-        isLongTask = intent.getBooleanExtra(EXTRA_IS_LONG_TASK, false)
-        category = intent.getStringExtra(EXTRA_CATEGORY) ?: "工作"
-        urgent = intent.getBooleanExtra(EXTRA_URGENT, false)
-        important = intent.getBooleanExtra(EXTRA_IMPORTANT, false)
-        Log.d(
-            TAG,
-            "readIntentExtras out taskId=$taskId taskTitle=$taskTitle isLongTask=$isLongTask category=$category urgent=$urgent important=$important",
-        )
+        taskId = intent.getLongExtra(EXTRA_TASK_ID, -1L)
+        Log.d(TAG, "readIntentExtras out taskId=$taskId")
     }
 
     /**
-     * 功能：初始化顶部 Toolbar 与占位菜单行为。
+     * 功能：初始化顶部 Toolbar 与保存菜单行为。
      * 入参：无。
      * 出参：无。
      * 异常：无。
@@ -92,14 +89,84 @@ class TaskEditActivity : AppCompatActivity() {
             when (menuItem.itemId) {
                 R.id.action_save -> {
                     Log.d(TAG, "setupToolbar clickSave")
-                    // TODO: 后续接入任务保存逻辑。
-                    Toast.makeText(this, R.string.task_edit_save_placeholder, Toast.LENGTH_SHORT).show()
+                    saveTask()
                     true
                 }
                 else -> false
             }
         }
         Log.d(TAG, "setupToolbar out")
+    }
+
+    /**
+     * 功能：保存任务和步骤修改。
+     * 入参：无。
+     * 出参：无。
+     * 异常：无。
+     */
+    private fun saveTask() {
+        Log.d(TAG, "saveTask in")
+
+        stepAdapter.syncVisibleStepInputs(binding.rvSteps)
+
+        val title = binding.etTaskTitle.text?.toString()?.trim().orEmpty()
+        val content = binding.etTaskContent.text?.toString()?.trim().orEmpty().takeIf { it.isNotEmpty() }
+        val note = binding.etTaskNote.text?.toString()?.trim().orEmpty().takeIf { it.isNotEmpty() }
+        val isLongTask = binding.groupTaskType.checkedButtonId == R.id.btn_type_long_task
+        val taskType = if (isLongTask) TaskType.LONG.value else TaskType.ONCE.value
+        val isUrgent = binding.switchTaskUrgent.isChecked
+        val isImportant = binding.switchTaskImportant.isChecked
+
+        val categoryName = getSelectedCategoryName()
+        val categoryId = viewModel.getCategoryIdByName(categoryName)
+
+        val stepEdits = stepList
+            .filter { it.title.isNotBlank() }
+            .mapIndexed { index, step ->
+                EditableStepItem(
+                    id = stepList.indexOfFirst { it == step }.let { pos ->
+                        if (pos >= 0 && pos < viewModel.uiState.value.steps.size) {
+                            viewModel.uiState.value.steps[pos].id
+                        } else {
+                            0L
+                        }
+                    },
+                    title = step.title
+                )
+            }
+
+        val updatedTask = viewModel.buildUpdatedTask(title, content, note, taskType, categoryId, isUrgent, isImportant)
+        updatedTask?.let {
+            viewModel.updateTask(it)
+            if (isLongTask) {
+                viewModel.saveSteps(stepEdits, deletedStepIds)
+            } else {
+                viewModel.uiState.value.steps.forEach { step ->
+                    viewModel.saveSteps(emptyList(), listOf(step.id))
+                }
+            }
+        }
+
+        finish()
+        Log.d(TAG, "saveTask out")
+    }
+
+    /**
+     * 功能：获取当前选中的分类名称。
+     * 入参：无。
+     * 出参：返回分类名称。
+     * 异常：无。
+     */
+    private fun getSelectedCategoryName(): String {
+        val checkedId = binding.groupTaskCategory.checkedChipId
+        return when (checkedId) {
+            R.id.chip_category_work -> getString(R.string.today_bottom_sheet_category_work)
+            R.id.chip_category_life -> getString(R.string.today_bottom_sheet_category_life)
+            R.id.chip_category_study -> getString(R.string.today_bottom_sheet_category_study)
+            R.id.chip_category_health -> getString(R.string.today_bottom_sheet_category_health)
+            R.id.chip_category_shopping -> getString(R.string.today_bottom_sheet_category_shopping)
+            else -> getString(R.string.today_bottom_sheet_category_none)
+        }
     }
 
     /**
@@ -111,12 +178,15 @@ class TaskEditActivity : AppCompatActivity() {
     private fun setupStepList() {
         Log.d(TAG, "setupStepList in")
         stepAdapter =
-            EditableStepAdapter(
+            com.gordon.mypotato.ui.common.EditableStepAdapter(
                 steps = stepList,
                 onDeleteClick = { position ->
                     if (position !in stepList.indices) {
                         Log.d(TAG, "setupStepList skipDelete invalidPosition=$position")
                     } else {
+                        if (position < viewModel.uiState.value.steps.size) {
+                            deletedStepIds.add(viewModel.uiState.value.steps[position].id)
+                        }
                         stepList.removeAt(position)
                         stepAdapter.notifyItemRemoved(position)
                         updateStepSectionSummary()
@@ -131,7 +201,7 @@ class TaskEditActivity : AppCompatActivity() {
         itemTouchHelper.attachToRecyclerView(binding.rvSteps)
         binding.tvAddStep.setOnClickListener {
             Log.d(TAG, "setupStepList clickAddStep")
-            stepList.add(EditableStep(""))
+            stepList.add(com.gordon.mypotato.ui.common.EditableStep(""))
             stepAdapter.notifyItemInserted(stepList.size - 1)
             updateStepSectionSummary()
         }
@@ -148,9 +218,9 @@ class TaskEditActivity : AppCompatActivity() {
         Log.d(TAG, "setupTypeButtons in")
         binding.groupTaskType.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (!isChecked) return@addOnButtonCheckedListener
-            isLongTask = checkedId == R.id.btn_type_long_task
+            val isLongTask = checkedId == R.id.btn_type_long_task
             Log.d(TAG, "setupTypeButtons changed isLongTask=$isLongTask")
-            renderStepSection()
+            renderStepSection(isLongTask)
         }
         Log.d(TAG, "setupTypeButtons out")
     }
@@ -166,60 +236,78 @@ class TaskEditActivity : AppCompatActivity() {
         binding.groupTaskCategory.setOnCheckedStateChangeListener { group, checkedIds ->
             if (checkedIds.isEmpty()) {
                 group.check(R.id.chip_category_none)
-                category = getString(R.string.today_bottom_sheet_category_none)
                 return@setOnCheckedStateChangeListener
             }
-            category =
-                when (checkedIds.first()) {
-                    R.id.chip_category_work -> getString(R.string.today_bottom_sheet_category_work)
-                    R.id.chip_category_life -> getString(R.string.today_bottom_sheet_category_life)
-                    R.id.chip_category_study -> getString(R.string.today_bottom_sheet_category_study)
-                    R.id.chip_category_health -> getString(R.string.today_bottom_sheet_category_health)
-                    else -> getString(R.string.today_bottom_sheet_category_none)
-                }
-            Log.d(TAG, "setupCategoryChips changed category=$category")
+            Log.d(TAG, "setupCategoryChips changed categoryId=${checkedIds.first()}")
         }
         Log.d(TAG, "setupCategoryChips out")
     }
 
     /**
-     * 功能：填充编辑页 Mock 数据并渲染当前 UI。
+     * 功能：收集 ViewModel UI 状态并渲染页面。
      * 入参：无。
      * 出参：无。
      * 异常：无。
      */
-    private fun populateMockData() {
-        Log.d(TAG, "populateMockData in")
-        binding.tvTaskId.text = getString(R.string.task_edit_task_id_format, taskId.ifBlank { "mock-task-001" })
-        binding.tvMockHint.text = getString(R.string.task_edit_mock_banner)
-        binding.etTaskTitle.setText(taskTitle)
-        binding.etTaskContent.setText(buildMockDescription())
-        binding.etTaskNote.setText(buildMockNote())
-        binding.switchTaskUrgent.isChecked = urgent
-        binding.switchTaskImportant.isChecked = important
+    private fun collectUiState() {
+        Log.d(TAG, "collectUiState in")
+        lifecycleScope.launch {
+            viewModel.uiState.collect { state ->
+                if (state.isLoading) {
+                    return@collect
+                }
+                state.task?.let { task ->
+                    renderTask(task, state.category, state.steps)
+                }
+            }
+        }
+        Log.d(TAG, "collectUiState out")
+    }
 
-        if (isLongTask) {
+    /**
+     * 功能：渲染任务信息和步骤列表。
+     * 入参：task 任务对象，category 分类对象，steps 步骤列表。
+     * 出参：无。
+     * 异常：无。
+     */
+    private fun renderTask(task: com.gordon.mypotato.domain.Task, category: com.gordon.mypotato.domain.Category?, steps: List<TaskStep>) {
+        Log.d(TAG, "renderTask in")
+
+        binding.tvTaskId.text = getString(R.string.task_edit_task_id_format, task.id)
+        binding.tvMockHint.visibility = View.GONE
+
+        binding.etTaskTitle.setText(task.title)
+        binding.etTaskContent.setText(task.content ?: "")
+        binding.etTaskNote.setText(task.note ?: "")
+        binding.switchTaskUrgent.isChecked = task.isUrgent
+        binding.switchTaskImportant.isChecked = task.isImportant
+
+        if (task.isLongTask()) {
             binding.groupTaskType.check(R.id.btn_type_long_task)
         } else {
             binding.groupTaskType.check(R.id.btn_type_one_time)
         }
-        binding.groupTaskCategory.check(resolveCategoryChipId(category))
+
+        val categoryName = category?.name ?: getString(R.string.today_bottom_sheet_category_none)
+        binding.groupTaskCategory.check(resolveCategoryChipId(categoryName))
 
         stepList.clear()
-        stepList.addAll(buildMockSteps())
+        stepList.addAll(steps.map { com.gordon.mypotato.ui.common.EditableStep(it.title) })
         stepAdapter.notifyDataSetChanged()
-        renderStepSection()
+
+        renderStepSection(task.isLongTask())
         updateStepSectionSummary()
-        Log.d(TAG, "populateMockData out stepCount=${stepList.size}")
+
+        Log.d(TAG, "renderTask out stepCount=${stepList.size}")
     }
 
     /**
      * 功能：根据任务类型渲染步骤编辑区显隐。
-     * 入参：无。
+     * 入参：isLongTask 是否长时任务。
      * 出参：无。
      * 异常：无。
      */
-    private fun renderStepSection() {
+    private fun renderStepSection(isLongTask: Boolean) {
         Log.d(TAG, "renderStepSection in isLongTask=$isLongTask")
         binding.cardSteps.visibility = if (isLongTask) View.VISIBLE else View.GONE
         Log.d(TAG, "renderStepSection out visibility=${binding.cardSteps.visibility}")
@@ -238,62 +326,6 @@ class TaskEditActivity : AppCompatActivity() {
     }
 
     /**
-     * 功能：构建编辑页描述 Mock 数据。
-     * 入参：无。
-     * 出参：返回任务描述文本。
-     * 异常：无。
-     */
-    private fun buildMockDescription(): String {
-        Log.d(TAG, "buildMockDescription in")
-        // TODO: 后续改为真实任务数据源。
-        val description =
-            if (isLongTask) {
-                "梳理任务编辑页的卡片层级、交互区块和视觉风格，保持与详情页一致。"
-            } else {
-                "补充任务编辑页的基础信息展示和表单占位，便于后续接入真实数据。"
-            }
-        Log.d(TAG, "buildMockDescription out")
-        return description
-    }
-
-    /**
-     * 功能：构建编辑页备注 Mock 数据。
-     * 入参：无。
-     * 出参：返回备注文本。
-     * 异常：无。
-     */
-    private fun buildMockNote(): String {
-        Log.d(TAG, "buildMockNote in")
-        // TODO: 后续改为真实任务数据源。
-        val note = "当前页面仅完成 UI 骨架与占位交互，保存、回传与数据同步将在后续阶段接入。"
-        Log.d(TAG, "buildMockNote out")
-        return note
-    }
-
-    /**
-     * 功能：根据当前任务类型生成步骤 Mock 数据。
-     * 入参：无。
-     * 出参：返回步骤列表。
-     * 异常：无。
-     */
-    private fun buildMockSteps(): List<EditableStep> {
-        Log.d(TAG, "buildMockSteps in isLongTask=$isLongTask")
-        // TODO: 后续接入步骤增删改与排序逻辑。
-        val steps =
-            if (isLongTask) {
-                listOf(
-                    EditableStep("整理编辑页信息结构"),
-                    EditableStep("补齐表单输入区域"),
-                    EditableStep("统一按钮与卡片风格"),
-                )
-            } else {
-                emptyList()
-            }
-        Log.d(TAG, "buildMockSteps out stepCount=${steps.size}")
-        return steps
-    }
-
-    /**
      * 功能：根据分类名称映射选中的 Chip。
      * 入参：categoryName 分类名称。
      * 出参：返回对应分类 Chip 的资源 id。
@@ -307,6 +339,7 @@ class TaskEditActivity : AppCompatActivity() {
                 getString(R.string.today_bottom_sheet_category_life) -> R.id.chip_category_life
                 getString(R.string.today_bottom_sheet_category_study) -> R.id.chip_category_study
                 getString(R.string.today_bottom_sheet_category_health) -> R.id.chip_category_health
+                getString(R.string.today_bottom_sheet_category_shopping) -> R.id.chip_category_shopping
                 else -> R.id.chip_category_none
             }
         Log.d(TAG, "resolveCategoryChipId out chipId=$chipId")
