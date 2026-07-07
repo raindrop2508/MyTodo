@@ -1,7 +1,7 @@
 # B4：Today 页面 Fake 数据接入 Flow 到 ViewModel 再到 UI 的数据流总结
 
-> 文档版本：v1.0\
-> 更新日期：2026-07-05\
+> 文档版本：v1.1\
+> 更新日期：2026-07-07\
 > 依据范围：`git` 暂存区中的 `TodayViewModel.kt` 与 `TodayFragment.kt` 改动\
 > 适用阶段：Stage B / B4 ViewModel 接入阶段
 
@@ -16,7 +16,7 @@
 - `FakeTaskRepository`
 - `FakeCategoryRepository`
 
-它们在初始化阶段预置默认数据：
+它们通过 `getInstance()` 单例模式提供唯一实例，在初始化阶段预置默认数据：
 
 - 默认分类：学习、工作、生活、健康、购物
 - 默认任务：如“完成项目原型设计”“学习 Compose 新特性”“晚间跑步”等
@@ -26,6 +26,7 @@
 - 用 `MutableList` 持有内存数据
 - 用 `MutableStateFlow` 持有“对外可观察的数据快照”
 - 每次增删改后调用 `emitTasks()` 或 `emitCategories()`，把最新列表重新赋值给 `StateFlow`
+- 使用单例模式确保多页面共享同一份数据源
 
 这一步解决的是“假数据从哪里来”的问题。\
 答案是：**来自 FakeRepository 的内存列表，再通过** **`MutableStateFlow`** **以流（Flow）的形式暴露出去。**
@@ -109,10 +110,95 @@ UI 把用户操作转成事件，交给 `ViewModel`：
 
 - 切换筛选：`viewModel.setFilter(filter)`
 - 勾选完成：`viewModel.toggleTaskStatus(task.id)`
-- 新建任务：`viewModel.addTask(task)`
-- 点击任务：读取 `ViewModel` 中的分类映射，拼装跳转参数
+- 新建任务：`viewModel.addTask(task, stepTitles)`
+- 点击任务：调用 `viewModel.getCategoryName(categoryId)` 获取分类名称，拼装跳转参数
 
 这说明 Today 页面已经从“页面自己处理数据”转向“页面只负责输入输出（Input/Output）”。
+
+***
+
+## 5. 分类 Chip 动态生成机制
+
+为解决分类数据硬编码问题，项目引入了 `CategoryChipHelper` 工具类，实现分类 Chip 的动态生成。
+
+### 5.1 设计思路
+
+核心设计原则是：**分类数据完全来自 `CategoryRepository`，UI 不再维护任何硬编码的分类信息**。
+
+`CategoryChipHelper` 提供两个核心方法：
+
+#### `populateCategoryChips()` - 创建任务时的分类选择
+
+用于 BottomSheet 和编辑页面，提供"无"选项：
+
+- 第一个 Chip 为"无"（`createNoneChip()`），`tag` 设为 `0L`
+- 后续 Chip 根据 `CategoryRepository` 返回的分类列表动态生成
+- 每个分类 Chip 的 `tag` 存储对应的 `categoryId`
+- 用户选择时通过 `onCategorySelected` 回调返回 `categoryId`
+
+#### `populateCategoryFilterChips()` - 筛选时的分类过滤
+
+用于任务列表页的分类筛选，提供"全部"选项：
+
+- 第一个 Chip 为"全部"（`createAllChip()`），`tag` 设为 `null`
+- 后续 Chip 根据 `CategoryRepository` 返回的分类列表动态生成
+- 用户选择时通过 `onCategoryFilterChanged` 回调返回 `categoryId?`（`null` 表示全部）
+
+### 5.2 Chip 创建细节
+
+#### `createNoneChip()`
+
+```kotlin
+tag = 0L
+text = "无"
+```
+
+用于表示"未选择分类"，`tag` 为 `0L` 与数据库中"无分类"的约定一致。
+
+#### `createAllChip()`
+
+```kotlin
+tag = null
+text = "全部"
+```
+
+用于表示"不按分类过滤"，`tag` 为 `null`，因此在读取时需使用安全转换：`chip.tag as? Long`。
+
+#### `createCategoryChip()`
+
+```kotlin
+tag = category.id
+text = category.name
+chipBackgroundColor = Color.parseColor(category.colorHex)
+```
+
+根据 `Category` 实体动态设置：
+- `tag` 存储分类 ID
+- `text` 使用分类名称
+- 背景色使用分类的 `colorHex`
+- 根据背景色亮度自动计算文字颜色（亮色背景用黑色文字，暗色背景用白色文字）
+
+### 5.3 使用方式
+
+在 UI 层调用时，只需传入 `ChipGroup`、分类列表和回调：
+
+```kotlin
+CategoryChipHelper.populateCategoryChips(
+    chipGroup = binding.groupTaskCategory,
+    categories = categories,
+    selectedCategoryId = selectedCategoryId,
+    onCategorySelected = { categoryId ->
+        // 处理分类选择
+    }
+)
+```
+
+### 5.4 设计优势
+
+- **数据源统一**：所有分类信息来自 `CategoryRepository`，避免数据不一致
+- **动态扩展**：当 `CategoryRepository` 中新增或删除分类时，UI 自动更新
+- **类型安全**：使用 `Long` 类型的 `categoryId` 而非字符串，避免映射错误
+- **颜色自适应**：根据分类颜色自动调整文字颜色，保证可读性
 
 ***
 
@@ -147,9 +233,9 @@ Today 页面当前有三类典型上行事件：
 
 当用户通过 BottomSheet 提交表单：
 
-- UI 收集标题、描述、备注、任务类型、分类、重要/紧急、步骤等输入
-- 组装为领域模型 `Task`
-- 在 `lifecycleScope.launch` 中调用 `viewModel.addTask(task)`
+- UI 收集标题、描述、备注、任务类型、分类ID、重要/紧急、步骤等输入
+- 组装为领域模型 `Task`（分类通过 `categoryId` 关联）
+- 在 `lifecycleScope.launch` 中调用 `viewModel.addTask(task, stepTitles)`
 - `ViewModel` 再调用 `taskRepository.addTask(task)`
 
 这三类操作都体现出：**UI 不直接改 RecyclerView 数据，而是把“意图”提交给 ViewModel。**
@@ -198,7 +284,7 @@ Today 页面当前有三类典型上行事件：
 
 当前 UI 中两个写操作使用了 `lifecycleScope.launch`：
 
-- `viewModel.addTask(task)`
+- `viewModel.addTask(task, stepTitles)`
 - `viewModel.toggleTaskStatus(task.id)`
 
 其作用是：
@@ -291,21 +377,21 @@ UI 自动刷新的根因不是 `notifyDataSetChanged()`，而是 **状态源变�
 
 下面这些问题不影响本次 Stage B 目标达成，但在后续阶段需要明确处理。
 
-## 1. ViewModel 直接 new FakeRepository，依赖注入能力不足
+## 1. ViewModel 使用单例模式获取 Repository，依赖注入能力不足
 
-当前 `TodayViewModel` 构造函数直接默认创建：
+当前 `TodayViewModel` 构造函数通过 `getInstance()` 单例模式获取：
 
-- `FakeTaskRepository()`
-- `FakeCategoryRepository(taskRepository)`
+- `FakeTaskRepository.getInstance()`
+- `FakeCategoryRepository.getInstance(taskRepository)`
 
 风险：
 
 - 不利于依赖注入（Dependency Injection）
 - 不利于单元测试（Unit Test）替换假实现
-- 不利于多页面共享同一个 Repository 实例
+- 单例模式虽然保证了多页面共享同一份数据源，但耦合度较高
 
 直接后果是：\
-如果别的页面各自 new 自己的 FakeRepository，那么不同页面之间的数据未必真正共享。
+单例模式解决了多页面数据共享问题，但仍需通过构造函数注入进一步解耦。
 
 ## 2. 写操作放在 Fragment 的 lifecycleScope 中发起，职责边界仍可优化
 
@@ -334,21 +420,7 @@ UI 自动刷新的根因不是 `notifyDataSetChanged()`，而是 **状态源变�
 - 当 UI 状态和数据状态短暂不一致时，可能产生反向切换
 - 逻辑语义上更像“切换（toggle）”，而不是“设置为某状态（set status）”
 
-## 4. 分类名称到 ID 的映射仍写死在 Fragment 中
-
-`mapCategoryNameToId()` 仍然是页面内硬编码映射。
-
-风险：
-
-- UI 文案、分类数据源、分类 ID 规则三者可能失配
-- 未来分类若支持动态增删，这种写法无法扩展
-
-更合理的方向应当是：
-
-- 由 `CategoryRepository` 提供分类查询
-- UI 选择分类时直接携带 `categoryId`
-
-## 5. TodayUiState 的 isLoading 尚未真正参与状态流转
+## 4. TodayUiState 的 isLoading 尚未真正参与状态流转
 
 当前 `TodayUiState` 中已有：
 
@@ -403,12 +475,12 @@ UI 自动刷新的根因不是 `notifyDataSetChanged()`，而是 **状态源变�
 
 目标是保证多个页面看到的是同一份数据源。
 
-### 3. 把分类映射从 UI 挪到数据层
+### 3. 优化分类 Chip 生成机制
 
-目标：
+当前已通过 `CategoryChipHelper` 实现分类的动态生成，但仍有改进空间：
 
-- UI 不再维护 `mapCategoryNameToId()`
-- 分类选择结果直接对应真实 `categoryId`
+- `createAllChip()` 的 `tag` 设为 `null`，需使用安全转换 `as? Long`
+- 考虑统一使用负数（如 `-1L`）表示"全部/无"状态，保持类型一致性
 
 ### 4. 补齐加载态与错误态
 
@@ -427,6 +499,7 @@ UI 自动刷新的根因不是 `notifyDataSetChanged()`，而是 **状态源变�
 - `MVVM（Model-View-ViewModel）` 分层架构
 - 仓储模式（Repository Pattern）
 - 假仓储（Fake Repository / In-Memory Repository）
+- 单例模式（Singleton Pattern）
 - `Kotlin Flow`
 - `MutableStateFlow` / `StateFlow`
 - 多数据源合并 `combine`
@@ -437,6 +510,9 @@ UI 自动刷新的根因不是 `notifyDataSetChanged()`，而是 **状态源变�
 - 领域模型（Domain Model）统一接入
 - 事件上行 + 状态下行 的双向交互闭环
 - 生命周期感知异步编程（Lifecycle-Aware Asynchronous Programming）
+- 动态 UI 组件生成（Dynamic UI Component Generation）
+- View Tag 机制（用于存储分类 ID）
+- 安全类型转换（`as?`）
 
 ***
 
@@ -444,4 +520,4 @@ UI 自动刷新的根因不是 `notifyDataSetChanged()`，而是 **状态源变�
 
 本次暂存区改动已经把 Today 页面成功改造成一条完整的响应式链路：
 
-**Fake 数据在 Repository 中以内存 +** **`StateFlow`** **的形式存在，`TodayViewModel`** **通过** **`combine`** **聚合任务、分类与筛选条件生成** **`TodayUiState`，UI 通过** **`collect`** **渲染状态，同时再把用户操作回传给** **`ViewModel`，最终形成可持续扩展的双向交互闭环。**
+**Fake 数据在 Repository 中以内存 +** **`StateFlow`** **的形式存在，`TodayViewModel`** **通过** **`combine`** **聚合任务、分类与筛选条件生成** **`TodayUiState`，分类 Chip 通过** **`CategoryChipHelper`** **动态生成并使用** **`tag`** **存储** **`categoryId`，UI 通过** **`collect`** **渲染状态，同时再把用户操作回传给** **`ViewModel`，最终形成可持续扩展的双向交互闭环。**
