@@ -183,16 +183,19 @@ data class TaskQuery(
 
 - 新建 `data/repository/FakeTaskRepository.kt`（实现 `TaskRepository`）
 - 新建 `data/repository/FakeCategoryRepository.kt`（实现 `CategoryRepository`）
+- 新建 `data/repository/FakePomodoroRepository.kt`（实现 `PomodoroRepository`，内存版会话存储）
 
 **验证标准：**
 
 - `FakeTaskRepository` 实现 `TaskRepository` 接口所有方法
 - `FakeCategoryRepository` 实现 `CategoryRepository` 接口所有方法
+- `FakePomodoroRepository` 实现 `PomodoroRepository` 接口所有方法
 - 数据变更后 Flow 能正确通知所有订阅者
 - 枚举↔Int 映射正确，与领域模型保持一致
 - 默认分类与示例任务数据加载完成
 - 删除任务时级联删除关联步骤
 - 删除分类时关联任务的 `categoryId` 正确置为 0
+- `FakeTaskRepository` 支持任务/步骤完成时间自动计算与累计用时保留
 
 ***
 
@@ -209,8 +212,8 @@ data class TaskQuery(
 | `TasksViewModel`      | TasksFragment      | 加载任务列表、多维筛选（类型/日期/分类）、搜索，添加任务，删除任务           | 已完成  |
 | `TaskDetailViewModel` | TaskDetailActivity | 加载任务详情、步骤列表、标记完成、启动番茄钟，更新步骤状态，删除任务           | 已完成  |
 | `TaskEditViewModel`   | TaskEditActivity   | 任务/步骤的增删改、表单验证                               | 已完成  |
-| `PomodoroViewModel`   | PomodoroActivity   | 计时状态机、会话记录（内存）、任务上下文、启动番茄钟，步骤状态管理，任务状态切换）    | 待完成  |
-| `SettingsViewModel`   | SettingsFragment   | 读取/保存设置项（主题、语言、番茄钟时长）；根据实际确定设置等数据是否需要存储在数据库中 | 待完成  |
+| `PomodoroViewModel`   | PomodoroActivity   | 计时状态机、会话记录（内存）、任务上下文、启动番茄钟，步骤状态管理，任务状态切换    | 已完成  |
+| `SettingsViewModel`   | SettingsFragment   | 读取/保存设置项（主题、语言、番茄钟时长）；使用 SharedPreferences 存储设置数据        | 已完成  |
 
 **实现要点（含后续优化）：**
 
@@ -230,16 +233,18 @@ data class TaskQuery(
 - 新建 `viewmodel/TaskDetailViewModel.kt`
 - 新建 `viewmodel/TaskEditViewModel.kt`
 - 新建 `viewmodel/ViewModelFactory.kt`（统一管理 Repository 注入）
-- 新建 `viewmodel/PomodoroViewModel.kt`（待完成）
-- 新建 `viewmodel/SettingsViewModel.kt`（待完成）
+- 新建 `viewmodel/PomodoroViewModel.kt`（已完成）
+- 新建 `viewmodel/SettingsViewModel.kt`（已完成）
 
 **验证标准：**
 
-- 已完成的 4 个 ViewModel 通过 Repository 获取数据
+- 所有 6 个 ViewModel 通过 Repository 获取数据
 - UI 能正确收集（`collect`）ViewModel 的 `StateFlow`
 - 写操作在 `ViewModel` 内部的 `viewModelScope` 中正确执行，UI 层无需 `lifecycleScope.launch`
 - 所有 UI 使用 `ViewModelFactory` 创建 ViewModel
 - 协程生命周期管理正确，无内存泄漏
+- `SettingsViewModel` 通过 SharedPreferences 实现设置持久化
+- `PomodoroViewModel` 支持工作/短休息/长休息三阶段切换
 
 ***
 

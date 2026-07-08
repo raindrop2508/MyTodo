@@ -7,11 +7,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.gordon.mypotato.R
 import com.gordon.mypotato.databinding.FragmentSettingsBinding
+import com.gordon.mypotato.viewmodel.SettingsViewModel
+import com.gordon.mypotato.viewmodel.ThemeMode
+import com.gordon.mypotato.viewmodel.ViewModelFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.launch
 
 class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
@@ -19,10 +24,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     private val binding: FragmentSettingsBinding
         get() = _binding!!
 
-    private var selectedThemeMode: ThemeMode = ThemeMode.SYSTEM
-    private var focusMinutes: Int = DEFAULT_FOCUS_MINUTES
-    private var breakMinutes: Int = DEFAULT_BREAK_MINUTES
-    private var isSoundEnabled: Boolean = true
+    private lateinit var viewModel: SettingsViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -30,6 +32,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this, ViewModelFactory.getInstance(requireContext()))[SettingsViewModel::class.java]
         return binding.root
     }
 
@@ -41,6 +44,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         setupDataSettings()
         setupPomodoroSettings()
         setupAboutSettings()
+        collectUiState()
     }
 
     override fun onDestroyView() {
@@ -53,24 +57,34 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     }
 
     private fun setupAppearanceSettings() {
-        updateThemeText()
         binding.cardTheme.setOnClickListener {
-            val options = ThemeMode.values().map { getString(it.labelRes) }.toTypedArray()
-            val checkedItem = ThemeMode.values().indexOf(selectedThemeMode)
-            
+            val options = arrayOf(
+                getString(R.string.settings_theme_system),
+                getString(R.string.settings_theme_light),
+                getString(R.string.settings_theme_dark)
+            )
+            val currentMode = viewModel.uiState.value.themeMode
+            val checkedItem = when (currentMode) {
+                ThemeMode.SYSTEM -> 0
+                ThemeMode.LIGHT -> 1
+                ThemeMode.DARK -> 2
+                else -> 0
+            }
+
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle("选择主题模式")
                 .setSingleChoiceItems(options, checkedItem) { dialog, which ->
-                    selectedThemeMode = ThemeMode.values()[which]
-                    updateThemeText()
+                    val newMode = when (which) {
+                        0 -> ThemeMode.SYSTEM
+                        1 -> ThemeMode.LIGHT
+                        2 -> ThemeMode.DARK
+                        else -> ThemeMode.SYSTEM
+                    }
+                    viewModel.updateThemeMode(newMode)
                     dialog.dismiss()
                 }
                 .show()
         }
-    }
-
-    private fun updateThemeText() {
-        binding.tvThemeValue.text = getString(selectedThemeMode.labelRes)
     }
 
     private fun setupLanguageSettings() {
@@ -86,31 +100,21 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     }
 
     private fun setupPomodoroSettings() {
-        updatePomodoroText()
-        
         binding.cardPomodoroFocus.setOnClickListener {
-            showNumberInputDialog("设置工作时长（分钟）", focusMinutes) { newValue ->
-                focusMinutes = newValue.coerceIn(MIN_MINUTES, MAX_MINUTES)
-                updatePomodoroText()
+            showNumberInputDialog("设置工作时长（分钟）", viewModel.uiState.value.focusMinutes) { newValue ->
+                viewModel.updateFocusMinutes(newValue)
             }
         }
-        
-        binding.cardPomodoroBreak.setOnClickListener {
-            showNumberInputDialog("设置休息时长（分钟）", breakMinutes) { newValue ->
-                breakMinutes = newValue.coerceIn(MIN_MINUTES, MAX_MINUTES)
-                updatePomodoroText()
-            }
-        }
-        
-        binding.switchPomodoroSound.isChecked = isSoundEnabled
-        binding.switchPomodoroSound.setOnCheckedChangeListener { _, isChecked ->
-            isSoundEnabled = isChecked
-        }
-    }
 
-    private fun updatePomodoroText() {
-        binding.tvPomodoroFocusValue.text = "${focusMinutes}分钟"
-        binding.tvPomodoroBreakValue.text = "${breakMinutes}分钟"
+        binding.cardPomodoroBreak.setOnClickListener {
+            showNumberInputDialog("设置休息时长（分钟）", viewModel.uiState.value.shortBreakMinutes) { newValue ->
+                viewModel.updateShortBreakMinutes(newValue)
+            }
+        }
+
+        binding.switchPomodoroSound.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.toggleSound()
+        }
     }
 
     private fun showNumberInputDialog(title: String, currentValue: Int, onResult: (Int) -> Unit) {
@@ -119,7 +123,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             setText(currentValue.toString())
             setSelection(text.length)
         }
-        
+
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(title)
             .setView(input)
@@ -136,30 +140,38 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     private fun setupAboutSettings() {
         val versionName = runCatching {
             requireContext().packageManager.getPackageInfo(requireContext().packageName, 0).versionName
-        }.getOrNull().orEmpty().ifBlank { DEFAULT_VERSION_NAME }
+        }.getOrNull().orEmpty().ifBlank { "1.0.0" }
 
         binding.tvVersionValue.text = versionName
-        
+
         binding.cardCheckUpdate.setOnClickListener {
             showToast("已经是最新版本")
         }
     }
 
+    private fun collectUiState() {
+        lifecycleScope.launch {
+            viewModel.uiState.collect { state ->
+                binding.tvThemeValue.text = when (state.themeMode) {
+                    ThemeMode.SYSTEM -> getString(R.string.settings_theme_system)
+                    ThemeMode.LIGHT -> getString(R.string.settings_theme_light)
+                    ThemeMode.DARK -> getString(R.string.settings_theme_dark)
+                    else -> getString(R.string.settings_theme_system)
+                }
+
+                binding.tvPomodoroFocusValue.text = "${state.focusMinutes}分钟"
+                binding.tvPomodoroBreakValue.text = "${state.shortBreakMinutes}分钟"
+
+                binding.switchPomodoroSound.setOnCheckedChangeListener(null)
+                binding.switchPomodoroSound.isChecked = state.isSoundEnabled
+                binding.switchPomodoroSound.setOnCheckedChangeListener { _, _ ->
+                    viewModel.toggleSound()
+                }
+            }
+        }
+    }
+
     private fun showToast(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-    }
-
-    private enum class ThemeMode(val labelRes: Int) {
-        SYSTEM(R.string.settings_theme_system),
-        LIGHT(R.string.settings_theme_light),
-        DARK(R.string.settings_theme_dark)
-    }
-
-    private companion object {
-        private const val DEFAULT_FOCUS_MINUTES = 25
-        private const val DEFAULT_BREAK_MINUTES = 5
-        private const val MIN_MINUTES = 1
-        private const val MAX_MINUTES = 120
-        private const val DEFAULT_VERSION_NAME = "1.0.0"
     }
 }

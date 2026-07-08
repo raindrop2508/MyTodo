@@ -42,7 +42,7 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentTasksBinding.inflate(inflater, container, false)
-        viewModel = ViewModelProvider(this, ViewModelFactory.getInstance())[TasksViewModel::class.java]
+        viewModel = ViewModelProvider(this, ViewModelFactory.getInstance(requireContext()))[TasksViewModel::class.java]
         return binding.root
     }
 

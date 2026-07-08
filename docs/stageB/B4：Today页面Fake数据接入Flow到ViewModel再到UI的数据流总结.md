@@ -497,10 +497,10 @@ data class TodayUiState(
 
 ### 4. 实现 PomodoroViewModel 与 SettingsViewModel
 
-根据 Stage B 计划，尚未完成的 ViewModel：
+根据 Stage B 计划，所有 ViewModel 已完成实现：
 
-- `PomodoroViewModel`：计时状态机、会话记录、任务上下文管理
-- `SettingsViewModel`：读取/保存设置项（主题、语言、番茄钟时长）
+- `PomodoroViewModel`：计时状态机、会话记录（内存）、任务上下文管理、三阶段切换（工作/短休息/长休息）
+- `SettingsViewModel`：读取/保存设置项（主题、语言、番茄钟时长），使用 SharedPreferences 实现持久化
 
 ***
 
@@ -523,6 +523,9 @@ data class TodayUiState(
 - 动态 UI 组件生成（Dynamic UI Component Generation）
 - View Tag 机制（用于存储分类 ID）
 - 安全类型转换（`as?`）
+- 状态机模式（State Machine Pattern）—— PomodoroViewModel 计时阶段管理
+- `SharedPreferences` —— 设置数据持久化存储
+- 时间计算策略——任务/步骤完成时间自动计算与累计用时保留
 
 ***
 

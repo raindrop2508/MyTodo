@@ -120,6 +120,8 @@
     <string name="pomodoro_tag_urgent">紧急</string>
     <string name="pomodoro_tag_important">重要</string>
     <string name="pomodoro_state_focus">🍅 专注工作</string>
+    <string name="pomodoro_state_short_break">☕ 短休息</string>
+    <string name="pomodoro_state_long_break">🌴 长休息</string>
     <string name="pomodoro_duration_hint">专注时长 25 分钟</string>
     <string name="pomodoro_default_time">25:00</string>
     <string name="pomodoro_count_hint">🍅 第 1 个番茄钟</string>

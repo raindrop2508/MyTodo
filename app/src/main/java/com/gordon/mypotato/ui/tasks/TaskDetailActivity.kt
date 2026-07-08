@@ -40,7 +40,7 @@ class TaskDetailActivity : AppCompatActivity() {
         binding = ActivityTaskDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel = ViewModelProvider(this, ViewModelFactory.getInstance())[TaskDetailViewModel::class.java]
+        viewModel = ViewModelProvider(this, ViewModelFactory.getInstance(this))[TaskDetailViewModel::class.java]
         taskId = intent.getLongExtra(EXTRA_TASK_ID, -1L)
 
         setupToolbar()

@@ -46,7 +46,7 @@ class TaskEditActivity : AppCompatActivity() {
         binding = ActivityTaskEditBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel = ViewModelProvider(this, ViewModelFactory.getInstance())[TaskEditViewModel::class.java]
+        viewModel = ViewModelProvider(this, ViewModelFactory.getInstance(this))[TaskEditViewModel::class.java]
         readIntentExtras()
         setupToolbar()
         setupStepList()

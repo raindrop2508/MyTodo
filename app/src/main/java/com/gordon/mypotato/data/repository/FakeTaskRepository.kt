@@ -416,13 +416,35 @@ class FakeTaskRepository private constructor() : TaskRepository {
         val index = tasks.indexOfFirst { it.id == id }
         if (index != -1) {
             val now = System.currentTimeMillis() / 1000
+            val task = tasks[index]
+            
             val newFinishedAt = if (status == TaskStatus.COMPLETED) now else null
-            tasks[index] = tasks[index].copy(
+            val newTotalDuration = if (status == TaskStatus.COMPLETED) {
+                calculateTotalDuration(task.id, now)
+            } else {
+                task.totalDurationSec
+            }
+            
+            tasks[index] = task.copy(
                 status = status.value,
-                finishedAt = newFinishedAt
+                finishedAt = newFinishedAt,
+                totalDurationSec = newTotalDuration
             )
             emitTasks()
         }
+    }
+
+    private fun calculateTotalDuration(taskId: Long, finishedAt: Long): Long {
+        val task = tasks.find { it.id == taskId } ?: return 0
+        val steps = taskSteps.filter { it.taskId == taskId }
+        
+        val completedStepsDuration = steps
+            .filter { it.status == StepStatus.COMPLETED.value }
+            .sumOf { it.spentDurationSec }
+        
+        val totalTimeFromCreation = finishedAt - task.createdAt
+        
+        return maxOf(completedStepsDuration, totalTimeFromCreation)
     }
 
     /**
@@ -479,12 +501,32 @@ class FakeTaskRepository private constructor() : TaskRepository {
         val index = taskSteps.indexOfFirst { it.id == id }
         if (index != -1) {
             val now = System.currentTimeMillis() / 1000
+            val step = taskSteps[index]
+            
             val newCompletedAt = if (status == StepStatus.COMPLETED) now else null
-            taskSteps[index] = taskSteps[index].copy(
+            val newSpentDuration = if (status == StepStatus.COMPLETED) {
+                now - step.createdAt
+            } else {
+                step.spentDurationSec
+            }
+            
+            taskSteps[index] = step.copy(
                 status = status.value,
-                completedAt = newCompletedAt
+                completedAt = newCompletedAt,
+                spentDurationSec = newSpentDuration
             )
             emitSteps(taskSteps[index].taskId)
+            updateTaskTotalDuration(taskSteps[index].taskId)
+        }
+    }
+
+    private fun updateTaskTotalDuration(taskId: Long) {
+        val taskIndex = tasks.indexOfFirst { it.id == taskId }
+        if (taskIndex != -1) {
+            val steps = taskSteps.filter { it.taskId == taskId }
+            val totalDuration = steps.sumOf { it.spentDurationSec }
+            tasks[taskIndex] = tasks[taskIndex].copy(totalDurationSec = totalDuration)
+            emitTasks()
         }
     }
 

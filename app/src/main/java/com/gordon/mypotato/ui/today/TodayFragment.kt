@@ -47,7 +47,7 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
         savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentTodayBinding.inflate(inflater, container, false)
-        viewModel = ViewModelProvider(this, ViewModelFactory.getInstance())[TodayViewModel::class.java]
+        viewModel = ViewModelProvider(this, ViewModelFactory.getInstance(requireContext()))[TodayViewModel::class.java]
         return binding.root
     }
 
