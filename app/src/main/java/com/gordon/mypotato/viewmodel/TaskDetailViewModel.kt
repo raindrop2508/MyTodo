@@ -18,7 +18,8 @@ data class TaskDetailUiState(
     val category: Category? = null,
     val steps: List<TaskStep> = emptyList(),
     val isLoading: Boolean = true,
-    val isDeleted: Boolean = false
+    val isDeleted: Boolean = false,
+    val canStartPomodoro: Boolean = false
 )
 
 class TaskDetailViewModel(
@@ -40,7 +41,7 @@ class TaskDetailViewModel(
             
             // 组合任务基本信息、分类和步骤流
             combine(
-                taskRepository.getTasks(), // 监听所有任务流以获取实时更新
+                taskRepository.getTasks(),
                 categoryRepository.getCategories(),
                 taskRepository.getStepsByTaskId(taskId)
             ) { tasks, categories, steps ->
@@ -51,7 +52,8 @@ class TaskDetailViewModel(
                     task = task,
                     category = category,
                     steps = steps,
-                    isLoading = false
+                    isLoading = false,
+                    canStartPomodoro = task?.isLongTask() == true
                 )
             }.collect {
                 _uiState.value = it

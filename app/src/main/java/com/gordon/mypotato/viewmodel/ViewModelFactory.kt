@@ -1,6 +1,7 @@
 package com.gordon.mypotato.viewmodel
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.gordon.mypotato.data.repository.CategoryRepository
@@ -46,15 +47,18 @@ class ViewModelFactory(
                 TaskEditViewModel(taskRepository, categoryRepository) as T
             }
             modelClass.isAssignableFrom(PomodoroViewModel::class.java) -> {
-                val settingsViewModel = SettingsViewModel(context)
-                val pomodoroSettings = settingsViewModel.getPomodoroSettings()
+                val sharedPreferences = context.getSharedPreferences("MyPotatoSettings", Context.MODE_PRIVATE)
+                val focusMinutes = sharedPreferences.getInt(SettingsViewModel.KEY_FOCUS_MINUTES, SettingsViewModel.DEFAULT_FOCUS_MINUTES)
+                val shortBreakMinutes = sharedPreferences.getInt(SettingsViewModel.KEY_SHORT_BREAK_MINUTES, SettingsViewModel.DEFAULT_SHORT_BREAK_MINUTES)
+                val longBreakMinutes = sharedPreferences.getInt(SettingsViewModel.KEY_LONG_BREAK_MINUTES, SettingsViewModel.DEFAULT_LONG_BREAK_MINUTES)
+                val longBreakInterval = sharedPreferences.getInt(SettingsViewModel.KEY_LONG_BREAK_INTERVAL, SettingsViewModel.DEFAULT_LONG_BREAK_INTERVAL)
                 PomodoroViewModel(
                     taskRepository,
                     pomodoroRepository,
-                    pomodoroSettings.focusMinutes,
-                    pomodoroSettings.shortBreakMinutes,
-                    pomodoroSettings.longBreakMinutes,
-                    pomodoroSettings.longBreakInterval
+                    focusMinutes,
+                    shortBreakMinutes,
+                    longBreakMinutes,
+                    longBreakInterval
                 ) as T
             }
             modelClass.isAssignableFrom(SettingsViewModel::class.java) -> {

@@ -2,6 +2,8 @@ package com.gordon.mypotato.ui.pomodoro
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -22,8 +24,6 @@ class PomodoroActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "PomodoroActivity"
-        const val EXTRA_TASK_ID = "taskId"
-        const val EXTRA_TASK_TITLE = "taskTitle"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,8 +47,9 @@ class PomodoroActivity : AppCompatActivity() {
 
     private fun readIntentExtras() {
         Log.d(TAG, "readIntentExtras in")
-        taskId = intent.getLongExtra(EXTRA_TASK_ID, -1L)
-        taskTitle = intent.getStringExtra(EXTRA_TASK_TITLE).orEmpty()
+        val args = PomodoroActivityArgs.fromBundle(intent.extras ?: Bundle())
+        taskId = args.taskId
+        taskTitle = args.taskTitle
         Log.d(TAG, "readIntentExtras out taskId=$taskId taskTitle=$taskTitle")
     }
 
@@ -92,6 +93,19 @@ class PomodoroActivity : AppCompatActivity() {
                 }
 
                 binding.tvTaskTitle.text = state.task?.title ?: taskTitle
+
+                if (!state.isValidTask) {
+                    binding.btnToggle.isEnabled = false
+                    binding.btnReset.isEnabled = false
+                    binding.tvTimer.text = "--:--"
+                    binding.progressTimer.progress = 0
+                    binding.tvFocusState.text = state.errorMessage ?: getString(R.string.pomodoro_invalid_task)
+                    Toast.makeText(this@PomodoroActivity, state.errorMessage, Toast.LENGTH_LONG).show()
+                    return@collect
+                }
+
+                binding.btnToggle.isEnabled = true
+                binding.btnReset.isEnabled = true
 
                 updateTimerText(state.timeLeftMs)
                 updateProgress(state.timeLeftMs, state.totalTimeMs)

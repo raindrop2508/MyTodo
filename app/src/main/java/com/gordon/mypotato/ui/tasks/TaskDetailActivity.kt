@@ -31,7 +31,8 @@ class TaskDetailActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "TaskDetailActivity"
-        const val EXTRA_TASK_ID = "taskId"
+        private const val EXTRA_TASK_ID = "taskId"
+        private const val EXTRA_TASK_TITLE = "taskTitle"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +42,9 @@ class TaskDetailActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         viewModel = ViewModelProvider(this, ViewModelFactory.getInstance(this))[TaskDetailViewModel::class.java]
-        taskId = intent.getLongExtra(EXTRA_TASK_ID, -1L)
+
+        val args = TaskDetailActivityArgs.fromBundle(intent.extras ?: Bundle())
+        taskId = args.taskId
 
         setupToolbar()
         setupListeners()
@@ -65,11 +68,7 @@ class TaskDetailActivity : AppCompatActivity() {
                     Log.d(TAG, "Click edit")
                     val task = viewModel.uiState.value.task
                     if (task != null) {
-                        startActivity(
-                            Intent(this, TaskEditActivity::class.java).apply {
-                                putExtra(TaskEditActivity.EXTRA_TASK_ID, task.id)
-                            }
-                        )
+                        openTaskEdit(task.id)
                     }
                     true
                 }
@@ -107,12 +106,40 @@ class TaskDetailActivity : AppCompatActivity() {
         binding.btnPomodoro.setOnClickListener {
             val task = viewModel.uiState.value.task
             if (task != null) {
-                startActivity(Intent(this, PomodoroActivity::class.java).apply {
-                    putExtra("taskId", task.id)
-                    putExtra("taskTitle", task.title)
-                })
+                openPomodoro(task.id, task.title)
             }
         }
+    }
+
+    /**
+     * 功能：打开任务编辑页并传递任务标识。
+     * 入参：taskId 任务 ID。
+     * 出参：无。
+     * 异常：无。
+     */
+    private fun openTaskEdit(taskId: Long) {
+        Log.d(TAG, "openTaskEdit in taskId=$taskId")
+        val intent = Intent(this, TaskEditActivity::class.java).apply {
+            putExtra(EXTRA_TASK_ID, taskId)
+        }
+        startActivity(intent)
+        Log.d(TAG, "openTaskEdit out taskId=$taskId")
+    }
+
+    /**
+     * 功能：打开番茄钟页面并传递任务参数。
+     * 入参：taskId 任务 ID；taskTitle 任务标题。
+     * 出参：无。
+     * 异常：无。
+     */
+    private fun openPomodoro(taskId: Long, taskTitle: String) {
+        Log.d(TAG, "openPomodoro in taskId=$taskId taskTitle=$taskTitle")
+        val intent = Intent(this, PomodoroActivity::class.java).apply {
+            putExtra(EXTRA_TASK_ID, taskId)
+            putExtra(EXTRA_TASK_TITLE, taskTitle)
+        }
+        startActivity(intent)
+        Log.d(TAG, "openPomodoro out taskId=$taskId")
     }
 
     private fun showAddStepDialog() {

@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gordon.mypotato.R
@@ -23,7 +24,6 @@ import com.gordon.mypotato.domain.Task
 import com.gordon.mypotato.domain.TaskType
 import com.gordon.mypotato.ui.common.AddTaskBottomSheetHelper
 import com.gordon.mypotato.ui.common.EditableStep
-import com.gordon.mypotato.ui.tasks.TaskDetailActivity
 import com.gordon.mypotato.viewmodel.PriorityFilter
 import com.gordon.mypotato.viewmodel.TodayViewModel
 import com.gordon.mypotato.viewmodel.ViewModelFactory
@@ -157,20 +157,9 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
 
     private fun onTaskClicked(task: Task) {
         Log.d(TAG, "onTaskClicked id=${task.id} title=${task.title}")
-        val intent =
-            android.content
-                .Intent(
-                    requireContext(),
-                    TaskDetailActivity::class.java,
-                ).apply {
-                    putExtra("taskId", task.id)
-                    putExtra("taskTitle", task.title)
-                    putExtra("isLongTask", task.isLongTask())
-                    putExtra("category", viewModel.getCategoryName(task.categoryId))
-                    putExtra("urgent", task.isUrgent)
-                    putExtra("important", task.isImportant)
-                }
-        startActivity(intent)
+        findNavController().navigate(
+            TodayFragmentDirections.actionTodayToTaskDetail(task.id)
+        )
     }
 
     private fun onTaskCheckChanged(

@@ -39,17 +39,17 @@ class SettingsViewModel(private val context: Context) : ViewModel() {
         context.getSharedPreferences("MyPotatoSettings", Context.MODE_PRIVATE)
 
     companion object {
-        private const val KEY_FOCUS_MINUTES = "focus_minutes"
-        private const val KEY_SHORT_BREAK_MINUTES = "short_break_minutes"
-        private const val KEY_LONG_BREAK_MINUTES = "long_break_minutes"
-        private const val KEY_LONG_BREAK_INTERVAL = "long_break_interval"
+        const val KEY_FOCUS_MINUTES = "focus_minutes"
+        const val KEY_SHORT_BREAK_MINUTES = "short_break_minutes"
+        const val KEY_LONG_BREAK_MINUTES = "long_break_minutes"
+        const val KEY_LONG_BREAK_INTERVAL = "long_break_interval"
         private const val KEY_IS_SOUND_ENABLED = "is_sound_enabled"
         private const val KEY_THEME_MODE = "theme_mode"
 
-        private const val DEFAULT_FOCUS_MINUTES = 25
-        private const val DEFAULT_SHORT_BREAK_MINUTES = 5
-        private const val DEFAULT_LONG_BREAK_MINUTES = 15
-        private const val DEFAULT_LONG_BREAK_INTERVAL = 4
+        const val DEFAULT_FOCUS_MINUTES = 25
+        const val DEFAULT_SHORT_BREAK_MINUTES = 5
+        const val DEFAULT_LONG_BREAK_MINUTES = 15
+        const val DEFAULT_LONG_BREAK_INTERVAL = 4
         private const val DEFAULT_IS_SOUND_ENABLED = true
         private const val DEFAULT_THEME_MODE = 0
     }

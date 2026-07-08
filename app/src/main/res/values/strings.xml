@@ -129,6 +129,7 @@
     <string name="pomodoro_btn_pause">暂停</string>
     <string name="pomodoro_btn_resume">继续</string>
     <string name="pomodoro_btn_reset">重置</string>
+    <string name="pomodoro_invalid_task">无效的任务类型</string>
 
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
@@ -176,8 +177,12 @@
     <string name="settings_group_pomodoro">番茄钟设置</string>
     <string name="settings_item_work_duration">工作时长（分钟）</string>
     <string name="settings_item_work_duration_desc">25分钟</string>
-    <string name="settings_item_break_duration">休息时长（分钟）</string>
+    <string name="settings_item_break_duration">短休息时长（分钟）</string>
     <string name="settings_item_break_duration_desc">5分钟</string>
+    <string name="settings_item_long_break_duration">长休息时长（分钟）</string>
+    <string name="settings_item_long_break_duration_desc">15分钟</string>
+    <string name="settings_item_long_break_interval">长休息间隔（个番茄）</string>
+    <string name="settings_item_long_break_interval_desc">4个</string>
     <string name="settings_item_sound">完成提醒</string>
     <string name="settings_item_sound_desc">番茄钟结束时播放提示音</string>
     <string name="settings_group_about">关于</string>

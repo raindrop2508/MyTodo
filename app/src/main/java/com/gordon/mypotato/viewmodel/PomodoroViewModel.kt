@@ -33,7 +33,8 @@ data class PomodoroUiState(
     val cycleCount: Int = 0,
     val sessionId: Long = -1,
     val isLoading: Boolean = true,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val isValidTask: Boolean = true
 )
 
 class PomodoroViewModel(
@@ -65,13 +66,16 @@ class PomodoroViewModel(
             ) { tasks, steps ->
                 val task = tasks.find { it.id == taskId }
                 val step = steps.find { it.id == currentStepId }
+                val isValid = task?.isLongTask() == true
 
                 _uiState.value.copy(
                     task = task,
                     step = step,
-                    timeLeftMs = getPhaseDurationMs(PomodoroPhase.FOCUS),
-                    totalTimeMs = getPhaseDurationMs(PomodoroPhase.FOCUS),
-                    isLoading = false
+                    timeLeftMs = if (isValid) getPhaseDurationMs(PomodoroPhase.FOCUS) else 0,
+                    totalTimeMs = if (isValid) getPhaseDurationMs(PomodoroPhase.FOCUS) else 0,
+                    isLoading = false,
+                    isValidTask = isValid,
+                    errorMessage = if (!isValid) "只有长时任务可以启动番茄钟" else null
                 )
             }.collect {
                 _uiState.value = it

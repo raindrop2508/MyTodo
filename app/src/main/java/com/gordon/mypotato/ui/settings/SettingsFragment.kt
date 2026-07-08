@@ -107,8 +107,20 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         }
 
         binding.cardPomodoroBreak.setOnClickListener {
-            showNumberInputDialog("设置休息时长（分钟）", viewModel.uiState.value.shortBreakMinutes) { newValue ->
+            showNumberInputDialog("设置短休息时长（分钟）", viewModel.uiState.value.shortBreakMinutes) { newValue ->
                 viewModel.updateShortBreakMinutes(newValue)
+            }
+        }
+
+        binding.cardPomodoroLongBreak.setOnClickListener {
+            showNumberInputDialog("设置长休息时长（分钟）", viewModel.uiState.value.longBreakMinutes) { newValue ->
+                viewModel.updateLongBreakMinutes(newValue)
+            }
+        }
+
+        binding.cardPomodoroInterval.setOnClickListener {
+            showNumberInputDialog("设置长休息间隔（个番茄）", viewModel.uiState.value.longBreakInterval) { newValue ->
+                viewModel.updateLongBreakInterval(newValue)
             }
         }
 
@@ -161,6 +173,8 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
                 binding.tvPomodoroFocusValue.text = "${state.focusMinutes}分钟"
                 binding.tvPomodoroBreakValue.text = "${state.shortBreakMinutes}分钟"
+                binding.tvPomodoroLongBreakValue.text = "${state.longBreakMinutes}分钟"
+                binding.tvPomodoroIntervalValue.text = "${state.longBreakInterval}个"
 
                 binding.switchPomodoroSound.setOnCheckedChangeListener(null)
                 binding.switchPomodoroSound.isChecked = state.isSoundEnabled

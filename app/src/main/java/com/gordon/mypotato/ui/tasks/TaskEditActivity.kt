@@ -32,12 +32,6 @@ class TaskEditActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "TaskEditActivity"
-        const val EXTRA_TASK_ID = "taskId"
-        const val EXTRA_TASK_TITLE = "taskTitle"
-        const val EXTRA_IS_LONG_TASK = "isLongTask"
-        const val EXTRA_CATEGORY = "category"
-        const val EXTRA_URGENT = "urgent"
-        const val EXTRA_IMPORTANT = "important"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,7 +65,8 @@ class TaskEditActivity : AppCompatActivity() {
      */
     private fun readIntentExtras() {
         Log.d(TAG, "readIntentExtras in")
-        taskId = intent.getLongExtra(EXTRA_TASK_ID, -1L)
+        val args = TaskEditActivityArgs.fromBundle(intent.extras ?: Bundle())
+        taskId = args.taskId
         Log.d(TAG, "readIntentExtras out taskId=$taskId")
     }
 

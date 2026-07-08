@@ -11,6 +11,7 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gordon.mypotato.R
@@ -176,15 +177,9 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
     }
 
     private fun onTaskClicked(task: Task) {
-        val intent = android.content.Intent(requireContext(), TaskDetailActivity::class.java).apply {
-            putExtra("taskId", task.id)
-            putExtra("taskTitle", task.title)
-            putExtra("isLongTask", task.isLongTask())
-            putExtra("category", viewModel.getCategoryName(task.categoryId))
-            putExtra("urgent", task.isUrgent)
-            putExtra("important", task.isImportant)
-        }
-        startActivity(intent)
+        findNavController().navigate(
+            TasksFragmentDirections.actionTasksToTaskDetail(task.id)
+        )
     }
 
     private fun onTaskCheckChanged(task: Task, isChecked: Boolean) {
