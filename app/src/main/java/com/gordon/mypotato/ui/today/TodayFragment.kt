@@ -26,6 +26,7 @@ import com.gordon.mypotato.ui.common.EditableStep
 import com.gordon.mypotato.ui.tasks.TaskDetailActivity
 import com.gordon.mypotato.viewmodel.PriorityFilter
 import com.gordon.mypotato.viewmodel.TodayViewModel
+import com.gordon.mypotato.viewmodel.ViewModelFactory
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -46,7 +47,7 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
         savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentTodayBinding.inflate(inflater, container, false)
-        viewModel = ViewModelProvider(this)[TodayViewModel::class.java]  // 绑定ViewModel
+        viewModel = ViewModelProvider(this, ViewModelFactory.getInstance())[TodayViewModel::class.java]
         return binding.root
     }
 
@@ -116,26 +117,24 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
                             TAG,
                             "onTaskCreate title=$title type=$type categoryId=$categoryId urgent=$urgent important=$important stepsCount=${steps.size}"
                         )
-                        lifecycleScope.launch {
-                            val taskType = if (type == "long") TaskType.LONG.value else TaskType.ONCE.value
-                            val task = Task(
-                                id = 0,
-                                title = title,
-                                content = if (description.isBlank()) null else description,
-                                note = if (note.isBlank()) null else note,
-                                taskType = taskType,
-                                status = com.gordon.mypotato.domain.TaskStatus.TODO.value,
-                                isUrgent = urgent,
-                                isImportant = important,
-                                categoryId = categoryId,
-                                createdAt = System.currentTimeMillis() / 1000,
-                                plannedStartAt = null,
-                                finishedAt = null,
-                                totalDurationSec = 0
-                            )
-                            val stepTitles = steps.map { it.title }.filter { it.isNotBlank() }
-                            viewModel.addTask(task, stepTitles)
-                        }
+                        val taskType = if (type == "long") TaskType.LONG.value else TaskType.ONCE.value
+                        val task = Task(
+                            id = 0,
+                            title = title,
+                            content = if (description.isBlank()) null else description,
+                            note = if (note.isBlank()) null else note,
+                            taskType = taskType,
+                            status = com.gordon.mypotato.domain.TaskStatus.TODO.value,
+                            isUrgent = urgent,
+                            isImportant = important,
+                            categoryId = categoryId,
+                            createdAt = System.currentTimeMillis() / 1000,
+                            plannedStartAt = null,
+                            finishedAt = null,
+                            totalDurationSec = 0
+                        )
+                        val stepTitles = steps.map { it.title }.filter { it.isNotBlank() }
+                        viewModel.addTask(task, stepTitles)
                     }
                 }
             ).show()
@@ -179,9 +178,7 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
         isChecked: Boolean
     ) {
         Log.d(TAG, "onTaskCheckChanged id=${task.id} isChecked=$isChecked")
-        lifecycleScope.launch {
-            viewModel.toggleTaskStatus(task.id)
-        }
+        viewModel.setTaskStatus(task.id, isChecked)
     }
 
     private fun resolveThemeColor(attrRes: Int): Int {

@@ -24,8 +24,8 @@ data class TaskEditUiState(
 )
 
 class TaskEditViewModel(
-    taskRepository: TaskRepository = com.gordon.mypotato.data.repository.FakeTaskRepository.getInstance(),
-    private val categoryRepository: CategoryRepository = com.gordon.mypotato.data.repository.FakeCategoryRepository.getInstance(taskRepository)
+    taskRepository: TaskRepository,
+    private val categoryRepository: CategoryRepository
 ) : BaseTaskViewModel(taskRepository) {
 
     private val _uiState = MutableStateFlow(TaskEditUiState())

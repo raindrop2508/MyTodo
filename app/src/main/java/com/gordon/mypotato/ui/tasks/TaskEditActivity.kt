@@ -16,6 +16,7 @@ import com.gordon.mypotato.domain.TaskType
 import com.gordon.mypotato.ui.common.CategoryChipHelper
 import com.gordon.mypotato.viewmodel.EditableStepItem
 import com.gordon.mypotato.viewmodel.TaskEditViewModel
+import com.gordon.mypotato.viewmodel.ViewModelFactory
 import kotlinx.coroutines.launch
 import java.util.Collections
 
@@ -45,7 +46,7 @@ class TaskEditActivity : AppCompatActivity() {
         binding = ActivityTaskEditBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel = ViewModelProvider(this)[TaskEditViewModel::class.java]
+        viewModel = ViewModelProvider(this, ViewModelFactory.getInstance())[TaskEditViewModel::class.java]
         readIntentExtras()
         setupToolbar()
         setupStepList()

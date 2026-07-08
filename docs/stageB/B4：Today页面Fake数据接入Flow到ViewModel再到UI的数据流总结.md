@@ -373,66 +373,79 @@ UI 自动刷新的根因不是 `notifyDataSetChanged()`，而是 **状态源变�
 
 ***
 
-## 八、当前实现的不足与风险
+## 八、当前实现的优化与改进
 
-下面这些问题不影响本次 Stage B 目标达成，但在后续阶段需要明确处理。
+经过后续迭代，以下问题已通过 `ViewModelFactory` 重构和职责边界优化得到解决：
 
-## 1. ViewModel 使用单例模式获取 Repository，依赖注入能力不足
+### 1. ViewModel 使用 ViewModelFactory 统一管理 Repository 注入（已修复）
 
-当前 `TodayViewModel` 构造函数通过 `getInstance()` 单例模式获取：
+**修复方案**：创建 `ViewModelFactory` 类统一管理 Repository 实例注入。
 
-- `FakeTaskRepository.getInstance()`
-- `FakeCategoryRepository.getInstance(taskRepository)`
+```kotlin
+class ViewModelFactory(
+    private val taskRepository: TaskRepository,
+    private val categoryRepository: CategoryRepository
+) : ViewModelProvider.Factory {
+    // ... create 方法根据 modelClass 创建对应 ViewModel
+}
+```
 
-风险：
+**优化效果**：
+- 所有 ViewModel 移除构造函数中的 `getInstance()` 单例调用
+- 确保多页面共享同一 Repository 实例
+- 为后续引入 Hilt/Koin 依赖注入框架打下基础
 
-- 不利于依赖注入（Dependency Injection）
-- 不利于单元测试（Unit Test）替换假实现
-- 单例模式虽然保证了多页面共享同一份数据源，但耦合度较高
+### 2. 写操作收口到 ViewModel 内部（已修复）
 
-直接后果是：\
-单例模式解决了多页面数据共享问题，但仍需通过构造函数注入进一步解耦。
+**修复方案**：`BaseTaskViewModel` 中所有写操作方法从 `suspend` 改为普通方法，内部使用 `viewModelScope.launch`。
 
-## 2. 写操作放在 Fragment 的 lifecycleScope 中发起，职责边界仍可优化
+```kotlin
+open fun addTask(task: Task, stepTitles: List<String> = emptyList()) {
+    viewModelScope.launch {
+        val taskId = taskRepository.addTask(task)
+        // ... 步骤处理
+    }
+}
+```
 
-当前模式是：
+**优化效果**：
+- UI 层只需调用普通方法，无需关心协程调度
+- 异步控制全部在 ViewModel 内处理，职责边界清晰
 
-- UI 层 `launch`
-- 调用 `ViewModel` 的 `suspend` 方法
+### 3. 新增 setTaskStatus 直接使用目标状态（已修复）
 
-更推荐的做法通常是：
+**修复方案**：新增 `setTaskStatus(taskId: Long, isCompleted: Boolean)` 方法，直接使用 `isChecked` 参数。
 
-- `ViewModel` 对外暴露普通方法
-- 方法内部自行 `viewModelScope.launch`
+```kotlin
+open fun setTaskStatus(taskId: Long, isCompleted: Boolean) {
+    viewModelScope.launch {
+        val newStatus = if (isCompleted) TaskStatus.COMPLETED else TaskStatus.TODO
+        taskRepository.updateTaskStatus(taskId, newStatus)
+    }
+}
+```
 
-这样可以进一步强化“UI 只派发事件，异步控制全部在 ViewModel 内处理”的边界。
+**优化效果**：
+- UI 状态和数据状态保持一致，避免反向切换风险
+- 逻辑语义从“切换”变为“设置为某状态”，更清晰明确
 
-## 3. toggleTaskStatus 未直接使用 isChecked 参数
+### 4. TodayUiState 完善状态模型（已修复）
 
-当前 `onTaskCheckChanged(task, isChecked)` 把 `isChecked` 传进来了，但最终调用的是：
+**修复方案**：`TodayUiState` 新增 `errorMessage` 字段，`isLoading` 初始值设为 `true`。
 
-- `viewModel.toggleTaskStatus(task.id)`
+```kotlin
+data class TodayUiState(
+    val tasks: List<Task> = emptyList(),
+    val categories: Map<Long, Category> = emptyMap(),
+    val filter: PriorityFilter = PriorityFilter.ALL,
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null
+)
+```
 
-即：按“当前状态取反”处理，而不是按 `isChecked` 的目标值写入。
-
-风险：
-
-- 当 UI 状态和数据状态短暂不一致时，可能产生反向切换
-- 逻辑语义上更像“切换（toggle）”，而不是“设置为某状态（set status）”
-
-## 4. TodayUiState 的 isLoading 尚未真正参与状态流转
-
-当前 `TodayUiState` 中已有：
-
-- `isLoading: Boolean`
-
-但实际代码中几乎始终为 `false`，没有真正覆盖：
-
-- 首次加载
-- 写操作进行中
-- 异常态
-
-这意味着当前状态模型还不完整，后续应补齐加载态（Loading State）与错误态（Error State）。
+**优化效果**：
+- 支持加载态（首次加载）和错误态展示
+- 为后续切换 Room/网络层提供状态模型基础
 
 ***
 
@@ -452,45 +465,42 @@ UI 自动刷新的根因不是 `notifyDataSetChanged()`，而是 **状态源变�
 
 ***
 
-## 十、建议的后续演进方向
+## 十、后续演进方向
 
 结合当前实现，建议下一步优先推进以下事项：
 
-### 1. 将写操作入口进一步收口到 ViewModel
+### 1. 引入依赖注入框架（Hilt/Koin）
 
-目标：
+当前已通过 `ViewModelFactory` 统一管理 Repository 注入，下一步可引入正式的依赖注入框架：
 
-- UI 只调用 `viewModel.onTaskChecked(...)`
-- UI 只调用 `viewModel.onTaskCreated(...)`
+- **Hilt**：Google 官方推荐，与 Jetpack 深度集成
+- **Koin**：更轻量，配置灵活
 
-由 `ViewModel` 内部统一开启协程，增强职责清晰度。
+目标：完全消除手动单例，实现真正的依赖倒置。
 
-### 2. 引入共享 Repository 实例机制
-
-可选方向：
-
-- 手动单例
-- `ViewModelFactory`
-- 依赖注入（Dependency Injection），如 Hilt / Koin
-
-目标是保证多个页面看到的是同一份数据源。
-
-### 3. 优化分类 Chip 生成机制
+### 2. 优化分类 Chip 生成机制
 
 当前已通过 `CategoryChipHelper` 实现分类的动态生成，但仍有改进空间：
 
 - `createAllChip()` 的 `tag` 设为 `null`，需使用安全转换 `as? Long`
 - 考虑统一使用负数（如 `-1L`）表示"全部/无"状态，保持类型一致性
 
-### 4. 补齐加载态与错误态
+### 3. 扩展所有页面的状态模型
 
-建议将 `TodayUiState` 扩展为明确的状态模型，例如：
+当前 `TodayUiState` 已支持 `isLoading` 和 `errorMessage`，下一步需同步扩展其他页面：
 
-- `isLoading`
-- `errorMessage`
-- `emptyState`
+- `TasksUiState`
+- `TaskDetailUiState`
+- `TaskEditUiState`
 
-这样后续切 Room 或网络层时，页面可以平滑扩展。
+目标：所有页面具备完整的加载态、错误态、空状态展示能力。
+
+### 4. 实现 PomodoroViewModel 与 SettingsViewModel
+
+根据 Stage B 计划，尚未完成的 ViewModel：
+
+- `PomodoroViewModel`：计时状态机、会话记录、任务上下文管理
+- `SettingsViewModel`：读取/保存设置项（主题、语言、番茄钟时长）
 
 ***
 

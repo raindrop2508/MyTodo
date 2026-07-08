@@ -23,15 +23,16 @@ data class TodayUiState(
     val tasks: List<Task> = emptyList(),
     val categories: Map<Long, Category> = emptyMap(),
     val filter: PriorityFilter = PriorityFilter.ALL,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null
 )
 
 class TodayViewModel(
-    taskRepository: TaskRepository = com.gordon.mypotato.data.repository.FakeTaskRepository.getInstance(),
-    private val categoryRepository: CategoryRepository = com.gordon.mypotato.data.repository.FakeCategoryRepository.getInstance(taskRepository)
+    taskRepository: TaskRepository,
+    private val categoryRepository: CategoryRepository
 ) : BaseTaskViewModel(taskRepository) {
 
-    private val _uiState = MutableStateFlow(TodayUiState())
+    private val _uiState = MutableStateFlow(TodayUiState(isLoading = true))
     private val _filter = MutableStateFlow(PriorityFilter.ALL)
 
     val uiState: StateFlow<TodayUiState> = _uiState.asStateFlow()
@@ -53,7 +54,8 @@ class TodayViewModel(
                     tasks = filteredTasks,
                     categories = categoryMap,
                     filter = filter,
-                    isLoading = false
+                    isLoading = false,
+                    errorMessage = null
                 )
             }.collect {
                 _uiState.value = it

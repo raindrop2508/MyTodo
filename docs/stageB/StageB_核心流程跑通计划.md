@@ -196,29 +196,31 @@ data class TaskQuery(
 
 ***
 
-### B4：补齐各页面 ViewModel
+### B4：补齐各页面 ViewModel 已完成 2026-07-08
 
 **描述：**
-为所有页面创建 ViewModel，持有 UI 状态并通过 `StateFlow` 暴露数据。ViewModel 通过 `viewModelScope` 收集 Repository 返回的 `Flow` 数据。
+为所有页面创建 ViewModel，持有 UI 状态并通过 `StateFlow` 暴露数据。ViewModel 通过 `viewModelScope` 收集 Repository 返回的 `Flow` 数据。后续迭代中引入 `ViewModelFactory` 统一管理 Repository 注入，优化写操作职责边界。
 
-**需创建的 ViewModel：**
+**已创建的 ViewModel：**
 
-| ViewModel             | 页面                 | 职责                                           |
-| --------------------- | ------------------ | -------------------------------------------- |
-| `TodayViewModel`      | **TodayFragment**  | 加载今日任务、四象限筛选、切换完成状态，添加任务，删除任务                |
-| `TasksViewModel`      | TasksFragment      | 加载任务列表、多维筛选（类型/日期/分类）、搜索，添加任务，删除任务           |
-| `TaskDetailViewModel` | TaskDetailActivity | 加载任务详情、步骤列表、标记完成、启动番茄钟，更新步骤状态，删除任务           |
-| `TaskEditViewModel`   | TaskEditActivity   | 任务/步骤的增删改、表单验证                               |
-| `PomodoroViewModel`   | PomodoroActivity   | 计时状态机、会话记录（内存）、任务上下文、启动番茄钟，步骤状态管理，任务状态切换）    |
-| `SettingsViewModel`   | SettingsFragment   | 读取/保存设置项（主题、语言、番茄钟时长）；根据实际确定设置等数据是否需要存储在数据库中 |
+| ViewModel             | 页面                 | 职责                                           | 状态   |
+| --------------------- | ------------------ | -------------------------------------------- | ---- |
+| `TodayViewModel`      | **TodayFragment**  | 加载今日任务、四象限筛选、切换完成状态，添加任务，删除任务                | 已完成  |
+| `TasksViewModel`      | TasksFragment      | 加载任务列表、多维筛选（类型/日期/分类）、搜索，添加任务，删除任务           | 已完成  |
+| `TaskDetailViewModel` | TaskDetailActivity | 加载任务详情、步骤列表、标记完成、启动番茄钟，更新步骤状态，删除任务           | 已完成  |
+| `TaskEditViewModel`   | TaskEditActivity   | 任务/步骤的增删改、表单验证                               | 已完成  |
+| `PomodoroViewModel`   | PomodoroActivity   | 计时状态机、会话记录（内存）、任务上下文、启动番茄钟，步骤状态管理，任务状态切换）    | 待完成  |
+| `SettingsViewModel`   | SettingsFragment   | 读取/保存设置项（主题、语言、番茄钟时长）；根据实际确定设置等数据是否需要存储在数据库中 | 待完成  |
 
-**实现要点：**
+**实现要点（含后续优化）：**
 
-- ViewModel 通过构造注入获取 Repository 实例（`TaskRepository`, `CategoryRepository`）
+- ViewModel 通过 `ViewModelFactory` 统一注入获取 Repository 实例（`TaskRepository`, `CategoryRepository`）
 - 所有数据请求通过 Repository，禁止直接访问数据源
 - 使用 `MutableStateFlow` 持有 UI 状态，通过 `StateFlow` 暴露给 UI
 - 在 `viewModelScope.launch` 中收集 Repository 返回的 `Flow` 数据
-- 在 `viewModelScope.launch` 中调用 Repository 的 `suspend` 方法执行写操作
+- **写操作收口到 ViewModel 内部**：ViewModel 对外暴露普通方法，内部使用 `viewModelScope.launch` 执行 Repository 的 `suspend` 方法
+- **新增 `setTaskStatus(taskId, isCompleted)`**：直接使用目标状态，避免 UI 状态与数据状态不一致导致的反向切换
+- **完善状态模型**：`TodayUiState` 新增 `errorMessage` 字段，支持加载态和错误态展示
 - 使用 `viewModelScope` 管理协程生命周期，避免内存泄漏
 
 **影响文件：**
@@ -227,27 +229,28 @@ data class TaskQuery(
 - 新建 `viewmodel/TasksViewModel.kt`
 - 新建 `viewmodel/TaskDetailViewModel.kt`
 - 新建 `viewmodel/TaskEditViewModel.kt`
-- 新建 `viewmodel/PomodoroViewModel.kt`
-- 新建 `viewmodel/SettingsViewModel.kt`
+- 新建 `viewmodel/ViewModelFactory.kt`（统一管理 Repository 注入）
+- 新建 `viewmodel/PomodoroViewModel.kt`（待完成）
+- 新建 `viewmodel/SettingsViewModel.kt`（待完成）
 
 **验证标准：**
 
-- 所有页面 ViewModel 创建完成
-- ViewModel 通过 Repository 获取数据
+- 已完成的 4 个 ViewModel 通过 Repository 获取数据
 - UI 能正确收集（`collect`）ViewModel 的 `StateFlow`
-- 写操作在 `viewModelScope` 中正确执行
+- 写操作在 `ViewModel` 内部的 `viewModelScope` 中正确执行，UI 层无需 `lifecycleScope.launch`
+- 所有 UI 使用 `ViewModelFactory` 创建 ViewModel
 - 协程生命周期管理正确，无内存泄漏
 
 ***
 
-### B5：迁移 Mock 数据至统一数据源
+### B5：迁移 Mock 数据至统一数据源 已完成 2026-07-08
 
 **描述：**
 删除各页面分散的 Mock 数据生成方法，统一从 `FakeRepository` 获取数据。
 
-**需迁移的页面：**
+**已迁移的页面：**
 
-| 页面                 | 当前 Mock 位置         | 迁移目标                                                        |
+| 页面                 | 原 Mock 位置         | 迁移目标                                                        |
 | ------------------ | ------------------ | ----------------------------------------------------------- |
 | TodayFragment      | `buildMockTasks()` | `TodayViewModel` → `FakeRepository.getTasks()`              |
 | TasksFragment      | `buildMockTasks()` | `TasksViewModel` → `FakeRepository.getTasks()`              |
@@ -269,7 +272,7 @@ data class TaskQuery(
 
 ***
 
-### B6：打通三条主流程闭环
+### B6：打通三条主流程闭环 已完成 2026-07-08
 
 **描述：**
 确保数据变更后相关页面能即时刷新。
@@ -277,19 +280,19 @@ data class TaskQuery(
 **流程 1：新建任务 → 保存 → 列表刷新**
 
 - Today/Tasks 页点击 FAB 打开 BottomSheet
-- 填写表单后调用 `TaskRepository.addTask()`（在 `viewModelScope` 中执行）
+- 填写表单后调用 `viewModel.addTask(task, stepTitles)`（ViewModel 内部在 `viewModelScope` 中执行 `TaskRepository.addTask()`）
 - 列表页自动收到 Flow 更新通知并刷新
 
 **流程 2：编辑任务 → 保存 → 详情刷新**
 
 - TaskDetail 点击编辑跳转到 TaskEdit
-- 保存后调用 `TaskRepository.updateTask()`（在 `viewModelScope` 中执行）
+- 保存后调用 `viewModel.updateTask(updatedTask)`（ViewModel 内部在 `viewModelScope` 中执行 `TaskRepository.updateTask()`）
 - 返回详情页时数据已更新
 
 **流程 3：标记完成 → 状态即时可见**
 
 - Today/Tasks/Detail 页勾选完成
-- 调用 `TaskRepository.updateTaskStatus()`（在 `viewModelScope` 中执行）
+- 调用 `viewModel.setTaskStatus(taskId, isChecked)`（ViewModel 内部在 `viewModelScope` 中执行 `TaskRepository.updateTaskStatus()`）
 - 所有相关页面同步刷新状态
 
 **影响文件：**

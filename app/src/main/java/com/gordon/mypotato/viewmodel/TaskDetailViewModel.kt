@@ -22,8 +22,8 @@ data class TaskDetailUiState(
 )
 
 class TaskDetailViewModel(
-    taskRepository: TaskRepository = com.gordon.mypotato.data.repository.FakeTaskRepository.getInstance(),
-    private val categoryRepository: CategoryRepository = com.gordon.mypotato.data.repository.FakeCategoryRepository.getInstance(taskRepository)
+    taskRepository: TaskRepository,
+    private val categoryRepository: CategoryRepository
 ) : BaseTaskViewModel(taskRepository) {
 
     private val _uiState = MutableStateFlow(TaskDetailUiState())
@@ -100,7 +100,7 @@ class TaskDetailViewModel(
     /**
      * 删除当前任务
      */
-    override suspend fun deleteTask(taskId: Long) {
+    override fun deleteTask(taskId: Long) {
         super.deleteTask(taskId)
         _uiState.value = _uiState.value.copy(isDeleted = true)
     }

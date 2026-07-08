@@ -158,12 +158,12 @@
                             app:tint="?attr/colorOnSurfaceVariant" />
 
                         <TextView
+                            android:id="@+id/tv_note"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:textSize="14sp"
-                            android:textColor="?attr/colorOnSurfaceVariant"
-                            android:text="@string/task_detail_task_desc" />
+                            android:textColor="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
 
                     <View

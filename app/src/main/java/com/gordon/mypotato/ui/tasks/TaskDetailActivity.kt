@@ -17,6 +17,7 @@ import com.gordon.mypotato.domain.Task
 import com.gordon.mypotato.domain.TaskStep
 import com.gordon.mypotato.ui.pomodoro.PomodoroActivity
 import com.gordon.mypotato.viewmodel.TaskDetailViewModel
+import com.gordon.mypotato.viewmodel.ViewModelFactory
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -39,7 +40,7 @@ class TaskDetailActivity : AppCompatActivity() {
         binding = ActivityTaskDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel = ViewModelProvider(this)[TaskDetailViewModel::class.java]
+        viewModel = ViewModelProvider(this, ViewModelFactory.getInstance())[TaskDetailViewModel::class.java]
         taskId = intent.getLongExtra(EXTRA_TASK_ID, -1L)
 
         setupToolbar()
@@ -88,9 +89,7 @@ class TaskDetailActivity : AppCompatActivity() {
             .setTitle(R.string.task_detail_delete_title)
             .setMessage(R.string.task_detail_delete_message)
             .setPositiveButton(R.string.task_detail_delete_confirm) { _, _ ->
-                lifecycleScope.launch {
-                    viewModel.deleteTask(taskId)
-                }
+                viewModel.deleteTask(taskId)
             }
             .setNegativeButton(R.string.task_detail_delete_cancel, null)
             .show()
@@ -98,12 +97,7 @@ class TaskDetailActivity : AppCompatActivity() {
 
     private fun setupListeners() {
         binding.cbTaskDone.setOnCheckedChangeListener { _, isChecked ->
-            lifecycleScope.launch {
-                val task = viewModel.uiState.value.task
-                if (task != null && task.isCompleted() != isChecked) {
-                    viewModel.toggleTaskStatus(taskId)
-                }
-            }
+            viewModel.setTaskStatus(taskId, isChecked)
         }
 
         binding.tvAddStep.setOnClickListener {
@@ -158,11 +152,13 @@ class TaskDetailActivity : AppCompatActivity() {
         binding.cbTaskDone.setOnCheckedChangeListener(null)
         binding.cbTaskDone.isChecked = task.isCompleted()
         binding.cbTaskDone.setOnCheckedChangeListener { _, isChecked ->
-            lifecycleScope.launch { viewModel.toggleTaskStatus(taskId) }
+            viewModel.setTaskStatus(taskId, isChecked)
         }
 
         renderCategoryAndTags(task, category)
         binding.tvContent.text = task.content ?: ""
+        binding.tvNote.text = task.note
+        binding.layoutNote.visibility = if (task.note.isNullOrBlank()) View.GONE else View.VISIBLE
         binding.tvCreateTime.text = getString(R.string.task_detail_create_time_format, formatTime(task.createdAt * 1000))
         
         if (task.isLongTask()) {

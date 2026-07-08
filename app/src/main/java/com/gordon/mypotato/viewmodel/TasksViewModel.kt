@@ -33,8 +33,8 @@ data class TasksUiState(
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TasksViewModel(
-    taskRepository: TaskRepository = com.gordon.mypotato.data.repository.FakeTaskRepository.getInstance(),
-    private val categoryRepository: CategoryRepository = com.gordon.mypotato.data.repository.FakeCategoryRepository.getInstance(taskRepository)
+    taskRepository: TaskRepository,
+    private val categoryRepository: CategoryRepository
 ) : BaseTaskViewModel(taskRepository) {
 
     private val _dimension = MutableStateFlow(FilterDimension.CATEGORY)

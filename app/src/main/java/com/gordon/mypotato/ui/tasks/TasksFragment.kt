@@ -25,6 +25,7 @@ import com.gordon.mypotato.ui.common.CategoryChipHelper
 import com.gordon.mypotato.ui.common.EditableStep
 import com.gordon.mypotato.viewmodel.FilterDimension
 import com.gordon.mypotato.viewmodel.TasksViewModel
+import com.gordon.mypotato.viewmodel.ViewModelFactory
 import kotlinx.coroutines.launch
 
 class TasksFragment : Fragment(R.layout.fragment_tasks) {
@@ -41,7 +42,7 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentTasksBinding.inflate(inflater, container, false)
-        viewModel = ViewModelProvider(this)[TasksViewModel::class.java]
+        viewModel = ViewModelProvider(this, ViewModelFactory.getInstance())[TasksViewModel::class.java]
         return binding.root
     }
 
@@ -130,26 +131,24 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
                         important: Boolean,
                         steps: List<EditableStep>
                     ) {
-                        lifecycleScope.launch {
-                            val taskType = if (type == "long") TaskType.LONG.value else TaskType.ONCE.value
-                            val task = Task(
-                                id = 0,
-                                title = title,
-                                content = if (description.isBlank()) null else description,
-                                note = if (note.isBlank()) null else note,
-                                taskType = taskType,
-                                status = TaskStatus.TODO.value,
-                                isUrgent = urgent,
-                                isImportant = important,
-                                categoryId = categoryId,
-                                createdAt = System.currentTimeMillis() / 1000,
-                                plannedStartAt = null,
-                                finishedAt = null,
-                                totalDurationSec = 0
-                            )
-                            val stepTitles = steps.map { it.title }.filter { it.isNotBlank() }
-                            viewModel.addTask(task, stepTitles)
-                        }
+                        val taskType = if (type == "long") TaskType.LONG.value else TaskType.ONCE.value
+                        val task = Task(
+                            id = 0,
+                            title = title,
+                            content = if (description.isBlank()) null else description,
+                            note = if (note.isBlank()) null else note,
+                            taskType = taskType,
+                            status = TaskStatus.TODO.value,
+                            isUrgent = urgent,
+                            isImportant = important,
+                            categoryId = categoryId,
+                            createdAt = System.currentTimeMillis() / 1000,
+                            plannedStartAt = null,
+                            finishedAt = null,
+                            totalDurationSec = 0
+                        )
+                        val stepTitles = steps.map { it.title }.filter { it.isNotBlank() }
+                        viewModel.addTask(task, stepTitles)
                     }
                 }
             ).show()
@@ -189,9 +188,7 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
     }
 
     private fun onTaskCheckChanged(task: Task, isChecked: Boolean) {
-        lifecycleScope.launch {
-            viewModel.toggleTaskStatus(task.id)
-        }
+        viewModel.setTaskStatus(task.id, isChecked)
     }
 
     private class TasksAdapter(
