@@ -1,8 +1,8 @@
 # Stage B：核心流程跑通计划
 
-> 文档版本：v1.1\
-> 更新日期：2026-07-02\
-> 适用范围：MyPotato Stage B 阶段执行\
+> 文档版本：v1.2\
+> 更新日期：2026-07-08\
+> 适用范围：MyPotato Stage B 阶段执行 / 收尾校准\
 > 前置条件：Stage A（UI 骨架）已完成
 
 ***
@@ -163,10 +163,11 @@ data class TaskQuery(
 
 ***
 
-### B3：实现 FakeRepository（内存实现） 已完成 2026-07-04
+### B3：实现 FakeRepository（内存实现） 部分完成 2026-07-04
 
 **描述：**
-基于拆分后的 Repository 接口实现内存版 `FakeRepository`，集中管理所有 Mock 数据。实现层负责枚举↔Int 的映射，与领域模型中的 Int 字段保持一致。
+基于拆分后的 Repository 接口实现内存版 `FakeRepository`，集中管理所有 Mock 数据。实现层负责枚举↔Int 的映射，与领域模型中的 Int 字段保持一致。\
+截至 2026-07-08，任务、步骤、番茄钟会话的内存实现与响应式刷新已完成，但“删除分类后自动将关联任务的 `categoryId` 回填为 `0`（未分类）”这一验收细项尚未补齐。
 
 **实现要点：**
 
@@ -177,7 +178,7 @@ data class TaskQuery(
 - 预置默认分类（学习/工作/生活/健康/购物）
 - 预置示例任务数据用于演示
 - 删除任务时级联删除关联步骤和番茄钟会话
-- 删除分类时将关联任务的 `categoryId` 置为 0（未分类）
+- 计划要求：删除分类时将关联任务的 `categoryId` 置为 0（未分类）
 
 **影响文件：**
 
@@ -194,7 +195,7 @@ data class TaskQuery(
 - 枚举↔Int 映射正确，与领域模型保持一致
 - 默认分类与示例任务数据加载完成
 - 删除任务时级联删除关联步骤
-- 删除分类时关联任务的 `categoryId` 正确置为 0
+- 删除分类时关联任务的 `categoryId` 正确置为 0（**当前未完成**）
 - `FakeTaskRepository` 支持任务/步骤完成时间自动计算与累计用时保留
 
 ***
@@ -316,60 +317,65 @@ data class TaskQuery(
 
 ***
 
-### B7：导航参数规范化
+### B7：导航参数规范化 部分完成 2026-07-08
 
 **描述：**
-引入 Safe Args 或统一参数协议，确保 Intent 传参类型安全。
+引入 Safe Args 或统一参数协议，确保 Intent 传参类型安全。\
+截至 2026-07-08，`Today -> TaskDetail` 与 `Tasks -> TaskDetail` 已使用 Safe Args；`TaskDetail -> TaskEdit` 与 `TaskDetail -> Pomodoro` 采用显式 `Intent` 传值，但接收端统一使用 `Args.fromBundle(...)` 解析，已形成“Safe Args + 统一参数协议”并存方案。
 
 **需规范的导航：**
 
-| 导航路径                  | 当前问题       | 改进方案                  |
-| --------------------- | ---------- | --------------------- |
-| Today → TaskDetail    | 手动传 taskId | Safe Args             |
-| Tasks → TaskDetail    | 手动传 taskId | Safe Args             |
-| TaskDetail → TaskEdit | taskId 可空  | Safe Args             |
-| TaskDetail → Pomodoro | 未传任务参数     | 传递 taskId + taskTitle |
+| 导航路径                  | 当前实现状态                         | 实际方案                                      |
+| --------------------- | ------------------------------ | ----------------------------------------- |
+| Today → TaskDetail    | 已完成                            | Safe Args                                 |
+| Tasks → TaskDetail    | 已完成                            | Safe Args                                 |
+| TaskDetail → TaskEdit | 已完成，但未走导航图 Action             | 显式 `Intent` 传 `taskId` + `TaskEditActivityArgs` 接收 |
+| TaskDetail → Pomodoro | 已完成                            | 显式 `Intent` 传 `taskId + taskTitle` + `PomodoroActivityArgs` 接收 |
 
 **影响文件：**
 
 - 修改 `navigation/nav_graph.xml`（添加 Safe Args）
-- 修改 `TaskDetailActivity.kt`（传递参数给 Pomodoro）
+- 修改 `TodayFragment.kt`（使用 Safe Args 跳转到 TaskDetail）
+- 修改 `TasksFragment.kt`（使用 Safe Args 跳转到 TaskDetail）
+- 修改 `TaskDetailActivity.kt`（传递参数给 TaskEdit / Pomodoro）
+- 修改 `TaskEditActivity.kt`（接收任务参数）
 - 修改 `PomodoroActivity.kt`（接收任务参数）
 
 **验证标准：**
 
-- 所有 Intent 传参使用 Safe Args 或统一协议
+- Today / Tasks → TaskDetail 使用 Safe Args
+- TaskDetail → TaskEdit / Pomodoro 使用统一参数协议（显式 `Intent` + 常量 key + `Args.fromBundle(...)` 接收）
 - TaskDetail → Pomodoro 能正确接收任务上下文
 
 ***
 
-### B8：规则一致性校验
+### B8：规则一致性校验 已完成 2026-07-08
 
 **描述：**
 确保单次任务在所有入口无法进入番茄钟。
 
 **校验点：**
 
-| 入口                  | 校验位置                  | 校验逻辑                                   |
-| ------------------- | --------------------- | -------------------------------------- |
-| TaskDetail 计时按钮     | `TaskDetailViewModel` | 检查 `taskType == LONG`，否则禁用按钮或 Toast 提示 |
-| PomodoroActivity 启动 | `PomodoroViewModel`   | 兜底校验，无有效长时任务时返回或显示错误                   |
+| 入口                  | 校验位置                                      | 校验逻辑                                               |
+| ------------------- | ----------------------------------------- | -------------------------------------------------- |
+| TaskDetail 计时按钮     | `TaskDetailViewModel` + `TaskDetailActivity` | 通过 `canStartPomodoro` 判断是否为长时任务；单次任务隐藏按钮并显示提示文案 |
+| PomodoroActivity 启动 | `PomodoroViewModel` + `PomodoroActivity`  | 兜底校验；无有效长时任务时禁用开始/重置按钮，并显示错误提示与 Toast      |
 
 **影响文件：**
 
 - 修改 `TaskDetailViewModel.kt`
-- 修改 `TaskDetailActivity.kt`（UI 层禁用/提示）
-- 修改 `PomodoroViewModel.kt`
-- 修改 `PomodoroActivity.kt`
+- 修改 `TaskDetailActivity.kt`（UI 层隐藏按钮 / 显示提示）
+- 修改 `PomodoroViewModel.kt`（任务合法性兜底校验）
+- 修改 `PomodoroActivity.kt`（无效任务时禁用操作并提示）
 
 **验证标准：**
 
-- 单次任务的计时按钮禁用或有明确提示
+- 单次任务在详情页不可直接启动番茄钟，并有明确提示
 - 强制传入单次任务 ID 时 Pomodoro 能正确处理
 
 ***
 
-### B9：设置项接入（番茄钟时长）
+### B9：设置项接入（番茄钟时长） 已完成 2026-07-08
 
 **描述：**
 Pomodoro 页读取设置页的 `focusMinutes`，替代硬编码的 25 分钟。
@@ -418,6 +424,11 @@ Pomodoro 页读取设置页的 `focusMinutes`，替代硬编码的 25 分钟。
 | 时长设置  | 修改设置后，番茄钟使用新时长                |
 | 单一数据源 | 无页面内独立 Mock 数据生成方法            |
 
+**截至 2026-07-08 的实际校准结果：**
+
+- 核心流程闭环、参数传递、时长设置与单一数据源目标已基本达成
+- 唯一未完全满足的计划项为：删除分类后，关联任务的 `categoryId` 自动回填 `0`（未分类）
+
 ***
 
 ## 四、不包含在 Stage B 的工作
@@ -447,4 +458,3 @@ Pomodoro 页读取设置页的 `focusMinutes`，替代硬编码的 25 分钟。
 ***
 
 > 本计划作为 Stage B 的执行指南，严格按顺序推进。完成后进入 Stage C（Room 落地）。
-
