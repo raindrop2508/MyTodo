@@ -1,10 +1,12 @@
 package com.gordon.mypotato.data.repository
 
 import com.gordon.mypotato.domain.Category
+import com.gordon.mypotato.domain.Task
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import java.util.concurrent.atomic.AtomicLong
 
 class FakeCategoryRepository private constructor(
@@ -140,6 +142,14 @@ class FakeCategoryRepository private constructor(
     override suspend fun deleteCategory(id: Long) {
         delay(100)
         categories.removeAll { it.id == id }
+        
+        val allTasks = taskRepository.getTasks().first()
+        allTasks.forEach { task ->
+            if (task.categoryId == id) {
+                taskRepository.updateTask(task.copy(categoryId = 0))
+            }
+        }
+        
         emitCategories()
     }
 }

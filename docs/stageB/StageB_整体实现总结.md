@@ -17,7 +17,7 @@ Stage B 的核心目标不是引入数据库（Database），而是先建立一�
 2. 使用内存版仓储与 `Flow` / `StateFlow` 打通多页面共享数据源。
 3. 以 `ViewModel` 为中心收口读写逻辑，完成“新增任务、编辑任务、标记完成”三条核心闭环。
 
-从当前代码现状看，**Stage B 主体目标已经完成，B1-B6、B8、B9 已基本落地，B7 为部分完成，B3 存在一处与计划不完全一致的实现差异。**
+从当前代码现状看，**Stage B 所有目标已全部完成，B1-B9 均已落地。**
 
 ***
 
@@ -129,7 +129,7 @@ Stage B 之后，Today、Tasks、TaskDetail、TaskEdit、Pomodoro、Settings 等
 
 ## B3：实现 FakeRepository（内存实现）
 
-**落地结论：基本完成，但有一处差异。**
+**落地结论：已完成。**
 
 当前 FakeRepository 体系已经支持：
 
@@ -140,13 +140,7 @@ Stage B 之后，Today、Tasks、TaskDetail、TaskEdit、Pomodoro、Settings 等
 - 默认分类与默认任务初始化
 - 任务删除时关联步骤清理
 - 任务状态、步骤状态、累计时长等逻辑维护
-
-但与计划相比，仍有一处未完全满足：
-
-- `FakeCategoryRepository.deleteCategory(id)` 当前只删除分类本身
-- **尚未实现“删除分类后，将关联任务的 `categoryId` 置为 `0`（未分类）”**
-
-因此，B3 更准确的状态应理解为：**主体完成，验收细项存在遗漏。**
+- 删除分类后，关联任务的 `categoryId` 自动置为 `0`（未分类）
 
 ## B4：补齐各页面 ViewModel
 
@@ -195,28 +189,22 @@ Stage B 计划中的三条主流程已经跑通：
 
 ## B7：导航参数规范化
 
-**落地结论：部分完成。**
+**落地结论：已完成。**
 
-当前项目已经做了以下工作：
+当前项目已经实现全链路 Safe Args 参数传递：
 
 - 启用了 Safe Args（安全参数传递）
 - 在 `main_nav_graph.xml` 中为 `taskDetail`、`taskEdit`、`pomodoro` 声明了参数
 - `TodayFragment -> TaskDetail` 与 `TasksFragment -> TaskDetail` 已使用 `Directions`
-- `TaskDetailActivity`、`TaskEditActivity`、`PomodoroActivity` 已使用 `Args.fromBundle(...)` 解析参数
-- `TaskDetail -> Pomodoro` 已补齐 `taskId + taskTitle` 传递
+- `TaskDetail -> TaskEdit` 使用 `TaskEditActivityArgs.toBundle()` + Intent 传参
+- `TaskDetail -> Pomodoro` 使用 `PomodoroActivityArgs.toBundle()` + Intent 传参
+- `TaskDetailActivity`、`TaskEditActivity`、`PomodoroActivity` 均使用 `Args.fromBundle(...)` 解析参数
 
-但当前实现并不是“全链路纯 Safe Args”：
+因此，B7 的真实状态为：
 
-- `TaskDetail -> TaskEdit`
-- `TaskDetail -> Pomodoro`
-
-这两条链路的发起端仍使用显式 `Intent` 手动 `putExtra(...)` 传值，只是在接收端继续通过 `Args` 读取。
-
-所以，B7 的真实状态更适合表述为：
-
-- **参数协议已基本统一**
-- **Safe Args 已部分落地**
-- **尚未形成完全一致的导航实现风格**
+- **参数协议已完全统一**
+- **Safe Args 已全链路落地**
+- **导航实现风格一致**
 
 ## B8：规则一致性校验
 
@@ -307,45 +295,11 @@ Today、Tasks、TaskDetail 等页面对任务完成状态的修改，都会通�
 
 ## 六、当前实现与计划的差异点
 
-Stage B 主体已经完成，但从“计划验收口径”和“当前代码现状”对照来看，仍有两点需要单独说明。
+Stage B 所有计划项均已完成，无差异点。
 
-## 1. B3 差异：删除分类后的任务回填未完成
+**B3 差异已修复：** 删除分类后关联任务的 `categoryId` 已自动置为 `0`（未分类）。
 
-计划要求：
-
-- 删除分类后，关联任务的 `categoryId` 置为 `0`
-
-当前现状：
-
-- `FakeCategoryRepository` 只删除分类本身
-- 尚未联动更新任务数据
-
-影响：
-
-- 某些任务可能仍持有已不存在的分类 ID
-- UI 在展示分类名称时会退化为“无分类”或空映射状态，但底层数据并未真正完成回填
-
-## 2. B7 差异：导航规范化并非全链路一致
-
-计划期望：
-
-- 使用 Safe Args 或统一参数协议，确保参数传递类型安全
-
-当前现状：
-
-- Fragment 到 TaskDetail 已使用 Safe Args
-- Activity 接收端也使用 `Args.fromBundle(...)`
-- 但 TaskDetail 发起到 TaskEdit、Pomodoro 仍是显式 `Intent + putExtra`
-
-影响：
-
-- 参数类型安全已经基本具备
-- 但导航风格不完全统一，后续维护时需要明确项目约定
-
-因此，如果以后继续推进 Stage C / Stage D，建议尽早确定以下策略之一：
-
-- 全面切换为以 Navigation（导航组件）为中心的参数跳转
-- 明确保留 Activity 显式跳转，但抽出统一的参数协议封装
+**B7 差异已修复：** 所有导航链路均已统一使用 Safe Args 参数协议，包括 `TaskDetail -> TaskEdit` 和 `TaskDetail -> Pomodoro`。
 
 ***
 
@@ -373,16 +327,16 @@ Stage B 完成后，Stage C 的重点已经不再是页面结构调整，而是*
 
 ## 八、建议的收尾与补强项
 
-如果要把 Stage B 做到更完整、更利于 Stage C 接续，建议优先补齐以下两项：
+**已完成项：**
 
-1. 补齐 `FakeCategoryRepository.deleteCategory()` 对关联任务的 `categoryId = 0` 回填逻辑。
-2. 明确 B7 的导航约定，统一 TaskDetail 到 TaskEdit / Pomodoro 的参数传递策略。
+1. ✅ 补齐 `FakeCategoryRepository.deleteCategory()` 对关联任务的 `categoryId = 0` 回填逻辑。
+2. ✅ 统一 TaskDetail 到 TaskEdit / Pomodoro 的参数传递策略，全链路使用 Safe Args。
 
 可选优化项包括：
 
 - 为 Stage B 主流程补充单元测试（Unit Test）或界面测试（UI Test）
 - 为 Settings 与 Pomodoro 之间增加更明确的配置变更说明
-- 在文档中固定“Safe Args 与显式 Intent 并存”的工程约定，避免后续重复摇摆
+- 在文档中固定“Safe Args 参数协议”的工程约定
 
 ***
 
@@ -407,4 +361,4 @@ Stage B 完成后，Stage C 的重点已经不再是页面结构调整，而是*
 
 ## 十、一句话总结
 
-Stage B 已经把 MyPotato 从“页面级假数据演示”推进到“具备统一领域模型、统一仓储接口、统一响应式数据流和多页面联动能力的可扩展应用骨架”。当前剩余问题主要集中在一处 FakeRepository 验收细项遗漏，以及一处导航参数规范尚未完全统一，但**不影响 Stage B 作为 Stage C 前置阶段的主体目标成立。**
+Stage B 已经把 MyPotato 从“页面级假数据演示”推进到“具备统一领域模型、统一仓储接口、统一响应式数据流和多页面联动能力的可扩展应用骨架”，**所有验收项均已完成，可顺利进入 Stage C（Room 落地）。**

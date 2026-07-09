@@ -1,6 +1,6 @@
 package com.gordon.mypotato.ui.tasks
 
-import android.content.Intent
+
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -16,6 +16,7 @@ import com.gordon.mypotato.domain.Category
 import com.gordon.mypotato.domain.Task
 import com.gordon.mypotato.domain.TaskStep
 import com.gordon.mypotato.ui.pomodoro.PomodoroActivity
+import com.gordon.mypotato.ui.pomodoro.PomodoroActivityArgs
 import com.gordon.mypotato.viewmodel.TaskDetailViewModel
 import com.gordon.mypotato.viewmodel.ViewModelFactory
 import kotlinx.coroutines.launch
@@ -31,8 +32,6 @@ class TaskDetailActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "TaskDetailActivity"
-        private const val EXTRA_TASK_ID = "taskId"
-        private const val EXTRA_TASK_TITLE = "taskTitle"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -119,8 +118,8 @@ class TaskDetailActivity : AppCompatActivity() {
      */
     private fun openTaskEdit(taskId: Long) {
         Log.d(TAG, "openTaskEdit in taskId=$taskId")
-        val intent = Intent(this, TaskEditActivity::class.java).apply {
-            putExtra(EXTRA_TASK_ID, taskId)
+        val intent = android.content.Intent(this, TaskEditActivity::class.java).apply {
+            putExtras(TaskEditActivityArgs(taskId).toBundle())
         }
         startActivity(intent)
         Log.d(TAG, "openTaskEdit out taskId=$taskId")
@@ -134,9 +133,8 @@ class TaskDetailActivity : AppCompatActivity() {
      */
     private fun openPomodoro(taskId: Long, taskTitle: String) {
         Log.d(TAG, "openPomodoro in taskId=$taskId taskTitle=$taskTitle")
-        val intent = Intent(this, PomodoroActivity::class.java).apply {
-            putExtra(EXTRA_TASK_ID, taskId)
-            putExtra(EXTRA_TASK_TITLE, taskTitle)
+        val intent = android.content.Intent(this, PomodoroActivity::class.java).apply {
+            putExtras(PomodoroActivityArgs(taskId, taskTitle).toBundle())
         }
         startActivity(intent)
         Log.d(TAG, "openPomodoro out taskId=$taskId")

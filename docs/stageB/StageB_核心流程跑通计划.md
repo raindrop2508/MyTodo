@@ -163,11 +163,10 @@ data class TaskQuery(
 
 ***
 
-### B3：实现 FakeRepository（内存实现） 部分完成 2026-07-04
+### B3：实现 FakeRepository（内存实现） 已完成 2026-07-09
 
 **描述：**
-基于拆分后的 Repository 接口实现内存版 `FakeRepository`，集中管理所有 Mock 数据。实现层负责枚举↔Int 的映射，与领域模型中的 Int 字段保持一致。\
-截至 2026-07-08，任务、步骤、番茄钟会话的内存实现与响应式刷新已完成，但“删除分类后自动将关联任务的 `categoryId` 回填为 `0`（未分类）”这一验收细项尚未补齐。
+基于拆分后的 Repository 接口实现内存版 `FakeRepository`，集中管理所有 Mock 数据。实现层负责枚举↔Int 的映射，与领域模型中的 Int 字段保持一致。
 
 **实现要点：**
 
@@ -195,7 +194,7 @@ data class TaskQuery(
 - 枚举↔Int 映射正确，与领域模型保持一致
 - 默认分类与示例任务数据加载完成
 - 删除任务时级联删除关联步骤
-- 删除分类时关联任务的 `categoryId` 正确置为 0（**当前未完成**）
+- 删除分类时关联任务的 `categoryId` 正确置为 0
 - `FakeTaskRepository` 支持任务/步骤完成时间自动计算与累计用时保留
 
 ***
@@ -317,20 +316,20 @@ data class TaskQuery(
 
 ***
 
-### B7：导航参数规范化 部分完成 2026-07-08
+### B7：导航参数规范化 已完成 2026-07-09
 
 **描述：**
 引入 Safe Args 或统一参数协议，确保 Intent 传参类型安全。\
-截至 2026-07-08，`Today -> TaskDetail` 与 `Tasks -> TaskDetail` 已使用 Safe Args；`TaskDetail -> TaskEdit` 与 `TaskDetail -> Pomodoro` 采用显式 `Intent` 传值，但接收端统一使用 `Args.fromBundle(...)` 解析，已形成“Safe Args + 统一参数协议”并存方案。
+所有导航链路均已使用 Safe Args 生成的参数类进行类型安全的参数传递：`Today -> TaskDetail`、`Tasks -> TaskDetail` 使用 `Directions`；`TaskDetail -> TaskEdit`、`TaskDetail -> Pomodoro` 使用 `Args.toBundle()` 构建 Intent，接收端统一使用 `Args.fromBundle(...)` 解析。
 
 **需规范的导航：**
 
 | 导航路径                  | 当前实现状态                         | 实际方案                                      |
 | --------------------- | ------------------------------ | ----------------------------------------- |
-| Today → TaskDetail    | 已完成                            | Safe Args                                 |
-| Tasks → TaskDetail    | 已完成                            | Safe Args                                 |
-| TaskDetail → TaskEdit | 已完成，但未走导航图 Action             | 显式 `Intent` 传 `taskId` + `TaskEditActivityArgs` 接收 |
-| TaskDetail → Pomodoro | 已完成                            | 显式 `Intent` 传 `taskId + taskTitle` + `PomodoroActivityArgs` 接收 |
+| Today → TaskDetail    | 已完成                            | Safe Args（Directions）                   |
+| Tasks → TaskDetail    | 已完成                            | Safe Args（Directions）                   |
+| TaskDetail → TaskEdit | 已完成                            | Safe Args（Args.toBundle() + Intent）     |
+| TaskDetail → Pomodoro | 已完成                            | Safe Args（Args.toBundle() + Intent）     |
 
 **影响文件：**
 
@@ -424,10 +423,11 @@ Pomodoro 页读取设置页的 `focusMinutes`，替代硬编码的 25 分钟。
 | 时长设置  | 修改设置后，番茄钟使用新时长                |
 | 单一数据源 | 无页面内独立 Mock 数据生成方法            |
 
-**截至 2026-07-08 的实际校准结果：**
+**截至 2026-07-09 的实际校准结果：**
 
-- 核心流程闭环、参数传递、时长设置与单一数据源目标已基本达成
-- 唯一未完全满足的计划项为：删除分类后，关联任务的 `categoryId` 自动回填 `0`（未分类）
+- 核心流程闭环、参数传递、时长设置与单一数据源目标已全部达成
+- 删除分类后关联任务的 `categoryId` 自动回填 `0`（未分类）已完成
+- 所有导航链路均已统一使用 Safe Args 参数协议
 
 ***
 
