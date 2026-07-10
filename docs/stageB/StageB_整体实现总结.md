@@ -94,7 +94,7 @@ Stage B 已补齐计划中的 6 个核心 `ViewModel`：
 此外，还抽出了 `BaseTaskViewModel` 与 `ViewModelFactory`：
 
 - `BaseTaskViewModel` 负责沉淀任务增删改、状态更新等公共写操作
-- `ViewModelFactory` 负责统一注入 `TaskRepository`、`CategoryRepository`、`PomodoroRepository` 以及设置项依赖
+- `ViewModelFactory` 负责统一创建各页面 `ViewModel`，集中装配 `TaskRepository`、`CategoryRepository`、`PomodoroRepository` 与 `Context` 等依赖，并在创建 `PomodoroViewModel` 时补充读取 `SharedPreferences` 中的专注时长、短休息、长休息与长休息间隔等设置项，避免 `Activity`/`Fragment` 直接拼装依赖，确保不同页面复用同一套仓储实例与同一份内存数据源
 
 这一步完成后，UI 层的职责明显收敛为两类：
 

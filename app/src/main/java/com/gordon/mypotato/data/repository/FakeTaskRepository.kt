@@ -27,14 +27,17 @@ class FakeTaskRepository private constructor() : TaskRepository {
     private val stepIdGenerator = AtomicLong(1)
     private val sessionIdGenerator = AtomicLong(1)
 
+    // 初始化时自动调用
     init {
         initDefaultTasks()
     }
 
     companion object {
+        // 线程可见性
         @Volatile
         private var instance: FakeTaskRepository? = null
 
+        // 单例模式
         fun getInstance(): FakeTaskRepository {
             return instance ?: synchronized(this) {
                 instance ?: FakeTaskRepository().also { instance = it }
