@@ -2,8 +2,9 @@
 
 > 文档版本：v1.0\
 > 更新日期：2026-07-08\
-> 依据范围：`c:\code\MyTodo\docs\stageB\StageB_核心流程跑通计划.md` 与当前项目代码实现\
+> 依据范围：`docs/stageB/StageB_核心流程跑通计划.md` 与当前项目代码实现\
 > 适用阶段：MyPotato Stage B 收尾总结 / Stage C 交接参考
+> 文档入口：可结合 [docs/README.md](file:///e:/code/MyPotato/docs/README.md) 了解推荐阅读顺序与权威来源说明
 
 ***
 
