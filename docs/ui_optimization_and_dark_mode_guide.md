@@ -1,5 +1,10 @@
 # UI 优化与深色模式预适配技术文档
 
+> 状态：有效（技术专题）
+> 最后更新：2026-07-10
+> 适用范围：UI 主题属性化、图标动态着色、字符串资源化与深色模式预适配
+> 说明：本文聚焦工程化改造结果与后续深色模式落地方法，不代表深色模式已在当前版本完全上线；当前阶段状态请结合 `docs/plan/项目整体规划文档.md` 与 `docs/stageB/StageB_整体实现总结.md` 一并判断
+
 ## 一、 背景与目的
 
 为了提升代码的灵活性与可维护性，同时为未来适配深色模式（Dark Mode）做好底层架构铺垫，本项目对全局的 UI 资源进行了深度的重构与优化。本次优化的核心思想是：**消除硬编码，实现颜色、图标与具体页面的解耦**，全面接入 Material Design 的主题属性（Theme Attributes）系统。
@@ -36,7 +41,7 @@
 
 ### 第一步：定位深色模式主题文件
 在项目中打开深色模式的专属主题配置文件：
-`e:\code\MyPotato\app\src\main\res\values-night\themes.xml`
+`app/src/main/res/values-night/themes.xml`
 
 ### 第二步：定义深色模式下的颜色映射
 在 `<style name="Base.Theme.MyPotato" parent="Theme.Material3.DayNight.NoActionBar">` 中，覆写在浅色模式中用到的主题属性。你需要结合设计稿，将这些语义化的颜色赋值为深色模式下的色值。

@@ -1,6 +1,8 @@
 # Todo APP 全页面设计规范（Android Material3 + XML）
 
+> 状态：参考稿
 > 适用场景：Android 原生开发、Material 3 设计语言、纯 XML 布局、深浅色模式适配、四页 + 新增任务弹窗完整 UI 落地规范
+> 说明：本文更适合作为 UI 视觉与交互目标参考，不完全等同于当前项目已落地实现；实际主题 token、资源约束与阶段现状请以 `docs/项目技术架构与实现说明.md`、`docs/ui_optimization_and_dark_mode_guide.md` 与当前代码为准
 
 ## 一、全局通用视觉风格
 
