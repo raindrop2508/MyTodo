@@ -4,11 +4,12 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.gordon.mypotato.data.AppDatabase
 import com.gordon.mypotato.data.repository.CategoryRepository
-import com.gordon.mypotato.data.repository.FakeCategoryRepository
-import com.gordon.mypotato.data.repository.FakePomodoroRepository
-import com.gordon.mypotato.data.repository.FakeTaskRepository
 import com.gordon.mypotato.data.repository.PomodoroRepository
+import com.gordon.mypotato.data.repository.RoomCategoryRepository
+import com.gordon.mypotato.data.repository.RoomPomodoroRepository
+import com.gordon.mypotato.data.repository.RoomTaskRepository
 import com.gordon.mypotato.data.repository.TaskRepository
 
 class ViewModelFactory(
@@ -23,9 +24,10 @@ class ViewModelFactory(
 
         fun getInstance(context: Context): ViewModelFactory {
             return instance ?: synchronized(this) {
-                val taskRepo = FakeTaskRepository.getInstance()
-                val categoryRepo = FakeCategoryRepository.getInstance(taskRepo)
-                val pomodoroRepo = FakePomodoroRepository.getInstance()
+                val database = AppDatabase.getDatabase(context)
+                val taskRepo = RoomTaskRepository(database.taskDao(), database.taskStepDao())
+                val categoryRepo = RoomCategoryRepository(database.categoryDao(), database.taskDao())
+                val pomodoroRepo = RoomPomodoroRepository(database.pomodoroSessionDao())
                 ViewModelFactory(taskRepo, categoryRepo, pomodoroRepo, context.applicationContext).also { instance = it }
             }
         }
