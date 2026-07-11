@@ -5,11 +5,33 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.gordon.mypotato.data.dao.AppInfoDao
+import com.gordon.mypotato.data.dao.CategoryDao
+import com.gordon.mypotato.data.dao.PomodoroSessionDao
+import com.gordon.mypotato.data.dao.TaskDao
+import com.gordon.mypotato.data.dao.TaskStepDao
 import com.gordon.mypotato.data.entity.AppInfo
+import com.gordon.mypotato.data.entity.CategoryEntity
+import com.gordon.mypotato.data.entity.PomodoroSessionEntity
+import com.gordon.mypotato.data.entity.TaskEntity
+import com.gordon.mypotato.data.entity.TaskStepEntity
 
-@Database(entities = [AppInfo::class], version = 1, exportSchema = false)
+@Database(
+    entities = [
+        AppInfo::class,
+        TaskEntity::class,
+        TaskStepEntity::class,
+        CategoryEntity::class,
+        PomodoroSessionEntity::class
+    ],
+    version = 1,
+    exportSchema = false
+)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun appInfoDao(): AppInfoDao
+    abstract fun taskDao(): TaskDao
+    abstract fun taskStepDao(): TaskStepDao
+    abstract fun categoryDao(): CategoryDao
+    abstract fun pomodoroSessionDao(): PomodoroSessionDao
 
     companion object {
         @Volatile
@@ -23,7 +45,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     DATABASE_NAME
                 )
-                    .fallbackToDestructiveMigration() // 测试环境允许破坏性迁移
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance
