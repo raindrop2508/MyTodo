@@ -22,18 +22,18 @@
 
 ### 1. 新开发者快速上手
 
-1. [项目整体规划文档](file:///e:/code/MyPotato/docs/plan/项目整体规划文档.md)
-2. [StageB_整体实现总结](file:///e:/code/MyPotato/docs/stageB/StageB_整体实现总结.md)
-3. [项目技术架构与实现说明](file:///e:/code/MyPotato/docs/项目技术架构与实现说明.md)
-4. [B1：领域数据模型定义](file:///e:/code/MyPotato/docs/stageB/B1：领域数据模型定义.md)
-5. [StageB_核心流程跑通计划](file:///e:/code/MyPotato/docs/stageB/StageB_核心流程跑通计划.md)
+1. [项目整体规划文档](file:///c:/code/MyTodo/docs/plan/项目整体规划文档.md)
+2. [StageB_整体实现总结](file:///c:/code/MyTodo/docs/stageB/StageB_整体实现总结.md)
+3. [项目技术架构与实现说明](file:///c:/code/MyTodo/docs/项目技术架构与实现说明.md)
+4. [B1：领域数据模型定义](file:///c:/code/MyTodo/docs/stageB/B1：领域数据模型定义.md)
+5. [StageB_核心流程跑通计划](file:///c:/code/MyTodo/docs/stageB/StageB_核心流程跑通计划.md)
 
 ### 2. 后续 AI 执行前建议读取
 
-1. [本索引](file:///e:/code/MyPotato/docs/README.md)
-2. [项目整体规划文档](file:///e:/code/MyPotato/docs/plan/项目整体规划文档.md)
-3. [StageB_整体实现总结](file:///e:/code/MyPotato/docs/stageB/StageB_整体实现总结.md)
-4. [B1：领域数据模型定义](file:///e:/code/MyPotato/docs/stageB/B1：领域数据模型定义.md)
+1. [本索引](file:///c:/code/MyTodo/docs/README.md)
+2. [项目整体规划文档](file:///c:/code/MyTodo/docs/plan/项目整体规划文档.md)
+3. [StageB_整体实现总结](file:///c:/code/MyTodo/docs/stageB/StageB_整体实现总结.md)
+4. [B1：领域数据模型定义](file:///c:/code/MyTodo/docs/stageB/B1：领域数据模型定义.md)
 5. 按任务主题补读对应专题文档
 
 ---
@@ -45,7 +45,7 @@
 - Stage C：下一阶段，目标是将业务实体接入 Room 并替换 FakeRepository
 - 统计页、深色模式完整上线、多语言与测试体系仍属于后续迭代范围
 
-当前实现现状请优先以 [StageB_整体实现总结](file:///e:/code/MyPotato/docs/stageB/StageB_整体实现总结.md) 为准。
+当前实现现状请优先以 [StageB_整体实现总结](file:///c:/code/MyTodo/docs/stageB/StageB_整体实现总结.md) 为准。
 
 ---
 
@@ -53,13 +53,13 @@
 
 | 主题 | 权威/首选文档 | 说明 |
 |------|---------------|------|
-| 项目总体路线 | [项目整体规划文档](file:///e:/code/MyPotato/docs/plan/项目整体规划文档.md) | 用于理解目标、阶段划分、下一步路线 |
-| 当前实现现状 | [StageB_整体实现总结](file:///e:/code/MyPotato/docs/stageB/StageB_整体实现总结.md) | 反映 Stage B 后的真实架构状态 |
-| 领域模型 | [B1：领域数据模型定义](file:///e:/code/MyPotato/docs/stageB/B1：领域数据模型定义.md) | 字段、枚举、关系的权威口径 |
-| Stage B 执行细节 | [StageB_核心流程跑通计划](file:///e:/code/MyPotato/docs/stageB/StageB_核心流程跑通计划.md) | 适合追溯 B1-B9 的计划与偏差 |
-| 数据流方案取舍 | [数据流转方案评估](file:///e:/code/MyPotato/docs/stageB/数据流转方案评估.md) | 解释为什么先走 FakeRepository，再接 Room |
-| UI 工程化与深色模式预适配 | [ui_optimization_and_dark_mode_guide](file:///e:/code/MyPotato/docs/ui_optimization_and_dark_mode_guide.md) | 主题属性化、图标着色、字符串资源化 |
-| UI 视觉设计参考 | [page_design](file:///e:/code/MyPotato/docs/ui-skeleton-android/page_design.md) | 参考稿，不完全等同于当前落地实现 |
+| 项目总体路线 | [项目整体规划文档](file:///c:/code/MyTodo/docs/plan/项目整体规划文档.md) | 用于理解目标、阶段划分、下一步路线 |
+| 当前实现现状 | [StageB_整体实现总结](file:///c:/code/MyTodo/docs/stageB/StageB_整体实现总结.md) | 反映 Stage B 后的真实架构状态 |
+| 领域模型 | [B1：领域数据模型定义](file:///c:/code/MyTodo/docs/stageB/B1：领域数据模型定义.md) | 字段、枚举、关系的权威口径 |
+| Stage B 执行细节 | [StageB_核心流程跑通计划](file:///c:/code/MyTodo/docs/stageB/StageB_核心流程跑通计划.md) | 适合追溯 B1-B9 的计划与偏差 |
+| 数据流方案取舍 | [数据流转方案评估](file:///c:/code/MyTodo/docs/stageB/数据流转方案评估.md) | 解释为什么先走 FakeRepository，再接 Room |
+| UI 工程化与深色模式预适配 | [ui_optimization_and_dark_mode_guide](file:///c:/code/MyTodo/docs/ui_optimization_and_dark_mode_guide.md) | 主题属性化、图标着色、字符串资源化 |
+| UI 视觉设计参考 | [page_design](file:///c:/code/MyTodo/docs/ui-skeleton-android/page_design.md) | 参考稿，不完全等同于当前落地实现 |
 
 ---
 
@@ -103,8 +103,8 @@
 
 ## 七、术语与决策入口
 
-- 术语表： [glossary.md](file:///e:/code/MyPotato/docs/glossary.md)
-- 决策索引： [adr/README.md](file:///e:/code/MyPotato/docs/adr/README.md)
+- 术语表： [glossary.md](file:///c:/code/MyTodo/docs/glossary.md)
+- 决策索引： [adr/README.md](file:///c:/code/MyTodo/docs/adr/README.md)
 
 ---
 
