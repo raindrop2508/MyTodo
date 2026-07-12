@@ -16,5 +16,9 @@ interface PomodoroRepository {
 
     suspend fun updateSessionStatus(id: Long, status: SessionStatus)
 
+    suspend fun updateSessionStatusAndDuration(id: Long, status: SessionStatus, pausedDurationSec: Long)
+
+    suspend fun completeSession(id: Long, status: SessionStatus, endedAt: Long, focusDurationSec: Long, breakDurationSec: Long, pausedDurationSec: Long, cycles: Int)
+
     suspend fun deleteSession(id: Long)
 }

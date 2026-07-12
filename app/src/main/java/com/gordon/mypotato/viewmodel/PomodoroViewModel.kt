@@ -32,6 +32,8 @@ data class PomodoroUiState(
     val isRunning: Boolean = false,
     val cycleCount: Int = 0,
     val sessionId: Long = -1,
+    val pauseStartTimeMs: Long = 0,
+    val totalPausedDurationSec: Long = 0,
     val isLoading: Boolean = true,
     val errorMessage: String? = null,
     val isValidTask: Boolean = true
@@ -112,6 +114,8 @@ class PomodoroViewModel(
 
         if (currentState.sessionId == -1L && phase == PomodoroPhase.FOCUS) {
             createSession()
+        } else if (currentState.sessionId != -1L && currentState.pauseStartTimeMs != 0L) {
+            resumeSession()
         }
 
         _uiState.value = _uiState.value.copy(isRunning = true)
@@ -119,7 +123,16 @@ class PomodoroViewModel(
 
     fun pauseTimer() {
         countDownTimer?.cancel()
-        _uiState.value = _uiState.value.copy(isRunning = false)
+        val sessionId = _uiState.value.sessionId
+        if (sessionId != -1L) {
+            viewModelScope.launch {
+                pomodoroRepository.updateSessionStatus(sessionId, SessionStatus.PAUSED)
+            }
+        }
+        _uiState.value = _uiState.value.copy(
+            isRunning = false,
+            pauseStartTimeMs = System.currentTimeMillis()
+        )
     }
 
     fun resetTimer() {
@@ -129,7 +142,9 @@ class PomodoroViewModel(
             timeLeftMs = getPhaseDurationMs(phase),
             totalTimeMs = getPhaseDurationMs(phase),
             isRunning = false,
-            sessionId = -1
+            sessionId = -1,
+            pauseStartTimeMs = 0,
+            totalPausedDurationSec = 0
         )
     }
 
@@ -155,16 +170,57 @@ class PomodoroViewModel(
             totalTimeMs = getPhaseDurationMs(nextPhase),
             isRunning = false,
             cycleCount = newCycleCount,
-            sessionId = -1
+            sessionId = -1,
+            pauseStartTimeMs = 0,
+            totalPausedDurationSec = 0
         )
     }
 
     private fun completeFocusSession() {
-        val sessionId = _uiState.value.sessionId
+        val currentState = _uiState.value
+        val sessionId = currentState.sessionId
         if (sessionId != -1L) {
+            val elapsedSec = (currentState.totalTimeMs - currentState.timeLeftMs) / 1000
+            val actualFocusSec = elapsedSec - currentState.totalPausedDurationSec
+            val newCycleCount = currentState.cycleCount + 1
             viewModelScope.launch {
-                pomodoroRepository.updateSessionStatus(sessionId, SessionStatus.COMPLETED)
+                pomodoroRepository.completeSession(
+                    sessionId,
+                    SessionStatus.COMPLETED,
+                    System.currentTimeMillis() / 1000,
+                    actualFocusSec,
+                    0,
+                    currentState.totalPausedDurationSec,
+                    newCycleCount
+                )
             }
+        }
+    }
+
+    fun endSessionManually() {
+        val currentState = _uiState.value
+        val sessionId = currentState.sessionId
+        if (sessionId != -1L) {
+            countDownTimer?.cancel()
+            val elapsedSec = (currentState.totalTimeMs - currentState.timeLeftMs) / 1000
+            val actualFocusSec = elapsedSec - currentState.totalPausedDurationSec
+            viewModelScope.launch {
+                pomodoroRepository.completeSession(
+                    sessionId,
+                    SessionStatus.COMPLETED,
+                    System.currentTimeMillis() / 1000,
+                    actualFocusSec,
+                    0,
+                    currentState.totalPausedDurationSec,
+                    currentState.cycleCount
+                )
+            }
+            _uiState.value = _uiState.value.copy(
+                isRunning = false,
+                sessionId = -1,
+                pauseStartTimeMs = 0,
+                totalPausedDurationSec = 0
+            )
         }
     }
 
@@ -179,11 +235,29 @@ class PomodoroViewModel(
                 endedAt = null,
                 focusDurationSec = focusMinutes.toLong() * 60,
                 breakDurationSec = 0,
+                pausedDurationSec = 0,
                 cycles = currentState.cycleCount,
                 status = SessionStatus.IN_PROGRESS.value
             )
             val newSessionId = pomodoroRepository.addSession(session)
             _uiState.value = _uiState.value.copy(sessionId = newSessionId)
+        }
+    }
+
+    private fun resumeSession() {
+        viewModelScope.launch {
+            val currentState = _uiState.value
+            val pauseDurationMs = System.currentTimeMillis() - currentState.pauseStartTimeMs
+            val newPausedDurationSec = currentState.totalPausedDurationSec + (pauseDurationMs / 1000)
+            pomodoroRepository.updateSessionStatusAndDuration(
+                currentState.sessionId,
+                SessionStatus.IN_PROGRESS,
+                newPausedDurationSec
+            )
+            _uiState.value = _uiState.value.copy(
+                pauseStartTimeMs = 0,
+                totalPausedDurationSec = newPausedDurationSec
+            )
         }
     }
 

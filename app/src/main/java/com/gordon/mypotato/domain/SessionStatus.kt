@@ -13,7 +13,9 @@ enum class SessionStatus(val value: Int) {
     /** 完成 */
     COMPLETED(1),
     /** 中断 */
-    INTERRUPTED(2);
+    INTERRUPTED(2),
+    /** 暂停 */
+    PAUSED(3);
 
     companion object {
         /**

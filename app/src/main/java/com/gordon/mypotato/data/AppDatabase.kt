@@ -27,7 +27,7 @@ import com.gordon.mypotato.data.entity.TaskStepEntity
         CategoryEntity::class,
         PomodoroSessionEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

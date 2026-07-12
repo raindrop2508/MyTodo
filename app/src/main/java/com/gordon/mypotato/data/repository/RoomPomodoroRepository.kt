@@ -33,6 +33,14 @@ class RoomPomodoroRepository(
         pomodoroSessionDao.updateStatus(id, status.value)
     }
 
+    override suspend fun updateSessionStatusAndDuration(id: Long, status: SessionStatus, pausedDurationSec: Long) {
+        pomodoroSessionDao.updateSessionStatusAndDuration(id, status.value, pausedDurationSec)
+    }
+
+    override suspend fun completeSession(id: Long, status: SessionStatus, endedAt: Long, focusDurationSec: Long, breakDurationSec: Long, pausedDurationSec: Long, cycles: Int) {
+        pomodoroSessionDao.completeSession(id, status.value, endedAt, focusDurationSec, breakDurationSec, pausedDurationSec, cycles)
+    }
+
     override suspend fun deleteSession(id: Long) {
         pomodoroSessionDao.deleteById(id)
     }

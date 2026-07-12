@@ -23,6 +23,7 @@ data class PomodoroSession(
     val endedAt: Long?,
     val focusDurationSec: Long,
     val breakDurationSec: Long,
+    val pausedDurationSec: Long,
     val cycles: Int,
     val status: Int
 ) {
@@ -45,5 +46,19 @@ data class PomodoroSession(
      */
     fun isInterrupted(): Boolean {
         return status == SessionStatus.INTERRUPTED.value
+    }
+
+    /**
+     * 判断会话是否已暂停
+     */
+    fun isPaused(): Boolean {
+        return status == SessionStatus.PAUSED.value
+    }
+
+    /**
+     * 获取实际专注时长（总专注时长 - 暂停时长）
+     */
+    fun getActualFocusDurationSec(): Long {
+        return focusDurationSec - pausedDurationSec
     }
 }

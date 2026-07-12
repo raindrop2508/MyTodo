@@ -26,6 +26,12 @@ interface PomodoroSessionDao {
     @Query("UPDATE pomodoro_session SET status = :status WHERE id = :id")
     suspend fun updateStatus(id: Long, status: Int)
 
+    @Query("UPDATE pomodoro_session SET status = :status, paused_duration_sec = :pausedDurationSec WHERE id = :id")
+    suspend fun updateSessionStatusAndDuration(id: Long, status: Int, pausedDurationSec: Long)
+
+    @Query("UPDATE pomodoro_session SET status = :status, ended_at = :endedAt, focus_duration_sec = :focusDurationSec, break_duration_sec = :breakDurationSec, paused_duration_sec = :pausedDurationSec, cycles = :cycles WHERE id = :id")
+    suspend fun completeSession(id: Long, status: Int, endedAt: Long, focusDurationSec: Long, breakDurationSec: Long, pausedDurationSec: Long, cycles: Int)
+
     @Query("DELETE FROM pomodoro_session WHERE id = :id")
     suspend fun deleteById(id: Long)
 

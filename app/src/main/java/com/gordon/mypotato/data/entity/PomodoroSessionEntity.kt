@@ -51,6 +51,9 @@ data class PomodoroSessionEntity(
     @ColumnInfo(name = "break_duration_sec")
     val breakDurationSec: Long,
 
+    @ColumnInfo(name = "paused_duration_sec")
+    val pausedDurationSec: Long = 0,
+
     @ColumnInfo(name = "cycles")
     val cycles: Int,
 
