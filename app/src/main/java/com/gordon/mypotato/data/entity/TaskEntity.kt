@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "task",
+    // 外键约束
     foreignKeys = [
         ForeignKey(
             entity = CategoryEntity::class,

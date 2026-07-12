@@ -15,6 +15,10 @@ import com.gordon.mypotato.data.entity.PomodoroSessionEntity
 import com.gordon.mypotato.data.entity.TaskEntity
 import com.gordon.mypotato.data.entity.TaskStepEntity
 
+/**
+* 注解关联数据实体 entity
+ *
+* */
 @Database(
     entities = [
         AppInfo::class,
@@ -27,12 +31,16 @@ import com.gordon.mypotato.data.entity.TaskStepEntity
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
+    // 提供dao访问接口
     abstract fun appInfoDao(): AppInfoDao
     abstract fun taskDao(): TaskDao
     abstract fun taskStepDao(): TaskStepDao
     abstract fun categoryDao(): CategoryDao
     abstract fun pomodoroSessionDao(): PomodoroSessionDao
 
+    /**
+    * 构建数据库单例
+    * */
     companion object {
         @Volatile
         private var INSTANCE: AppDatabase? = null

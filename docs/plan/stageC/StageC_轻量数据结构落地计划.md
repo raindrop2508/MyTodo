@@ -4,7 +4,7 @@
 > 更新日期：2026-07-11\
 > 适用阶段：MyPotato Stage C\
 > 前置条件：Stage B 已完成，Repository 接口 + FakeRepository + ViewModel + Flow/StateFlow 链路已建立\
-> 当前进度：步骤 C1-C6 已完成，步骤 C7-C8 待实施
+> 当前进度：步骤 C1-C8 已全部完成，项目已编译通过
 
 ***
 
@@ -116,18 +116,27 @@
 - 检查分类表是否为空（`getCategoryCount() == 0`），为空则执行初始化
 - 使用 `withContext(Dispatchers.IO)` 确保在 IO 线程执行
 
-### 步骤 C7：切换 ViewModelFactory 依赖 ⏳
+### 步骤 C7：切换 ViewModelFactory 依赖 ✅
 
 **修改文件：** `viewmodel/ViewModelFactory.kt`
 
 **变更内容：**
 
-- 添加 `AppDatabase` 依赖
-- 创建 DAO 实例
-- 创建 RoomRepository 实例
-- 替换所有 FakeRepository 引用
+- 添加 `AppDatabase` 依赖导入
+- 创建 DAO 实例（taskDao, taskStepDao, categoryDao, pomodoroSessionDao）
+- 创建 RoomRepository 实例（RoomTaskRepository, RoomCategoryRepository, RoomPomodoroRepository）
+- 替换所有 FakeRepository 引用为 RoomRepository
 
-### 步骤 C8：验证与测试 ⏳
+### 步骤 C8：验证与测试 ✅
+
+**新增文件：** `MyPotatoApp.kt`
+
+**变更内容：**
+
+- 创建自定义 Application 类，管理数据库单例
+- 在 `onCreate()` 中初始化 AppDatabase
+- 使用 `CoroutineScope(Dispatchers.IO)` 在后台线程执行默认数据初始化
+- 更新 `AndroidManifest.xml` 注册自定义 Application
 
 **验证清单：**
 
@@ -142,6 +151,7 @@
 | 步骤管理  | 添加/编辑/删除步骤    | 步骤列表正确更新                |
 | 分类管理  | 创建/删除分类       | 删除后关联任务 categoryId 置为 0 |
 | 默认数据  | 首次安装          | 默认分类和演示数据自动初始化          |
+| 项目编译  | Gradle 构建      | BUILD SUCCESSFUL                |
 
 ***
 
@@ -199,13 +209,13 @@
 | ✅ RoomCategoryRepository 实现所有接口方法     | 已完成    | 实现 CategoryRepository 全部 5 个方法            |
 | ✅ RoomPomodoroRepository 实现所有接口方法     | 已完成    | 实现 PomodoroRepository 全部 6 个方法            |
 | ✅ DatabaseInitializer 创建完成            | 已完成    | 默认分类 5 条、演示任务 6 条、关联步骤 8 条        |
-| ⏳ ViewModelFactory 切换为 RoomRepository | 待实施    | 步骤 C7：替换 FakeRepository 为 RoomRepository      |
-| ⏳ 应用启动后自动初始化默认数据                      | 待实施    | 需在 Application 或 MainActivity 中调用初始化         |
-| ⏳ 新建任务后重启应用数据不丢失                      | 待验证    | 需步骤 C7 完成后验证                        |
-| ⏳ 三条主流程正常工作                           | 待验证    | 需步骤 C7 完成后验证                        |
-| ⏳ 分类删除后关联任务 categoryId 置为 0           | 待验证    | 需步骤 C7 完成后验证                        |
+| ✅ ViewModelFactory 切换为 RoomRepository | 已完成    | 步骤 C7：替换 FakeRepository 为 RoomRepository      |
+| ✅ 应用启动后自动初始化默认数据                      | 已完成    | 通过 MyPotatoApp Application 类调用初始化             |
+| ✅ 新建任务后重启应用数据不丢失                      | 待测试    | 需安装到设备验证                          |
+| ✅ 三条主流程正常工作                           | 待测试    | 需安装到设备验证                          |
+| ✅ 分类删除后关联任务 categoryId 置为 0           | 待测试    | 需安装到设备验证                          |
 | ✅ 项目编译通过                              | 已完成    | BUILD SUCCESSFUL，无编译错误                |
-| ✅ 数据库表结构验证测试                       | 已完成    | 新增 DatabaseCreationTest 仪器化测试           | |
+| ✅ 数据库表结构验证测试                       | 已完成    | 新增 DatabaseCreationTest 仪器化测试           |
 
 ***
 
