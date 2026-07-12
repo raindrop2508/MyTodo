@@ -7,6 +7,7 @@
 ![Room](https://img.shields.io/badge/Room-2.6.1-3DDC84?style=flat\&logo=android)
 ![minSdk](https://img.shields.io/badge/minSdk-29-3DDC84?style=flat\&logo=android)
 ![Version](https://img.shields.io/badge/version-1.0.0-blue?style=flat)
+![License](https://img.shields.io/badge/license-GPL--2.1-blue?style=flat)
 
 ***
 
@@ -19,7 +20,6 @@
 - [开发环境](#开发环境)
 - [构建与运行](#构建与运行)
 - [版本历史](#版本历史)
-- [后续规划](#后续规划)
 - [许可证](#许可证)
 
 ***
@@ -240,17 +240,6 @@ cd MyTodo
 2. 点击 **Run** 按钮（▶️）或使用快捷键 `Shift + F10`
 3. 等待应用安装并启动
 
-### 5. 构建 Release 包
-
-```bash
-# 编译 Release APK
-./gradlew assembleRelease
-
-# 输出位置：app/build/outputs/apk/release/
-```
-
-> **注意**：当前 Release 构建未配置签名密钥，如需发布请自行配置签名。
-
 ***
 
 ## 版本历史
@@ -280,23 +269,11 @@ cd MyTodo
 
 ***
 
-## 后续规划
-
-详见项目内 `docs/plan/` 目录下的规划文档。整体路线：
-
-| 阶段      | 目标                       | 状态            |
-| ------- | ------------------------ | ------------- |
-| Stage A | MVP UI 骨架 + Material3 主题 | ✅ 完成          |
-| Stage B | 核心流程跑通 + FakeRepository  | ✅ 完成          |
-| Stage C | Room 数据结构落地 + 持久化        | ✅ 完成          |
-| Stage D | 番茄钟会话落库 + 统计闭环           | 🔄 进行中（D1 完成） |
-| Stage E | 深色模式 + i18n + 测试补齐       | ⏳ 待启动         |
-
-***
-
 ## 许可证
 
-待补充（建议选择 MIT 或 Apache 2.0）
+本项目采用 **GNU General Public License v2.1 (GPL-2.1)** 开源许可证。
+
+详细内容请参见项目根目录下的 [LICENSE](LICENSE) 文件。
 
 ***
 
