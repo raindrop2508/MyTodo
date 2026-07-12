@@ -151,7 +151,8 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
                         val stepTitles = steps.map { it.title }.filter { it.isNotBlank() }
                         viewModel.addTask(task, stepTitles)
                     }
-                }
+                },
+                categoryRepository = viewModel.categoryRepository
             ).show()
         }
     }

@@ -29,7 +29,7 @@ data class TodayUiState(
 
 class TodayViewModel(
     taskRepository: TaskRepository,
-    private val categoryRepository: CategoryRepository
+    val categoryRepository: CategoryRepository
 ) : BaseTaskViewModel(taskRepository) {
 
     private val _uiState = MutableStateFlow(TodayUiState(isLoading = true))

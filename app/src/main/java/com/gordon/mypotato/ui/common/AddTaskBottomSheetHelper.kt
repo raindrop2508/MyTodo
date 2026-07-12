@@ -9,8 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gordon.mypotato.R
-import com.gordon.mypotato.data.repository.FakeCategoryRepository
-import com.gordon.mypotato.data.repository.FakeTaskRepository
+import com.gordon.mypotato.data.repository.CategoryRepository
 import com.gordon.mypotato.databinding.BottomSheetAddTaskPlaceholderBinding
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
@@ -25,7 +24,8 @@ import java.util.Collections
  */
 class AddTaskBottomSheetHelper(
     private val fragment: Fragment,
-    private val callback: Callback
+    private val callback: Callback,
+    private val categoryRepository: CategoryRepository
 ) {
 
     /**
@@ -191,7 +191,6 @@ class AddTaskBottomSheetHelper(
      * 异常：无。
      */
     private fun setupCategoryChips(sheetBinding: BottomSheetAddTaskPlaceholderBinding) {
-        val categoryRepository = FakeCategoryRepository.getInstance(FakeTaskRepository.getInstance())
         fragment.viewLifecycleOwner.lifecycleScope.launch {
             val categories = categoryRepository.getCategories().first()
             CategoryChipHelper.populateCategoryChips(

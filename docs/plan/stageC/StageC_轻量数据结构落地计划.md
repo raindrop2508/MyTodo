@@ -1,7 +1,7 @@
 # Stage C：轻量数据结构落地（接入 Room）开发计划
 
-> 文档版本：v1.1\
-> 更新日期：2026-07-11\
+> 文档版本：v1.2\
+> 更新日期：2026-07-12\
 > 适用阶段：MyPotato Stage C\
 > 前置条件：Stage B 已完成，Repository 接口 + FakeRepository + ViewModel + Flow/StateFlow 链路已建立\
 > 当前进度：步骤 C1-C8 已全部完成，项目已编译通过
@@ -211,9 +211,9 @@
 | ✅ DatabaseInitializer 创建完成            | 已完成    | 默认分类 5 条、演示任务 6 条、关联步骤 8 条        |
 | ✅ ViewModelFactory 切换为 RoomRepository | 已完成    | 步骤 C7：替换 FakeRepository 为 RoomRepository      |
 | ✅ 应用启动后自动初始化默认数据                      | 已完成    | 通过 MyPotatoApp Application 类调用初始化             |
-| ✅ 新建任务后重启应用数据不丢失                      | 待测试    | 需安装到设备验证                          |
-| ✅ 三条主流程正常工作                           | 待测试    | 需安装到设备验证                          |
-| ✅ 分类删除后关联任务 categoryId 置为 0           | 待测试    | 需安装到设备验证                          |
+| ✅ 新建任务后重启应用数据不丢失                      | 已实现    | 代码逻辑已完成，需安装到设备验证运行时效果            |
+| ✅ 三条主流程正常工作                           | 已实现    | 代码逻辑已完成，需安装到设备验证运行时效果            |
+| ✅ 分类删除后关联任务 categoryId 置为 0           | 已实现    | 代码逻辑已完成，需安装到设备验证运行时效果            |
 | ✅ 项目编译通过                              | 已完成    | BUILD SUCCESSFUL，无编译错误                |
 | ✅ 数据库表结构验证测试                       | 已完成    | 新增 DatabaseCreationTest 仪器化测试           |
 

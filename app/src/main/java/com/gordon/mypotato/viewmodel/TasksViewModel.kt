@@ -34,7 +34,7 @@ data class TasksUiState(
 @OptIn(ExperimentalCoroutinesApi::class)
 class TasksViewModel(
     taskRepository: TaskRepository,
-    private val categoryRepository: CategoryRepository
+    val categoryRepository: CategoryRepository
 ) : BaseTaskViewModel(taskRepository) {
 
     private val _dimension = MutableStateFlow(FilterDimension.CATEGORY)
