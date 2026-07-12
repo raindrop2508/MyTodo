@@ -39,9 +39,10 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupHeader()
-        setupAppearanceSettings()
-        setupLanguageSettings()
-        setupDataSettings()
+        // V1 暂不开放外观设置、语言设置、数据管理
+        // setupAppearanceSettings()
+        // setupLanguageSettings()
+        // setupDataSettings()
         setupPomodoroSettings()
         setupAboutSettings()
         collectUiState()
@@ -164,12 +165,13 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     private fun collectUiState() {
         lifecycleScope.launch {
             viewModel.uiState.collect { state ->
-                binding.tvThemeValue.text = when (state.themeMode) {
-                    ThemeMode.SYSTEM -> getString(R.string.settings_theme_system)
-                    ThemeMode.LIGHT -> getString(R.string.settings_theme_light)
-                    ThemeMode.DARK -> getString(R.string.settings_theme_dark)
-                    else -> getString(R.string.settings_theme_system)
-                }
+                // V1 暂不开放主题切换，注释掉主题值更新
+                // binding.tvThemeValue.text = when (state.themeMode) {
+                //     ThemeMode.SYSTEM -> getString(R.string.settings_theme_system)
+                //     ThemeMode.LIGHT -> getString(R.string.settings_theme_light)
+                //     ThemeMode.DARK -> getString(R.string.settings_theme_dark)
+                //     else -> getString(R.string.settings_theme_system)
+                // }
 
                 binding.tvPomodoroFocusValue.text = "${state.focusMinutes}分钟"
                 binding.tvPomodoroBreakValue.text = "${state.shortBreakMinutes}分钟"

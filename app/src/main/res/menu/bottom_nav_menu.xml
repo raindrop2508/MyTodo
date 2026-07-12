@@ -11,10 +11,12 @@
         android:icon="@mipmap/ic_nav_list_todo"
         android:title="@string/nav_tasks" />
 
+    <!-- 统计入口（V1 暂不开放）
     <item
         android:id="@+id/statistics"
         android:icon="@mipmap/ic_nav_chart"
         android:title="@string/nav_statistics" />
+    -->
 
     <item
         android:id="@+id/settings"
