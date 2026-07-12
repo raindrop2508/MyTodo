@@ -9,9 +9,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.gordon.mypotato.R
 import com.gordon.mypotato.databinding.ActivityPomodoroBinding
+import com.gordon.mypotato.ui.tasks.TaskEditActivity
 import com.gordon.mypotato.viewmodel.PomodoroPhase
 import com.gordon.mypotato.viewmodel.PomodoroViewModel
 import com.gordon.mypotato.viewmodel.ViewModelFactory
+import com.gordon.mypotato.ui.tasks.TaskEditActivityArgs
+import com.gordon.mypotato.domain.TaskType
 import kotlinx.coroutines.launch
 
 class PomodoroActivity : AppCompatActivity() {
@@ -74,6 +77,9 @@ class PomodoroActivity : AppCompatActivity() {
         binding.btnReset.setOnClickListener {
             viewModel.resetTimer()
         }
+        binding.ivEditTask.setOnClickListener {
+            openTaskEdit()
+        }
     }
 
     private fun toggleTimer() {
@@ -85,6 +91,23 @@ class PomodoroActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * 功能：打开任务编辑页面。
+     * 入参：无。
+     * 出参：无。
+     * 异常：无。
+     */
+    private fun openTaskEdit() {
+        Log.d(TAG, "openTaskEdit in taskId=$taskId")
+        if (taskId != -1L) {
+            val intent = android.content.Intent(this, TaskEditActivity::class.java).apply {
+                putExtras(TaskEditActivityArgs(taskId).toBundle())
+            }
+            startActivity(intent)
+            Log.d(TAG, "openTaskEdit out taskId=$taskId")
+        }
+    }
+
     private fun collectUiState() {
         lifecycleScope.launch {
             viewModel.uiState.collect { state ->
@@ -93,6 +116,11 @@ class PomodoroActivity : AppCompatActivity() {
                 }
 
                 binding.tvTaskTitle.text = state.task?.title ?: taskTitle
+                binding.tvTaskDesc.text = state.task?.content ?: ""
+
+                state.task?.let { task ->
+                    updateTaskTags(task)
+                }
 
                 if (!state.isValidTask) {
                     binding.btnToggle.isEnabled = false
@@ -156,6 +184,32 @@ class PomodoroActivity : AppCompatActivity() {
         } else {
             binding.btnToggle.setText(R.string.pomodoro_btn_start)
             binding.btnToggle.setIconResource(R.drawable.ic_play_24dp)
+        }
+    }
+
+    /**
+     * 功能：更新任务标签的显示状态。
+     * 入参：task Task 对象，包含任务类型、紧急/重要属性。
+     * 出参：无。
+     * 异常：无。
+     */
+    private fun updateTaskTags(task: com.gordon.mypotato.domain.Task) {
+        binding.tvTagType.text = if (task.isLongTask()) {
+            getString(R.string.pomodoro_tag_long)
+        } else {
+            getString(R.string.pomodoro_tag_work)
+        }
+
+        binding.tvTagUrgent.visibility = if (task.isUrgent) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+
+        binding.tvTagImportant.visibility = if (task.isImportant) {
+            View.VISIBLE
+        } else {
+            View.GONE
         }
     }
 }

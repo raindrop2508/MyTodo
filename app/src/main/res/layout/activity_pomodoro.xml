@@ -30,12 +30,14 @@
                 android:layout_height="24dp"
                 android:layout_marginEnd="16dp"
                 android:src="@android:drawable/ic_lock_silent_mode_off"
+                android:visibility="gone"
                 app:tint="?attr/colorOnSurfaceVariant" />
             <!-- 占位更多操作图标 -->
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@android:drawable/ic_menu_more"
+                android:visibility="gone"
                 app:tint="?attr/colorOnSurfaceVariant" />
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
@@ -109,6 +111,7 @@
                         app:layout_constraintTop_toBottomOf="@id/tvTaskTitle">
 
                         <TextView
+                            android:id="@+id/tvTagType"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:background="@drawable/bg_tag_type"
@@ -119,17 +122,7 @@
                             android:textSize="12sp" />
 
                         <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:background="@drawable/bg_tag_type"
-                            android:paddingHorizontal="10dp"
-                            android:paddingVertical="4dp"
-                            android:text="@string/pomodoro_tag_long"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textSize="12sp" />
-
-                        <TextView
+                            android:id="@+id/tvTagUrgent"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
@@ -141,6 +134,7 @@
                             android:textSize="12sp" />
 
                         <TextView
+                            android:id="@+id/tvTagImportant"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
