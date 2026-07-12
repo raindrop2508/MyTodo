@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground"
+    android:paddingStart="@dimen/page_horizontal_padding"
+    android:paddingTop="@dimen/page_top_padding"
+    android:paddingEnd="@dimen/page_horizontal_padding">
+
+    <TextView
+        android:id="@+id/tv_today_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/today_title"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="@dimen/page_title_size"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_today_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:drawableStart="@drawable/ic_calendar" android:drawableTint="?attr/colorOnSurfaceVariant"
+        android:drawablePadding="8dp"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textSize="@dimen/body_medium_size"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_today_title"
+        tools:text="2026年5月21日星期四" />
+
+    <HorizontalScrollView
+        android:id="@+id/hsv_today_filters"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:scrollbars="none"
+        android:overScrollMode="never"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_today_date">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chip_group_priority"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:chipSpacingHorizontal="8dp"
+            app:singleLine="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_all"
+                style="@style/Widget.MyPotato.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:checked="true"
+                android:text="@string/today_filter_all" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_ui"
+                style="@style/Widget.MyPotato.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="@string/today_filter_ui" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_i"
+                style="@style/Widget.MyPotato.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="@string/today_filter_i" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_u"
+                style="@style/Widget.MyPotato.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="@string/today_filter_u" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_n"
+                style="@style/Widget.MyPotato.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="@string/today_filter_n" />
+
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_today_tasks"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:clipToPadding="false"
+        android:paddingBottom="100dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/hsv_today_filters"
+        tools:listitem="@layout/item_today_task" />
+
+    <LinearLayout
+        android:id="@+id/layout_empty_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/rv_today_tasks"
+        app:layout_constraintEnd_toEndOf="@id/rv_today_tasks"
+        app:layout_constraintStart_toStartOf="@id/rv_today_tasks"
+        app:layout_constraintTop_toTopOf="@id/rv_today_tasks">
+
+        <ImageView
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:src="@drawable/ic_calendar"
+            app:tint="?attr/colorOnSurfaceVariant" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="@string/today_empty_title"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="@dimen/section_title_size"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="@string/today_empty_hint"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="@dimen/body_medium_size" />
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_task"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/page_horizontal_padding"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:contentDescription="@string/today_fab_add_task"
+        android:src="@android:drawable/ic_input_add"
+        app:backgroundTint="?attr/colorPrimaryContainer"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="?attr/colorPrimary" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

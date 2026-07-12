@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.MyPotato.Card.White"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/list_item_spacing">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/cb_task_done"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:minWidth="48dp"
+            android:minHeight="48dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_task_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="4dp"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="@dimen/section_title_size"
+            app:layout_constraintEnd_toStartOf="@id/iv_arrow_right"
+            app:layout_constraintStart_toEndOf="@id/cb_task_done"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="完成项目原型设计" />
+
+        <ImageView
+            android:id="@+id/iv_arrow_right"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_arrow_right" app:tint="?attr/colorOnSurfaceVariant"
+            app:layout_constraintBottom_toBottomOf="@id/tv_task_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tv_task_title" />
+
+        <LinearLayout
+            android:id="@+id/layout_task_tags"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/tv_task_title"
+            app:layout_constraintTop_toBottomOf="@id/tv_task_title">
+
+            <TextView
+                android:id="@+id/tv_category_tag"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:background="@drawable/bg_tag_rounded"
+                android:gravity="center"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:textSize="@dimen/body_small_size"
+                tools:backgroundTint="@color/tag_work_bg"
+                tools:text="工作"
+                tools:textColor="@color/tag_work_text" />
+
+            <TextView
+                android:id="@+id/tv_type_tag"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_tag_outline"
+                android:gravity="center"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:textColor="@color/tag_default_text"
+                android:textSize="@dimen/body_small_size"
+                tools:text="长时" />
+
+            <TextView
+                android:id="@+id/tv_time_tag"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:gravity="center_vertical"
+                android:drawableStart="@drawable/ic_clock" android:drawableTint="?attr/colorOnSurfaceVariant"
+                android:drawablePadding="4dp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="@dimen/body_small_size"
+                app:drawableTint="?attr/colorOnSurfaceVariant"
+                tools:text="60分钟" />
+
+            <TextView
+                android:id="@+id/tv_step_tag"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:gravity="center_vertical"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="@dimen/body_small_size"
+                tools:text="5个步骤" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

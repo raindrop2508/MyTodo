@@ -1,0 +1,35 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- App theme entry: use unified Material3 base theme. -->
+    <style name="Theme.MyPotato" parent="Base.Theme.MyPotato" />
+
+    <!-- Base application theme (Material3 - light). -->
+    <style name="Base.Theme.MyPotato" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/brand_indigo</item>
+        <item name="colorPrimaryContainer">@color/brand_fab_bg</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/teal_700</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="android:colorBackground">@color/page_bg_light</item>
+        <item name="colorSurface">@color/card_bg_white</item>
+        <item name="colorSurfaceVariant">@color/warm_surface_variant</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorOutline">@color/outline_strong</item>
+        <item name="colorOutlineVariant">@color/outline_soft</item>
+        <item name="colorError">@color/state_error_red</item>
+        <item name="android:forceDarkAllowed">false</item>
+        <item name="android:statusBarColor">?android:attr/colorBackground</item>
+        <item name="checkboxStyle">@style/Widget.MyPotato.CheckBox</item>
+        <item name="elevationOverlayColor">@color/overlay</item>
+    </style>
+
+    <style name="Widget.MyPotato.CheckBox" parent="Widget.Material3.CompoundButton.CheckBox">
+        <item name="android:button">@drawable/sel_checkbox_circle</item>
+        <item name="buttonTint">@null</item>
+        <item name="useMaterialThemeColors">false</item>
+    </style>
+
+    <style name="ThemeOverlay.MyPotato.CardNoTint" parent="">
+        <item name="elevationOverlayEnabled">false</item>
+    </style>
+</resources>

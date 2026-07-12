@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 全局背景与卡片 -->
+    <color name="page_bg_light">#FAFAFA</color>
+    <color name="card_bg_white">#FFFFFF</color>
+    
+    <!-- 文本色 -->
+    <color name="text_primary">#1A1A1A</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#BDBDBD</color>
+    
+    <!-- 品牌色与状态色 -->
+    <color name="brand_indigo">#03A9F4</color>
+    <color name="brand_fab_bg">#E8EAF6</color>
+    <color name="state_success_green">#10B981</color>
+    <color name="state_error_red">#EF4444</color>
+    <color name="state_chart_orange">#F59E0B</color>
+    <color name="overlay">#F0F0F0</color>
+
+    <!-- 动态分类标签颜色 (背景/文字) -->
+    <color name="tag_work_bg">#F3E8FF</color>
+    <color name="tag_work_text">#1A1A1A</color>
+    
+    <color name="tag_shopping_bg">#FFEDD5</color>
+    <color name="tag_shopping_text">#C2410C</color>
+    
+    <color name="tag_study_bg">#DBEAFE</color>
+    <color name="tag_study_text">#1D4ED8</color>
+    
+    <color name="tag_health_bg">#FCE7F3</color>
+    <color name="tag_health_text">#BE123C</color>
+    
+    <color name="tag_default_bg">#F3F4F6</color>
+    <color name="tag_default_text">#4B5563</color>
+
+    <!-- 遗留/基础颜色保留以防崩溃 -->
+    <color name="purple_200">#FFD8C4FF</color>
+    <color name="purple_500">#FF7C3AED</color>
+    <color name="purple_700">#FF5B21B6</color>
+    <color name="teal_200">#FF8CD9CC</color>
+    <color name="teal_700">#FF167C74</color>
+    <color name="warm_background">#FAFAFA</color> <!-- 更新为新的背景色 -->
+    <color name="warm_surface">#FFFFFF</color>     <!-- 更新为纯白 -->
+    <color name="warm_surface_variant">#F5F5F5</color>
+    <color name="ink_primary">#1A1A1A</color>
+    <color name="ink_muted">#757575</color>
+    <color name="outline_strong">#E0E0E0</color>   <!-- 淡化边框 -->
+    <color name="outline_soft">#F0F0F0</color>     <!-- 淡化边框 -->
+    <color name="brand_primary">#1A1A1A</color>
+    <color name="brand_primary_dark">#757575</color>
+    <color name="brand_fill_soft">#E0E0E0</color>
+    
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="transparent">#00000000</color>
+
+    <!-- 兼容旧版本的颜色，防止构建失败 -->
+    <color name="task_category_study">@color/tag_study_bg</color>
+    <color name="task_category_work">@color/tag_work_bg</color>
+    <color name="task_category_health">@color/tag_health_bg</color>
+    <color name="task_category_life">@color/tag_shopping_bg</color>
+    <color name="task_done_green">@color/state_success_green</color>
+</resources>

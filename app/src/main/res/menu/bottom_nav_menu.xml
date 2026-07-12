@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/today"
+        android:icon="@mipmap/ic_nav_calendar"
+        android:title="@string/nav_today" />
+
+    <item
+        android:id="@+id/tasks"
+        android:icon="@mipmap/ic_nav_list_todo"
+        android:title="@string/nav_tasks" />
+
+    <!-- 统计入口（V1 暂不开放）
+    <item
+        android:id="@+id/statistics"
+        android:icon="@mipmap/ic_nav_chart"
+        android:title="@string/nav_statistics" />
+    -->
+
+    <item
+        android:id="@+id/settings"
+        android:icon="@mipmap/ic_nav_setting"
+        android:title="@string/nav_settings" />
+
+</menu>

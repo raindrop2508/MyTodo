@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground"
+    android:paddingStart="@dimen/page_horizontal_padding"
+    android:paddingTop="@dimen/page_top_padding"
+    android:paddingEnd="@dimen/page_horizontal_padding">
+
+    <TextView
+        android:id="@+id/tv_tasks_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/tasks_title"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="@dimen/page_title_size"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_tasks_search"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:boxBackgroundColor="?attr/colorSurface"
+        app:boxCornerRadiusBottomEnd="@dimen/search_bar_radius"
+        app:boxCornerRadiusBottomStart="@dimen/search_bar_radius"
+        app:boxCornerRadiusTopEnd="@dimen/search_bar_radius"
+        app:boxCornerRadiusTopStart="@dimen/search_bar_radius"
+        app:boxStrokeWidth="0dp"
+        app:boxStrokeWidthFocused="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_tasks_title"
+        app:startIconDrawable="@android:drawable/ic_menu_search"
+        app:startIconTint="?attr/colorOnSurfaceVariant">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_tasks_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/tasks_search_hint"
+            android:imeOptions="actionDone"
+            android:inputType="text"
+            android:maxLines="1"
+            android:textColorHint="?attr/colorOnSurfaceVariant"
+            android:textSize="@dimen/body_medium_size" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <RadioGroup
+        android:id="@+id/rg_dimension"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal"
+        android:background="@drawable/bg_segmented_container"
+        android:padding="2dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/til_tasks_search">
+
+        <RadioButton
+            android:id="@+id/rb_dim_category"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/selector_segmented_button"
+            android:button="@null"
+            android:gravity="center"
+            android:text="@string/tasks_segment_category"
+            android:textColor="@color/selector_segmented_text"
+            android:textSize="@dimen/body_small_size"
+            android:textStyle="bold"
+            android:checked="true" />
+
+        <RadioButton
+            android:id="@+id/rb_dim_quadrant"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/selector_segmented_button"
+            android:button="@null"
+            android:gravity="center"
+            android:text="@string/tasks_segment_quadrant"
+            android:textColor="@color/selector_segmented_text"
+            android:textSize="@dimen/body_small_size"
+            android:textStyle="bold" />
+
+        <RadioButton
+            android:id="@+id/rb_dim_status"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/selector_segmented_button"
+            android:button="@null"
+            android:gravity="center"
+            android:text="@string/tasks_segment_status"
+            android:textColor="@color/selector_segmented_text"
+            android:textSize="@dimen/body_small_size"
+            android:textStyle="bold" />
+    </RadioGroup>
+
+    <HorizontalScrollView
+        android:id="@+id/hsv_category_filters"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:scrollbars="none"
+        android:overScrollMode="never"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rg_dimension">
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group_category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:chipSpacingHorizontal="8dp"
+                app:singleLine="true"
+                app:singleSelection="true">
+            </com.google.android.material.chip.ChipGroup>
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group_quadrant"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:chipSpacingHorizontal="8dp"
+                app:singleLine="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_quadrant_all"
+                    style="@style/Widget.MyPotato.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:checked="true"
+                    android:text="@string/tasks_filter_chip_all" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_quadrant_ui"
+                    style="@style/Widget.MyPotato.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="@string/tasks_filter_chip_ui" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_quadrant_i"
+                    style="@style/Widget.MyPotato.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="@string/tasks_filter_chip_i" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_quadrant_u"
+                    style="@style/Widget.MyPotato.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="@string/tasks_filter_chip_u" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_quadrant_other"
+                    style="@style/Widget.MyPotato.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="@string/tasks_filter_chip_n" />
+            </com.google.android.material.chip.ChipGroup>
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:chipSpacingHorizontal="8dp"
+                app:singleLine="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_status_all"
+                    style="@style/Widget.MyPotato.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:checked="true"
+                    android:text="@string/tasks_filter_chip_all" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_status_done"
+                    style="@style/Widget.MyPotato.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="@string/tasks_filter_chip_done" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_status_doing"
+                    style="@style/Widget.MyPotato.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="@string/tasks_filter_chip_doing" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_status_todo"
+                    style="@style/Widget.MyPotato.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="@string/tasks_filter_chip_todo" />
+            </com.google.android.material.chip.ChipGroup>
+        </FrameLayout>
+    </HorizontalScrollView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_tasks"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:clipToPadding="false"
+        android:paddingBottom="100dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/hsv_category_filters"
+        tools:listitem="@layout/item_today_task" />
+
+    <LinearLayout
+        android:id="@+id/layout_tasks_empty_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/rv_tasks"
+        app:layout_constraintEnd_toEndOf="@id/rv_tasks"
+        app:layout_constraintStart_toStartOf="@id/rv_tasks"
+        app:layout_constraintTop_toTopOf="@id/rv_tasks">
+
+        <ImageView
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:src="@drawable/ic_calendar" app:tint="?attr/colorOnSurfaceVariant" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="@string/tasks_empty_title"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="@dimen/page_title_size"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="@string/tasks_empty_hint"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="@dimen/body_medium_size" />
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_task"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/page_horizontal_padding"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:contentDescription="@string/tasks_fab_add_task"
+        android:src="@android:drawable/ic_input_add"
+        app:backgroundTint="?attr/colorPrimaryContainer"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="?attr/colorPrimary" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
