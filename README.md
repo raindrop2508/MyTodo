@@ -1,5 +1,7 @@
 # MyPotato - 番茄钟 TODO 应用
 
+**Language / 语言:** **中文** | [English](README.en.md)
+
 > 一款本地离线优先的 Android 番茄钟 TODO 应用，融合四象限优先级管理与番茄工作法。
 
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF?style=flat\&logo=kotlin)
