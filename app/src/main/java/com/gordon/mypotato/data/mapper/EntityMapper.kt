@@ -60,7 +60,12 @@ fun PomodoroSessionEntity.toDomain(): PomodoroSession {
         breakDurationSec = this.breakDurationSec,
         pausedDurationSec = this.pausedDurationSec,
         cycles = this.cycles,
-        status = this.status
+        status = this.status,
+        phase = this.phase,
+        plannedDurationMs = this.plannedDurationMs,
+        targetEndEpochMs = this.targetEndEpochMs,
+        remainingMsWhenPaused = this.remainingMsWhenPaused,
+        pauseStartedAtEpochMs = this.pauseStartedAtEpochMs
     )
 }
 
@@ -115,7 +120,12 @@ fun PomodoroSession.toEntity(): PomodoroSessionEntity {
         breakDurationSec = this.breakDurationSec,
         pausedDurationSec = this.pausedDurationSec,
         cycles = this.cycles,
-        status = this.status
+        status = this.status,
+        phase = this.phase,
+        plannedDurationMs = this.plannedDurationMs,
+        targetEndEpochMs = this.targetEndEpochMs,
+        remainingMsWhenPaused = this.remainingMsWhenPaused,
+        pauseStartedAtEpochMs = this.pauseStartedAtEpochMs
     )
 }
 

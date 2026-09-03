@@ -130,6 +130,18 @@
     <string name="pomodoro_btn_resume">继续</string>
     <string name="pomodoro_btn_reset">重置</string>
     <string name="pomodoro_invalid_task">无效的任务类型</string>
+    <string name="pomodoro_orphan_title">未完成的番茄钟</string>
+    <string name="pomodoro_orphan_message_single">检测到未完成的番茄钟：\n任务：%1$s%2$s\n阶段：%3$s\n已计时长：%4$s\n\n是否保留该专注时长？</string>
+    <string name="pomodoro_orphan_message_multiple">检测到 %1$d 条中断的番茄钟记录，将自动清理旧记录。\n\n最近一条：\n任务：%2$s%3$s\n阶段：%4$s\n已计时长：%5$s\n\n是否保留该专注时长？</string>
+    <string name="pomodoro_orphan_step_suffix">\n步骤：%1$s</string>
+    <string name="pomodoro_orphan_keep">保留时长</string>
+    <string name="pomodoro_orphan_discard">不保留</string>
+    <string name="pomodoro_orphan_break_title">休息阶段已中断</string>
+    <string name="pomodoro_orphan_break_message">检测到未完成的休息计时（任务：%1$s），已自动结束，不会计入专注时长。</string>
+    <string name="pomodoro_orphan_ok">知道了</string>
+    <string name="pomodoro_phase_focus">专注</string>
+    <string name="pomodoro_phase_short_break">短休息</string>
+    <string name="pomodoro_phase_long_break">长休息</string>
 
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>

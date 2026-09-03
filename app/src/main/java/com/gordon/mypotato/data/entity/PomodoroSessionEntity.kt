@@ -58,5 +58,20 @@ data class PomodoroSessionEntity(
     val cycles: Int,
 
     @ColumnInfo(name = "status")
-    val status: Int
+    val status: Int,
+
+    @ColumnInfo(name = "phase")
+    val phase: Int = 0,
+
+    @ColumnInfo(name = "planned_duration_ms")
+    val plannedDurationMs: Long = 0L,
+
+    @ColumnInfo(name = "target_end_epoch_ms")
+    val targetEndEpochMs: Long? = null,
+
+    @ColumnInfo(name = "remaining_ms_when_paused")
+    val remainingMsWhenPaused: Long = 0L,
+
+    @ColumnInfo(name = "pause_started_at_epoch_ms")
+    val pauseStartedAtEpochMs: Long = 0L
 )
