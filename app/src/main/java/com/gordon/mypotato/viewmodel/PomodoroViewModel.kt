@@ -70,14 +70,14 @@ class PomodoroViewModel(
                 val isValid = task?.isLongTask() == true
                 val phase = _uiState.value.currentPhase
                 val durationMs = if (isValid) getPhaseDurationMs(phase) else 0L
-                // Do not silently restore active countdown; cold-start dialog settles orphans.
-                val keepRunningUi = _uiState.value.sessionId != -1L && _uiState.value.isRunning
+                // Task/step Flow 刷新时保留活动会话倒计时（含暂停）；冷启动不静默续跑由孤儿弹窗处理。
+                val preserveTimerUi = _uiState.value.sessionId != -1L
 
                 _uiState.value.copy(
                     task = task,
                     step = step,
-                    timeLeftMs = if (keepRunningUi) _uiState.value.timeLeftMs else durationMs,
-                    totalTimeMs = if (keepRunningUi) _uiState.value.totalTimeMs else durationMs,
+                    timeLeftMs = if (preserveTimerUi) _uiState.value.timeLeftMs else durationMs,
+                    totalTimeMs = if (preserveTimerUi) _uiState.value.totalTimeMs else durationMs,
                     isLoading = false,
                     isValidTask = isValid,
                     errorMessage = if (!isValid) "只有长时任务可以启动番茄钟" else null
@@ -95,7 +95,18 @@ class PomodoroViewModel(
         }
     }
 
+    /**
+     * 启动番茄钟倒计时。
+     *
+     * 方法根据当前会话状态分三种情形处理：全新会话、从暂停中恢复、已有会话但非暂停态继续。
+     * 所有数据库写入与 UI 状态变更均在 [sessionMutex] 互斥锁内串行执行，避免并发竞态。
+     * 目标结束时刻（targetEndEpochMs）一律按「当前墙钟时间 + 剩余时长」重新计算并覆盖写入，
+     * 不恢复数据库中的旧值（设计决策：冷启动不静默恢复倒计时）。
+     *
+     * @throws 无显式异常；协程内异常由 viewModelScope 承载，调用方无需 try-catch。
+     */
     fun startTimer() {
+        // 卫语句：已在运行或任务非长时任务，直接返回
         if (_uiState.value.isRunning) return
         if (!_uiState.value.isValidTask) return
 
@@ -103,11 +114,14 @@ class PomodoroViewModel(
             sessionMutex.withLock {
                 val currentState = _uiState.value
                 val phase = currentState.currentPhase
+                // 剩余时长优先用内存已有值，否则取当前阶段的默认计划时长
                 val timeLeftMs = currentState.timeLeftMs.takeIf { it > 0 }
                     ?: getPhaseDurationMs(phase)
                 val nowMs = System.currentTimeMillis()
 
+                // 情形一：sessionId 为 -1，说明尚无 DB 会话记录，需新建会话
                 if (currentState.sessionId == -1L) {
+                    // 先打断库内其他活动会话，保证全库最多一条活动记录
                     interruptOtherActiveSessions()
                     val targetEnd = nowMs + timeLeftMs
                     val plannedMs = getPhaseDurationMs(phase)
@@ -117,6 +131,7 @@ class PomodoroViewModel(
                         stepId = currentStepId,
                         startedAt = nowMs / 1000,
                         endedAt = null,
+                        // 专注阶段记录计划专注秒，休息阶段记录休息秒
                         focusDurationSec = if (phase == PomodoroPhase.FOCUS) plannedMs / 1000 else 0,
                         breakDurationSec = if (phase != PomodoroPhase.FOCUS) plannedMs / 1000 else 0,
                         pausedDurationSec = 0,
@@ -139,10 +154,14 @@ class PomodoroViewModel(
                         isRunning = true
                     )
                     startCountDown(timeLeftMs)
-                } else if (currentState.pauseStartTimeMs != 0L) {
+                }
+                // 情形二：pauseStartTimeMs 非 0，说明此前已暂停，需从暂停中恢复
+                else if (currentState.pauseStartTimeMs != 0L) {
+                    // 计算本次暂停时长并累加到累计暂停秒数
                     val pauseDurationMs = nowMs - currentState.pauseStartTimeMs
                     val newPausedDurationSec =
                         currentState.totalPausedDurationSec + (pauseDurationMs / 1000)
+                    // 暂停期间目标结束时间已失效，需基于当前时间顺延重算
                     val targetEnd = nowMs + timeLeftMs
                     pomodoroRepository.updateTimerState(
                         id = currentState.sessionId,
@@ -159,7 +178,10 @@ class PomodoroViewModel(
                         timeLeftMs = timeLeftMs
                     )
                     startCountDown(timeLeftMs)
-                } else {
+                }
+                // 情形三：已有会话且不在暂停态（DB 为 IN_PROGRESS 但内存倒计时未运行），
+                // 重新激活计时并刷新目标结束时间
+                else {
                     val targetEnd = nowMs + timeLeftMs
                     pomodoroRepository.updateTimerState(
                         id = currentState.sessionId,
