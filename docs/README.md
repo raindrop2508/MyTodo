@@ -1,7 +1,7 @@
 # MyPotato 文档索引
 
 > 状态：有效  
-> 最后更新：2026-09-05  
+> 最后更新：2026-09-06  
 > 适用范围：`docs/` 全目录导航与阅读指引  
 > 目标读者：后续 AI 执行者、项目维护者、新接手开发者
 
@@ -65,10 +65,10 @@
 | 项目总体路线 | [项目整体规划文档](plan/项目整体规划文档.md) | 目标、阶段划分、下一步路线 |
 | 当前架构与实现 | [项目技术架构与实现说明](项目技术架构与实现说明.md) | 与代码对齐的阶段性总览 |
 | Room 数据库实现 | [StageC_Room数据库实现总结](plan/stageC/StageC_Room数据库实现总结.md) | Entity/DAO/Repository/初始化 |
-| 番茄钟活动会话（详） | [StageD_番茄钟计时持久化_实际落地方案](plan/stageD/StageD_番茄钟计时持久化_实际落地方案.md) | Issue #14 收尾确认版；相对 main 的实现对照 |
-| 番茄钟活动会话（简） | [番茄钟活动计时持久化](plan/stageE/番茄钟活动计时持久化.md) | DB v3 字段、落库时机、冷启动收尾摘要 |
+| 番茄钟活动会话（详） | [StageD_番茄钟计时持久化_实际落地方案](plan/stageD/StageD_番茄钟计时持久化_实际落地方案.md) | Issue #14；**v3 字段含义权威**（§2.1.1） |
+| 番茄钟活动会话（简） | [番茄钟活动计时持久化](plan/stageE/番茄钟活动计时持久化.md) | 字段摘要、落库时机、冷启动收尾 |
 | Stage D 计划 | [StageD_番茄钟会话落库与统计闭环计划](plan/stageD/StageD_番茄钟会话落库与统计闭环计划.md) | D1–D8；当前 D1 已完成 |
-| 领域模型 | [B1：领域数据模型定义](plan/stageB/B1：领域数据模型定义.md) | 字段、枚举、关系口径 |
+| 领域模型 | [B1：领域数据模型定义](plan/stageB/B1：领域数据模型定义.md) | 字段表；`PomodoroSession` 含 DB v3 活动计时列 |
 | Stage B 历史总结 | [StageB_整体实现总结](plan/stageB/StageB_整体实现总结.md) | FakeRepository 时代链路，勿当现状唯一来源 |
 | 数据流方案取舍 | [数据流转方案评估](plan/stageB/数据流转方案评估.md) | 为何 Fake 先行再接 Room |
 | UI 工程化 | [ui_optimization_and_dark_mode_guide](plan/stageA/ui_optimization_and_dark_mode_guide.md) | 主题属性化、图标着色 |

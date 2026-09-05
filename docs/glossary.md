@@ -1,7 +1,7 @@
 # MyPotato 术语表
 
 > 状态：有效  
-> 最后更新：2026-09-05  
+> 最后更新：2026-09-06  
 > 适用范围：项目文档统一术语口径  
 > 目标读者：后续 AI 执行者、项目维护者、新接手开发者
 
@@ -98,22 +98,28 @@
 
 - 定义：单次会话所处的计时段类型。
 - 本项目落点：`PomodoroPhase` — `FOCUS` / `SHORT_BREAK` / `LONG_BREAK`；休息结束后回到专注；仅专注完成增加 cycle。
-- 参考文档：[番茄钟活动计时持久化](plan/stageE/番茄钟活动计时持久化.md)
+- 参考文档：[StageD_番茄钟计时持久化_实际落地方案](plan/stageD/StageD_番茄钟计时持久化_实际落地方案.md)、[番茄钟活动计时持久化](plan/stageE/番茄钟活动计时持久化.md)
 
 ### 14. 活动计时持久化（Active Timer Persistence）
 
 - 定义：将运行中/暂停中的番茄钟字段写入 Room，使进程被杀后仍可识别未完成会话。
-- 本项目落点：`phase`、`plannedDurationMs`、`targetEndEpochMs`、`remainingMsWhenPaused`、`pauseStartedAtEpochMs`；开始/暂停/继续/重置/完成均先落库；全库活动会话 ≤ 1。
-- 参考文档：[番茄钟活动计时持久化](plan/stageE/番茄钟活动计时持久化.md)
+- 本项目落点（`pomodoro_session` v3 新列）：
+  - `phase`：当前阶段（FOCUS / 短休 / 长休）
+  - `planned_duration_ms`：本阶段计划时长（ms）
+  - `target_end_epoch_ms`：运行中目标结束墙钟；暂停/终态为 null
+  - `remaining_ms_when_paused`：暂停时剩余倒计时（ms）
+  - `pause_started_at_epoch_ms`：本次暂停开始墙钟；未暂停为 0  
+  开始/暂停/继续/重置/完成均先落库；全库活动会话 ≤ 1。
+- 参考文档：[StageD_番茄钟计时持久化_实际落地方案](plan/stageD/StageD_番茄钟计时持久化_实际落地方案.md)（字段权威）、[番茄钟活动计时持久化](plan/stageE/番茄钟活动计时持久化.md)（摘要）
 
 ### 15. 孤儿会话收尾（Orphan Pomodoro Settlement）
 
 - 定义：冷启动时对残留活动会话（`IN_PROGRESS` / `PAUSED`）的用户确认收尾流程。
 - 本项目落点：`OrphanPomodoroSettlement` + `MainActivity` 弹窗；专注阶段可选「保留时长」→ `COMPLETED`（不改 Task/Step）或「不保留」→ `INTERRUPTED`；休息阶段直接中断。
-- 参考文档：[番茄钟活动计时持久化](plan/stageE/番茄钟活动计时持久化.md)
+- 参考文档：[StageD_番茄钟计时持久化_实际落地方案](plan/stageD/StageD_番茄钟计时持久化_实际落地方案.md)、[番茄钟活动计时持久化](plan/stageE/番茄钟活动计时持久化.md)
 
 ### 16. 统计口径（Statistics Scope）
 
 - 定义：统计页应纳入哪些会话时长的业务规则。
 - 本项目落点（已定规则，统计页尚未接真数据）：仅统计 `phase == FOCUS` 且 `status == COMPLETED` 的会话专注时长。
-- 参考文档：[番茄钟活动计时持久化](plan/stageE/番茄钟活动计时持久化.md)、[StageD 计划](plan/stageD/StageD_番茄钟会话落库与统计闭环计划.md)
+- 参考文档：[StageD_番茄钟计时持久化_实际落地方案](plan/stageD/StageD_番茄钟计时持久化_实际落地方案.md)、[StageD 计划](plan/stageD/StageD_番茄钟会话落库与统计闭环计划.md)

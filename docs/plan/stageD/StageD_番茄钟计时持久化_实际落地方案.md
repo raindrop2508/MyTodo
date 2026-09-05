@@ -1,7 +1,7 @@
 # Stage D：番茄钟计时持久化 — 实际落地方案
 
-> 文档版本：v1.0  
-> 更新日期：2026-09-05  
+> 文档版本：v1.1  
+> 更新日期：2026-09-06  
 > 状态：已实现（收尾确认版）  
 > 适用范围：相对 `main` 的活动计时持久化与冷启动收尾实现说明  
 > 关联：GitHub [Issue #14](https://github.com/raindrop2508/MyTodo/issues/14)（完成说明）、[#9](https://github.com/raindrop2508/MyTodo/issues/9)、PR #11  
@@ -42,11 +42,34 @@
 | 项 | main | 本分支 |
 |----|------|--------|
 | DB version | 2 | **3**（开发期 `fallbackToDestructiveMigration`，无正式 Migration） |
-| 活动字段 | 无 | `phase`、`planned_duration_ms`、`target_end_epoch_ms`、`remaining_ms_when_paused`、`pause_started_at_epoch_ms` |
+| 活动字段 | 无 | 见下表（5 个新列） |
 | 活动查询 | 无 | `getActiveSessions(IN_PROGRESS, PAUSED)` |
 | 计时写库 | `updateSessionStatusAndDuration` 等粗粒度更新 | `updateTimerState` / `completeSession`（清目标结束与暂停字段）/ `interruptSession` |
 
 Domain / Entity / Mapper 同步扩展；`PomodoroSession.isActive()`、`getPhase()`；完成态 `getActualFocusDurationSec()` 不再二次扣暂停。
+
+#### 2.1.1 v3 新增字段含义（权威）
+
+表：`pomodoro_session`；Entity：`PomodoroSessionEntity`；Domain：`PomodoroSession`。
+
+| 列名（Room） | Domain / Entity 属性 | 类型 | 含义 | 写入时机 / 清空时机 |
+|--------------|----------------------|------|------|---------------------|
+| `phase` | `phase` | `Int` | 当前计时阶段。`0` = `FOCUS`，`1` = `SHORT_BREAK`，`2` = `LONG_BREAK`（见 `PomodoroPhase`） | 创建会话时写入当前阶段；阶段切换开新会话时写入新阶段 |
+| `planned_duration_ms` | `plannedDurationMs` | `Long` | **本阶段**计划时长（毫秒），如专注 25×60×1000。用于夹紧实际专注秒、暂停时反推已计时长 | 创建会话时按设置写入；终态保留，不参与「是否活动」判断 |
+| `target_end_epoch_ms` | `targetEndEpochMs` | `Long?` | 运行中的**墙钟目标结束时刻**（epoch ms）。`remaining ≈ max(0, targetEnd - now)` | `IN_PROGRESS` 开始/继续时写入；`PAUSED` / `COMPLETED` / `INTERRUPTED` 时置 `NULL` |
+| `remaining_ms_when_paused` | `remainingMsWhenPaused` | `Long` | 暂停瞬间倒计时**剩余毫秒**；运行中为 `0` | `PAUSED` 时写入；继续或终态时置 `0` |
+| `pause_started_at_epoch_ms` | `pauseStartedAtEpochMs` | `Long` | 本次暂停开始的墙钟时刻（epoch ms）；未暂停为 `0` | `PAUSED` 时写入；继续时清 `0`（暂停时长累加进 `paused_duration_sec`）；终态清 `0` |
+
+**与既有字段的语义衔接（审查时必读）：**
+
+| 列名 | 语义补充（相对 main / D1） |
+|------|---------------------------|
+| `status` | 活动态含 `PAUSED(3)`；活动集合 = `IN_PROGRESS(0)` ∪ `PAUSED(3)` |
+| `focus_duration_sec` | 活动中的 FOCUS 会话创建时可先存**计划**专注秒；写入 `COMPLETED` 后改为**实际**专注秒（墙钟 − 暂停，夹在 `[0, planned]`） |
+| `paused_duration_sec` | 累计已结束的暂停秒数；当前这一次暂停尚未结束时，时长在 `pause_started_at_epoch_ms` 上，继续时再并入本字段 |
+| `started_at` / `ended_at` | 仍为**秒**级 epoch；活动计时新字段为**毫秒**级 epoch / 时长，读写时注意单位 |
+
+字段权威说明以本节为准；简版见 [番茄钟活动计时持久化](../stageE/番茄钟活动计时持久化.md)，架构总览见 [项目技术架构与实现说明](../../项目技术架构与实现说明.md)。
 
 ### 2.2 领域层：纯逻辑下沉
 
