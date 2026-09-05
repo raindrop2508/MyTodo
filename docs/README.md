@@ -25,7 +25,7 @@
 1. [项目整体规划文档](plan/项目整体规划文档.md)
 2. [项目技术架构与实现说明](项目技术架构与实现说明.md)
 3. [StageC_Room数据库实现总结](plan/stageC/StageC_Room数据库实现总结.md)
-4. [番茄钟活动计时持久化](plan/stageE/番茄钟活动计时持久化.md)（D1 之上的活动会话字段与冷启动收尾）
+4. [StageD_番茄钟计时持久化_实际落地方案](plan/stageD/StageD_番茄钟计时持久化_实际落地方案.md)（D1 之上的活动会话字段与冷启动收尾；Issue #14）
 5. [B1：领域数据模型定义](plan/stageB/B1：领域数据模型定义.md)
 
 ### 2. 后续 AI 执行前建议读取
@@ -47,7 +47,7 @@
 | Stage B | ✅ 完成 | Repository 接口 + ViewModel + Flow/StateFlow 主链路 |
 | Stage C | ✅ 完成 | Room 业务实体落地，运行时使用 RoomRepository |
 | Stage D | ⏳ 进行中 | D1 会话落库已完成；统计三模块闭环待做 |
-| 活动计时持久化 | ✅ 已实现 | 在 D1 之上扩展活动字段 + 冷启动孤儿会话收尾（见 Stage E 专题） |
+| 活动计时持久化 | ✅ 已实现 | 在 D1 之上扩展活动字段 + 冷启动孤儿会话收尾（见 [Stage D 落地方案](plan/stageD/StageD_番茄钟计时持久化_实际落地方案.md)） |
 | Stage E | ⏳ 待启动 | 深色模式、i18n、测试体系等质量加固 |
 
 **当前实现权威口径：**
@@ -65,7 +65,8 @@
 | 项目总体路线 | [项目整体规划文档](plan/项目整体规划文档.md) | 目标、阶段划分、下一步路线 |
 | 当前架构与实现 | [项目技术架构与实现说明](项目技术架构与实现说明.md) | 与代码对齐的阶段性总览 |
 | Room 数据库实现 | [StageC_Room数据库实现总结](plan/stageC/StageC_Room数据库实现总结.md) | Entity/DAO/Repository/初始化 |
-| 番茄钟活动会话 | [番茄钟活动计时持久化](plan/stageE/番茄钟活动计时持久化.md) | DB v3 字段、落库时机、冷启动收尾 |
+| 番茄钟活动会话（详） | [StageD_番茄钟计时持久化_实际落地方案](plan/stageD/StageD_番茄钟计时持久化_实际落地方案.md) | Issue #14 收尾确认版；相对 main 的实现对照 |
+| 番茄钟活动会话（简） | [番茄钟活动计时持久化](plan/stageE/番茄钟活动计时持久化.md) | DB v3 字段、落库时机、冷启动收尾摘要 |
 | Stage D 计划 | [StageD_番茄钟会话落库与统计闭环计划](plan/stageD/StageD_番茄钟会话落库与统计闭环计划.md) | D1–D8；当前 D1 已完成 |
 | 领域模型 | [B1：领域数据模型定义](plan/stageB/B1：领域数据模型定义.md) | 字段、枚举、关系口径 |
 | Stage B 历史总结 | [StageB_整体实现总结](plan/stageB/StageB_整体实现总结.md) | FakeRepository 时代链路，勿当现状唯一来源 |
@@ -92,7 +93,7 @@
 - `plan/stageA/`：UI 骨架、主题与视觉参考
 - `plan/stageB/`：FakeRepository 时期计划与总结（历史）
 - `plan/stageC/`：Room 落地计划与实现总结
-- `plan/stageD/`：番茄钟会话落库与统计闭环计划
+- `plan/stageD/`：番茄钟会话落库与统计闭环计划；活动计时持久化实际落地方案（#14）
 - `plan/stageE/`：质量加固与活动计时持久化等专题
 
 ### 2. 根级专题文档

@@ -33,7 +33,7 @@
 
 - 定义：通过专注时段与休息时段交替运行的时间管理方法。
 - 本项目落点：仅长时任务可进入番茄钟；会话由 `PomodoroSession` 表示，阶段由 `PomodoroPhase` 表示。
-- 参考文档：[项目整体规划文档](plan/项目整体规划文档.md)、[番茄钟活动计时持久化](plan/stageE/番茄钟活动计时持久化.md)
+- 参考文档：[项目整体规划文档](plan/项目整体规划文档.md)、[StageD_番茄钟计时持久化_实际落地方案](plan/stageD/StageD_番茄钟计时持久化_实际落地方案.md)
 
 ### 4. 仓储模式（Repository Pattern）
 

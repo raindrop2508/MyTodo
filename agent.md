@@ -60,7 +60,8 @@ data/        → Entity / DAO / Mapper / RoomRepository / Initializer
 | 总规划 | `docs/plan/项目整体规划文档.md` |
 | Room 总结 | `docs/plan/stageC/StageC_Room数据库实现总结.md` |
 | Stage D 计划 | `docs/plan/stageD/StageD_番茄钟会话落库与统计闭环计划.md` |
-| 活动计时专题 | `docs/plan/stageE/番茄钟活动计时持久化.md` |
+| 活动计时落地方案 | `docs/plan/stageD/StageD_番茄钟计时持久化_实际落地方案.md`（Issue #14） |
+| 活动计时摘要 | `docs/plan/stageE/番茄钟活动计时持久化.md` |
 
 ## 改代码前建议
 
