@@ -21,6 +21,13 @@ class RoomPomodoroRepository(
         return pomodoroSessionDao.getSessionById(id)?.toDomain()
     }
 
+    override suspend fun getAllActiveSessions(): List<PomodoroSession> {
+        return pomodoroSessionDao.getActiveSessions(
+            SessionStatus.IN_PROGRESS.value,
+            SessionStatus.PAUSED.value
+        ).map { it.toDomain() }
+    }
+
     override suspend fun addSession(session: PomodoroSession): Long {
         return pomodoroSessionDao.insert(session.toEntity())
     }
@@ -33,12 +40,50 @@ class RoomPomodoroRepository(
         pomodoroSessionDao.updateStatus(id, status.value)
     }
 
-    override suspend fun updateSessionStatusAndDuration(id: Long, status: SessionStatus, pausedDurationSec: Long) {
-        pomodoroSessionDao.updateSessionStatusAndDuration(id, status.value, pausedDurationSec)
+    override suspend fun updateTimerState(
+        id: Long,
+        status: SessionStatus,
+        pausedDurationSec: Long,
+        targetEndEpochMs: Long?,
+        remainingMsWhenPaused: Long,
+        pauseStartedAtEpochMs: Long
+    ) {
+        pomodoroSessionDao.updateTimerState(
+            id = id,
+            status = status.value,
+            pausedDurationSec = pausedDurationSec,
+            targetEndEpochMs = targetEndEpochMs,
+            remainingMsWhenPaused = remainingMsWhenPaused,
+            pauseStartedAtEpochMs = pauseStartedAtEpochMs
+        )
     }
 
-    override suspend fun completeSession(id: Long, status: SessionStatus, endedAt: Long, focusDurationSec: Long, breakDurationSec: Long, pausedDurationSec: Long, cycles: Int) {
-        pomodoroSessionDao.completeSession(id, status.value, endedAt, focusDurationSec, breakDurationSec, pausedDurationSec, cycles)
+    override suspend fun completeSession(
+        id: Long,
+        status: SessionStatus,
+        endedAt: Long,
+        focusDurationSec: Long,
+        breakDurationSec: Long,
+        pausedDurationSec: Long,
+        cycles: Int
+    ) {
+        pomodoroSessionDao.completeSession(
+            id,
+            status.value,
+            endedAt,
+            focusDurationSec,
+            breakDurationSec,
+            pausedDurationSec,
+            cycles
+        )
+    }
+
+    override suspend fun interruptSession(id: Long, endedAt: Long) {
+        pomodoroSessionDao.interruptSession(
+            id = id,
+            status = SessionStatus.INTERRUPTED.value,
+            endedAt = endedAt
+        )
     }
 
     override suspend fun deleteSession(id: Long) {

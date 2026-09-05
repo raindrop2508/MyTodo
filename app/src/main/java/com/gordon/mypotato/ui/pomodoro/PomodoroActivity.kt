@@ -10,7 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.gordon.mypotato.R
 import com.gordon.mypotato.databinding.ActivityPomodoroBinding
 import com.gordon.mypotato.ui.tasks.TaskEditActivity
-import com.gordon.mypotato.viewmodel.PomodoroPhase
+import com.gordon.mypotato.domain.PomodoroPhase
 import com.gordon.mypotato.viewmodel.PomodoroViewModel
 import com.gordon.mypotato.viewmodel.ViewModelFactory
 import com.gordon.mypotato.ui.tasks.TaskEditActivityArgs

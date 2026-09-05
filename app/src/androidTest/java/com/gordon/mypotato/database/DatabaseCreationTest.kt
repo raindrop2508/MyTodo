@@ -195,7 +195,12 @@ class DatabaseCreationTest {
             focusDurationSec = 1500,
             breakDurationSec = 300,
             cycles = 1,
-            status = 0
+            status = 0,
+            phase = 0,
+            plannedDurationMs = 25 * 60 * 1000L,
+            targetEndEpochMs = System.currentTimeMillis() + 25 * 60 * 1000L,
+            remainingMsWhenPaused = 0L,
+            pauseStartedAtEpochMs = 0L
         )
 
         val insertId = pomodoroSessionDao.insert(session)

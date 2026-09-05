@@ -1,8 +1,8 @@
 # MyPotato 文档索引
 
-> 状态：有效
-> 最后更新：2026-07-10
-> 适用范围：`docs/` 全目录导航与阅读指引
+> 状态：有效  
+> 最后更新：2026-09-06  
+> 适用范围：`docs/` 全目录导航与阅读指引  
 > 目标读者：后续 AI 执行者、项目维护者、新接手开发者
 
 ---
@@ -22,30 +22,39 @@
 
 ### 1. 新开发者快速上手
 
-1. [项目整体规划文档](file:///c:/code/MyTodo/docs/plan/项目整体规划文档.md)
-2. [StageB_整体实现总结](file:///c:/code/MyTodo/docs/stageB/StageB_整体实现总结.md)
-3. [项目技术架构与实现说明](file:///c:/code/MyTodo/docs/项目技术架构与实现说明.md)
-4. [B1：领域数据模型定义](file:///c:/code/MyTodo/docs/stageB/B1：领域数据模型定义.md)
-5. [StageB_核心流程跑通计划](file:///c:/code/MyTodo/docs/stageB/StageB_核心流程跑通计划.md)
+1. [项目整体规划文档](plan/项目整体规划文档.md)
+2. [项目技术架构与实现说明](项目技术架构与实现说明.md)
+3. [StageC_Room数据库实现总结](plan/stageC/StageC_Room数据库实现总结.md)
+4. [StageD_番茄钟计时持久化_实际落地方案](plan/stageD/StageD_番茄钟计时持久化_实际落地方案.md)（D1 之上的活动会话字段与冷启动收尾；Issue #14）
+5. [B1：领域数据模型定义](plan/stageB/B1：领域数据模型定义.md)
 
 ### 2. 后续 AI 执行前建议读取
 
-1. [本索引](file:///c:/code/MyTodo/docs/README.md)
-2. [项目整体规划文档](file:///c:/code/MyTodo/docs/plan/项目整体规划文档.md)
-3. [StageB_整体实现总结](file:///c:/code/MyTodo/docs/stageB/StageB_整体实现总结.md)
-4. [B1：领域数据模型定义](file:///c:/code/MyTodo/docs/stageB/B1：领域数据模型定义.md)
-5. 按任务主题补读对应专题文档
+1. [本索引](README.md)
+2. 仓库根目录 [agent.md](../agent.md)（项目简述、分层与编码约定）
+3. [项目整体规划文档](plan/项目整体规划文档.md)
+4. [项目技术架构与实现说明](项目技术架构与实现说明.md)
+5. [glossary.md](glossary.md)
+6. 按任务主题补读对应阶段计划 / 总结
 
 ---
 
 ## 三、当前阶段概览
 
-- Stage A：UI 骨架已完成
-- Stage B：主体已完成，已形成 `Repository + ViewModel + Flow/StateFlow + UI` 的主数据链路
-- Stage C：已完成，业务实体已接入 Room，数据已持久化，默认数据自动初始化
-- 统计页、深色模式完整上线、多语言与测试体系仍属于后续迭代范围
+| 阶段 | 状态 | 说明 |
+|------|------|------|
+| Stage A | ✅ 完成 | UI 骨架（含部分验收细项未闭合） |
+| Stage B | ✅ 完成 | Repository 接口 + ViewModel + Flow/StateFlow 主链路 |
+| Stage C | ✅ 完成 | Room 业务实体落地，运行时使用 RoomRepository |
+| Stage D | ⏳ 进行中 | D1 会话落库已完成；统计三模块闭环待做 |
+| 活动计时持久化 | ✅ 已实现 | 在 D1 之上扩展活动字段 + 冷启动孤儿会话收尾（见 [Stage D 落地方案](plan/stageD/StageD_番茄钟计时持久化_实际落地方案.md)） |
+| Stage E | ⏳ 待启动 | 深色模式、i18n、测试体系等质量加固 |
 
-当前实现现状请优先以 [StageB_整体实现总结](file:///c:/code/MyTodo/docs/stageB/StageB_整体实现总结.md) 和 [StageC_Room数据库实现总结](file:///c:/code/MyTodo/docs/plan/stageC/StageC_Room数据库实现总结.md) 为准。
+**当前实现权威口径：**
+
+- 任务 / 步骤 / 分类 / 番茄钟主流程：Room 持久化 + ViewModel 驱动
+- 统计页：仍为 Mock 数据，时间维度映射错位等问题仍在
+- FakeRepository：已从工程中移除，仅保留历史文档中的概念说明
 
 ---
 
@@ -53,15 +62,17 @@
 
 | 主题 | 权威/首选文档 | 说明 |
 |------|---------------|------|
-| 项目总体路线 | [项目整体规划文档](file:///c:/code/MyTodo/docs/plan/项目整体规划文档.md) | 用于理解目标、阶段划分、下一步路线 |
-| 当前实现现状 | [StageB_整体实现总结](file:///c:/code/MyTodo/docs/stageB/StageB_整体实现总结.md) | 反映 Stage B 后的真实架构状态 |
-| Room 数据库实现 | [StageC_Room数据库实现总结](file:///c:/code/MyTodo/docs/plan/stageC/StageC_Room数据库实现总结.md) | Stage C Room 集成实现总结，包含与 GreenDao 对比 |
-| 领域模型 | [B1：领域数据模型定义](file:///c:/code/MyTodo/docs/stageB/B1：领域数据模型定义.md) | 字段、枚举、关系的权威口径 |
-| Stage B 执行细节 | [StageB_核心流程跑通计划](file:///c:/code/MyTodo/docs/stageB/StageB_核心流程跑通计划.md) | 适合追溯 B1-B9 的计划与偏差 |
-| Stage C 执行细节 | [StageC_轻量数据结构落地计划](file:///c:/code/MyTodo/docs/plan/stageC/StageC_轻量数据结构落地计划.md) | Stage C 实施计划与验收标准 |
-| 数据流方案取舍 | [数据流转方案评估](file:///c:/code/MyTodo/docs/stageB/数据流转方案评估.md) | 解释为什么先走 FakeRepository，再接 Room |
-| UI 工程化与深色模式预适配 | [ui_optimization_and_dark_mode_guide](file:///c:/code/MyTodo/docs/ui_optimization_and_dark_mode_guide.md) | 主题属性化、图标着色、字符串资源化 |
-| UI 视觉设计参考 | [page_design](file:///c:/code/MyTodo/docs/ui-skeleton-android/page_design.md) | 参考稿，不完全等同于当前落地实现 |
+| 项目总体路线 | [项目整体规划文档](plan/项目整体规划文档.md) | 目标、阶段划分、下一步路线 |
+| 当前架构与实现 | [项目技术架构与实现说明](项目技术架构与实现说明.md) | 与代码对齐的阶段性总览 |
+| Room 数据库实现 | [StageC_Room数据库实现总结](plan/stageC/StageC_Room数据库实现总结.md) | Entity/DAO/Repository/初始化 |
+| 番茄钟活动会话（详） | [StageD_番茄钟计时持久化_实际落地方案](plan/stageD/StageD_番茄钟计时持久化_实际落地方案.md) | Issue #14；**v3 字段含义权威**（§2.1.1） |
+| 番茄钟活动会话（简） | [番茄钟活动计时持久化](plan/stageE/番茄钟活动计时持久化.md) | 字段摘要、落库时机、冷启动收尾 |
+| Stage D 计划 | [StageD_番茄钟会话落库与统计闭环计划](plan/stageD/StageD_番茄钟会话落库与统计闭环计划.md) | D1–D8；当前 D1 已完成 |
+| 领域模型 | [B1：领域数据模型定义](plan/stageB/B1：领域数据模型定义.md) | 字段表；`PomodoroSession` 含 DB v3 活动计时列 |
+| Stage B 历史总结 | [StageB_整体实现总结](plan/stageB/StageB_整体实现总结.md) | FakeRepository 时代链路，勿当现状唯一来源 |
+| 数据流方案取舍 | [数据流转方案评估](plan/stageB/数据流转方案评估.md) | 为何 Fake 先行再接 Room |
+| UI 工程化 | [ui_optimization_and_dark_mode_guide](plan/stageA/ui_optimization_and_dark_mode_guide.md) | 主题属性化、图标着色 |
+| UI 视觉参考 | [page_design](plan/stageA/ui-skeleton-android/page_design.md) | 参考稿，不完全等同落地 |
 
 ---
 
@@ -78,44 +89,37 @@
 
 ### 1. `docs/plan/`
 
-- 存放项目总纲、里程碑与阶段路线图
+- 项目总纲与各阶段计划 / 总结
+- `plan/stageA/`：UI 骨架、主题与视觉参考
+- `plan/stageB/`：FakeRepository 时期计划与总结（历史）
+- `plan/stageC/`：Room 落地计划与实现总结
+- `plan/stageD/`：番茄钟会话落库与统计闭环计划；活动计时持久化实际落地方案（#14）
+- `plan/stageE/`：质量加固与活动计时持久化等专题
 
-### 2. `docs/stageB/`
+### 2. 根级专题文档
 
-- 存放 Stage B 的计划、总结、数据流方案与领域模型定义
-- 若需要理解当前业务数据链路，优先阅读本目录
-
-### 3. `docs/ui_skeleton/`
-
-- 存放 Stage A 时期的需求大纲、UI 骨架方案与验收清单
-- 主要价值是保留产品初始目标与阶段验收上下文
-
-### 4. `docs/ui-skeleton-android/`
-
-- 存放 UI 视觉/交互参考稿和外部原型映射资料
-- 该目录内容偏参考，不一定完全代表当前代码实现
-
-### 5. 根级专题文档
-
-- `ui_optimization_and_dark_mode_guide.md`：UI 工程化专题
-- `Material_Design_3_Elevation_Overlay_技术详解.md`：Material 3 Elevation Overlay 问题专题
-- `项目技术架构与实现说明.md`：项目架构与实现的阶段性总览
+- `项目技术架构与实现说明.md`：架构与实现总览（优先对照代码）
+- `glossary.md`：统一术语
+- `adr/README.md`：架构决策索引（模板与待补主题）
 
 ---
 
 ## 七、术语与决策入口
 
-- 术语表： [glossary.md](file:///c:/code/MyTodo/docs/glossary.md)
-- 决策索引： [adr/README.md](file:///c:/code/MyTodo/docs/adr/README.md)
+- 术语表：[glossary.md](glossary.md)
+- 决策索引：[adr/README.md](adr/README.md)
+- Agent 约定：[agent.md](../agent.md)
 
 ---
 
 ## 八、维护约定
 
-- 若同一主题出现在多篇文档中，应在本索引中明确“权威来源”
-- 若某篇文档与当前实现存在阶段偏差，应优先补“状态”与“适用范围”，而不是直接删除历史内容
+- 若同一主题出现在多篇文档中，应在本索引中明确「权威来源」
+- 若某篇文档与当前实现存在阶段偏差，应优先补「状态」与「适用范围」，而不是直接删除历史内容
 - 文档内工程路径优先使用仓库相对路径，如 `app/src/...`、`docs/...`
 - 发生阶段切换时，应至少同步更新：
   - `docs/README.md`
   - `docs/plan/项目整体规划文档.md`
-  - 对应阶段总结文档
+  - `docs/项目技术架构与实现说明.md`
+  - 对应阶段总结 / 专题文档
+  - 必要时同步根目录 `agent.md` 与 `docs/glossary.md`
