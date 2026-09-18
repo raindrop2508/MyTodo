@@ -129,4 +129,70 @@ class PomodoroTimerLogicTest {
         assertEquals("5:05", PomodoroTimerLogic.formatDurationSec(305))
         assertEquals("0:00", PomodoroTimerLogic.formatDurationSec(0))
     }
+
+    @Test
+    fun estimateRemainingMs_fromInProgressTargetEnd() {
+        val session = PomodoroSession(
+            id = 1,
+            taskId = 10,
+            stepId = null,
+            startedAt = 1_000,
+            endedAt = null,
+            focusDurationSec = 1500,
+            breakDurationSec = 0,
+            pausedDurationSec = 0,
+            cycles = 0,
+            status = SessionStatus.IN_PROGRESS.value,
+            phase = PomodoroPhase.FOCUS.value,
+            plannedDurationMs = 1_500_000,
+            targetEndEpochMs = 2_000_000,
+            remainingMsWhenPaused = 0,
+            pauseStartedAtEpochMs = 0
+        )
+        assertEquals(500_000L, PomodoroTimerLogic.estimateRemainingMs(session, nowEpochMs = 1_500_000))
+    }
+
+    @Test
+    fun estimateRemainingMs_fromPaused() {
+        val session = PomodoroSession(
+            id = 1,
+            taskId = 10,
+            stepId = null,
+            startedAt = 1_000,
+            endedAt = null,
+            focusDurationSec = 1500,
+            breakDurationSec = 0,
+            pausedDurationSec = 0,
+            cycles = 0,
+            status = SessionStatus.PAUSED.value,
+            phase = PomodoroPhase.FOCUS.value,
+            plannedDurationMs = 1_500_000,
+            targetEndEpochMs = null,
+            remainingMsWhenPaused = 900_000,
+            pauseStartedAtEpochMs = 2_000_000
+        )
+        assertEquals(900_000L, PomodoroTimerLogic.estimateRemainingMs(session, nowEpochMs = 3_000_000))
+    }
+
+    @Test
+    fun estimateRemainingMs_expiredIsZero() {
+        val session = PomodoroSession(
+            id = 1,
+            taskId = 10,
+            stepId = null,
+            startedAt = 1_000,
+            endedAt = null,
+            focusDurationSec = 1500,
+            breakDurationSec = 0,
+            pausedDurationSec = 0,
+            cycles = 0,
+            status = SessionStatus.IN_PROGRESS.value,
+            phase = PomodoroPhase.FOCUS.value,
+            plannedDurationMs = 1_500_000,
+            targetEndEpochMs = 2_000_000,
+            remainingMsWhenPaused = 0,
+            pauseStartedAtEpochMs = 0
+        )
+        assertEquals(0L, PomodoroTimerLogic.estimateRemainingMs(session, nowEpochMs = 2_500_000))
+    }
 }

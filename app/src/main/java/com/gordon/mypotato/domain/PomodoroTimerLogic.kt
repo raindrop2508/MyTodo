@@ -82,6 +82,36 @@ object PomodoroTimerLogic {
         }
     }
 
+    /**
+     * 从活动会话推算本阶段剩余毫秒（冷启动续计用）。
+     */
+    fun estimateRemainingMs(
+        session: PomodoroSession,
+        nowEpochMs: Long = System.currentTimeMillis()
+    ): Long {
+        return when (SessionStatus.fromValue(session.status)) {
+            SessionStatus.PAUSED -> session.remainingMsWhenPaused.coerceAtLeast(0L)
+            SessionStatus.IN_PROGRESS -> {
+                val targetEnd = session.targetEndEpochMs
+                if (targetEnd != null) {
+                    (targetEnd - nowEpochMs).coerceAtLeast(0L)
+                } else {
+                    val plannedMs = session.plannedDurationMs.coerceAtLeast(0L)
+                    if (plannedMs <= 0L) return 0L
+                    val elapsedMs = if (session.phase == PomodoroPhase.FOCUS.value) {
+                        estimateElapsedFocusSec(session, nowEpochMs) * 1000
+                    } else {
+                        val wallMs = (nowEpochMs - session.startedAt * 1000).coerceAtLeast(0L)
+                        val pausedMs = session.pausedDurationSec.coerceAtLeast(0L) * 1000
+                        (wallMs - pausedMs).coerceAtLeast(0L)
+                    }
+                    (plannedMs - elapsedMs).coerceAtLeast(0L)
+                }
+            }
+            else -> 0L
+        }
+    }
+
     fun formatDurationSec(totalSec: Long): String {
         val safe = totalSec.coerceAtLeast(0L)
         val minutes = safe / 60

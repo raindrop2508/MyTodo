@@ -1,5 +1,6 @@
 package com.gordon.mypotato
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +15,8 @@ import com.gordon.mypotato.databinding.ActivityMainBinding
 import com.gordon.mypotato.domain.OrphanPomodoroSettlement
 import com.gordon.mypotato.domain.PomodoroPhase
 import com.gordon.mypotato.domain.PomodoroTimerLogic
+import com.gordon.mypotato.ui.pomodoro.PomodoroActivity
+import com.gordon.mypotato.ui.pomodoro.PomodoroActivityArgs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -63,7 +66,10 @@ class MainActivity : AppCompatActivity() {
             .setTitle(R.string.pomodoro_orphan_break_title)
             .setMessage(getString(R.string.pomodoro_orphan_break_message, prompt.taskTitle))
             .setCancelable(false)
-            .setPositiveButton(R.string.pomodoro_orphan_ok) { _, _ ->
+            .setPositiveButton(R.string.pomodoro_orphan_continue) { _, _ ->
+                openPomodoroResume(prompt)
+            }
+            .setNegativeButton(R.string.pomodoro_orphan_end) { _, _ ->
                 lifecycleScope.launch(Dispatchers.IO) {
                     createSettlement().discard(prompt.session)
                 }
@@ -100,26 +106,42 @@ class MainActivity : AppCompatActivity() {
             .setTitle(R.string.pomodoro_orphan_title)
             .setMessage(message)
             .setCancelable(false)
-            .setNegativeButton(R.string.pomodoro_orphan_discard) { _, _ ->
-                lifecycleScope.launch(Dispatchers.IO) {
-                    createSettlement().discard(prompt.session)
-                }
+            .setPositiveButton(R.string.pomodoro_orphan_continue) { _, _ ->
+                openPomodoroResume(prompt)
             }
 
         if (prompt.elapsedFocusSec > 0L) {
-            builder.setPositiveButton(R.string.pomodoro_orphan_keep) { _, _ ->
+            builder.setNeutralButton(R.string.pomodoro_orphan_keep) { _, _ ->
                 lifecycleScope.launch(Dispatchers.IO) {
                     createSettlement().keepFocusDuration(prompt.session, prompt.elapsedFocusSec)
                 }
             }
+            builder.setNegativeButton(R.string.pomodoro_orphan_discard) { _, _ ->
+                lifecycleScope.launch(Dispatchers.IO) {
+                    createSettlement().discard(prompt.session)
+                }
+            }
         } else {
-            builder.setPositiveButton(R.string.pomodoro_orphan_ok) { _, _ ->
+            builder.setNegativeButton(R.string.pomodoro_orphan_end) { _, _ ->
                 lifecycleScope.launch(Dispatchers.IO) {
                     createSettlement().discard(prompt.session)
                 }
             }
         }
         builder.show()
+    }
+
+    private fun openPomodoroResume(prompt: OrphanPomodoroSettlement.Prompt) {
+        val intent = Intent(this, PomodoroActivity::class.java).apply {
+            putExtras(
+                PomodoroActivityArgs(
+                    taskId = prompt.session.taskId,
+                    taskTitle = prompt.taskTitle,
+                    resumeSessionId = prompt.session.id
+                ).toBundle()
+            )
+        }
+        startActivity(intent)
     }
 
     private fun createSettlement(): OrphanPomodoroSettlement {
