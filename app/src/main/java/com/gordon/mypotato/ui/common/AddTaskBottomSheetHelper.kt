@@ -3,6 +3,7 @@ package com.gordon.mypotato.ui.common
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -11,6 +12,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gordon.mypotato.R
 import com.gordon.mypotato.data.repository.CategoryRepository
 import com.gordon.mypotato.databinding.BottomSheetAddTaskPlaceholderBinding
+import com.gordon.mypotato.domain.Category
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
@@ -185,23 +187,102 @@ class AddTaskBottomSheetHelper(
     }
 
     /**
-     * 功能：设置分类芯片。
+     * 功能：设置分类芯片（含新建 / 删除）。
      * 入参：sheetBinding BottomSheet 绑定对象。
      * 出参：无。
      * 异常：无。
      */
     private fun setupCategoryChips(sheetBinding: BottomSheetAddTaskPlaceholderBinding) {
+        refreshCategoryChips(sheetBinding)
+    }
+
+    private fun refreshCategoryChips(sheetBinding: BottomSheetAddTaskPlaceholderBinding) {
         fragment.viewLifecycleOwner.lifecycleScope.launch {
             val categories = categoryRepository.getCategories().first()
-            CategoryChipHelper.populateCategoryChips(
-                chipGroup = sheetBinding.groupTaskCategory,
-                categories = categories,
-                selectedCategoryId = selectedCategoryId,
-                onCategorySelected = { id ->
-                    selectedCategoryId = id
-                    Log.d(TAG, "categoryChanged selectedCategoryId=$selectedCategoryId")
+            bindCategoryChips(sheetBinding, categories)
+        }
+    }
+
+    private fun bindCategoryChips(
+        sheetBinding: BottomSheetAddTaskPlaceholderBinding,
+        categories: List<Category>
+    ) {
+        CategoryChipHelper.populateCategoryChips(
+            chipGroup = sheetBinding.groupTaskCategory,
+            categories = categories,
+            selectedCategoryId = selectedCategoryId,
+            onCategorySelected = { id ->
+                selectedCategoryId = id
+                Log.d(TAG, "categoryChanged selectedCategoryId=$selectedCategoryId")
+            },
+            onAddCategoryClick = {
+                CategoryEditDialogHelper.showCreateDialog(
+                    context = fragment.requireContext(),
+                    existingNames = categories.map { it.name }
+                ) { name ->
+                    createCategory(sheetBinding, categories, name)
                 }
-            )
+            },
+            onCategoryLongClick = { category ->
+                CategoryEditDialogHelper.showDeleteConfirmDialog(
+                    context = fragment.requireContext(),
+                    category = category
+                ) {
+                    deleteCategory(sheetBinding, category)
+                }
+            }
+        )
+    }
+
+    private fun createCategory(
+        sheetBinding: BottomSheetAddTaskPlaceholderBinding,
+        existingCategories: List<Category>,
+        name: String
+    ) {
+        fragment.viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val newId = categoryRepository.addCategory(
+                    Category(
+                        id = 0,
+                        name = name,
+                        colorHex = CategoryEditDialogHelper.nextColor(existingCategories),
+                        iconName = null
+                    )
+                )
+                selectedCategoryId = newId
+                Log.d(TAG, "categoryCreated id=$newId name=$name")
+                refreshCategoryChips(sheetBinding)
+            } catch (e: Exception) {
+                Log.e(TAG, "categoryCreateFailed name=$name", e)
+                Toast.makeText(
+                    fragment.requireContext(),
+                    R.string.category_create_failed,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    private fun deleteCategory(
+        sheetBinding: BottomSheetAddTaskPlaceholderBinding,
+        category: Category
+    ) {
+        fragment.viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                categoryRepository.deleteCategory(category.id)
+                if (selectedCategoryId == category.id) {
+                    selectedCategoryId = 0L
+                }
+                Log.d(TAG, "categoryDeleted id=${category.id}")
+                refreshCategoryChips(sheetBinding)
+            } catch (e: Exception) {
+                Log.e(TAG, "categoryDeleteFailed id=${category.id}", e)
+                Toast.makeText(
+                    fragment.requireContext(),
+                    R.string.category_delete_failed,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 

@@ -17,6 +17,9 @@ import com.gordon.mypotato.domain.Category
  * */
 object CategoryChipHelper {
 
+    /** 「新建分类」Chip 的 tag，不可选中 */
+    private const val ADD_CHIP_TAG = -2L
+
     private fun dpToPx(context: Context, dp: Int): Float {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
@@ -31,41 +34,52 @@ object CategoryChipHelper {
      * @param categories 分类列表数据
      * @param selectedCategoryId 默认选中的分类 ID，默认为 0（无分类）
      * @param onCategorySelected 选中状态变化时的回调
+     * @param onAddCategoryClick 点击「+」新建分类时的回调；为 null 时不显示「+」
+     * @param onCategoryLongClick 长按分类 Chip 时的回调；为 null 时不启用长按
      */
     fun populateCategoryChips(
         chipGroup: ChipGroup,
         categories: List<Category>,
         selectedCategoryId: Long = 0L,
-        onCategorySelected: ((Long) -> Unit)? = null
+        onCategorySelected: ((Long) -> Unit)? = null,
+        onAddCategoryClick: (() -> Unit)? = null,
+        onCategoryLongClick: ((Category) -> Unit)? = null
     ) {
-        // 清空现有视图
         chipGroup.removeAllViews()
 
-        // 1. 添加“无分类”选项
         val noneChip = createNoneChip(chipGroup.context)
         chipGroup.addView(noneChip)
 
-        // 2. 遍历列表，添加具体的分类 Chip
         categories.forEach { category ->
             val chip = createCategoryChip(chipGroup.context, category)
+            if (onCategoryLongClick != null) {
+                chip.setOnLongClickListener {
+                    onCategoryLongClick(category)
+                    true
+                }
+            }
             chipGroup.addView(chip)
         }
 
-        // 3. 设置选中监听
+        if (onAddCategoryClick != null) {
+            chipGroup.addView(createAddChip(chipGroup.context, onAddCategoryClick))
+        }
+
         chipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
-            // 如果没有任何选中项（点击了已选中的项），默认重新选中“无分类”
             if (checkedIds.isEmpty()) {
                 chipGroup.check(noneChip.id)
                 return@setOnCheckedStateChangeListener
             }
-            
-            // 获取当前选中的 Chip 绑定的分类 ID 并触发回调
+
             val checkedChip = chipGroup.findViewById<Chip>(checkedIds.first())
-            val categoryId = checkedChip.tag as Long
+            val categoryId = checkedChip.tag as? Long ?: return@setOnCheckedStateChangeListener
+            if (categoryId == ADD_CHIP_TAG) {
+                chipGroup.check(noneChip.id)
+                return@setOnCheckedStateChangeListener
+            }
             onCategorySelected?.invoke(categoryId)
         }
 
-        // 4. 执行初始选中逻辑
         selectCategory(chipGroup, selectedCategoryId)
     }
 
@@ -82,7 +96,6 @@ object CategoryChipHelper {
     ) {
         chipGroup.removeAllViews()
 
-        // 添加“全部”选项（Tag 为 null）
         val allChip = createAllChip(chipGroup.context)
         chipGroup.addView(allChip)
 
@@ -101,7 +114,6 @@ object CategoryChipHelper {
             onCategoryFilterChanged?.invoke(if (categoryId == -1L) null else categoryId)
         }
 
-        // 如果传入 ID 为空，则选中“全部”（对应 Tag -1L 的逻辑在 selectCategory 中处理）
         val idToSelect = selectedCategoryId ?: -1L
         selectCategory(chipGroup, idToSelect)
     }
@@ -114,7 +126,8 @@ object CategoryChipHelper {
         val checkedId = chipGroup.checkedChipId
         if (checkedId == View.NO_ID) return 0L
         val chip = chipGroup.findViewById<Chip>(checkedId)
-        return chip.tag as? Long ?: 0L
+        val tag = chip.tag as? Long ?: return 0L
+        return if (tag == ADD_CHIP_TAG || tag == -1L) 0L else tag
     }
 
     /**
@@ -123,23 +136,19 @@ object CategoryChipHelper {
     fun selectCategory(chipGroup: ChipGroup, categoryId: Long) {
         for (i in 0 until chipGroup.childCount) {
             val chip = chipGroup.getChildAt(i) as Chip
-            // 通过比较 tag 来匹配分类
             if (chip.tag == categoryId) {
                 chipGroup.check(chip.id)
                 return
             }
         }
-        // 如果没找到或 ID 为特殊值（0 或 -1），默认选中第一个（通常是“无”或“全部”）
         if (categoryId == 0L || categoryId == -1L) {
-            val firstChip = chipGroup.getChildAt(0) as Chip
-            chipGroup.check(firstChip.id)
+            if (chipGroup.childCount > 0) {
+                val firstChip = chipGroup.getChildAt(0) as Chip
+                chipGroup.check(firstChip.id)
+            }
         }
     }
 
-    /**
-     * 创建“无分类” Chip
-     * 支持选中/未选中状态切换
-     */
     private fun createNoneChip(context: Context): Chip {
         val defaultBgColor = ContextCompat.getColor(context, R.color.tag_default_bg)
         val defaultTextColor = ContextCompat.getColor(context, R.color.tag_default_text)
@@ -172,10 +181,6 @@ object CategoryChipHelper {
         }
     }
 
-    /**
-     * 创建“全部”过滤 Chip
-     * 支持选中/未选中状态切换
-     */
     private fun createAllChip(context: Context): Chip {
         val defaultBgColor = ContextCompat.getColor(context, R.color.tag_default_bg)
         val defaultTextColor = ContextCompat.getColor(context, R.color.tag_default_text)
@@ -208,10 +213,24 @@ object CategoryChipHelper {
         }
     }
 
-    /**
-     * 根据分类对象创建具体的 Chip
-     * 包含动态颜色处理，支持选中/未选中状态切换
-     */
+    private fun createAddChip(context: Context, onClick: () -> Unit): Chip {
+        val strokeColor = ContextCompat.getColor(context, R.color.tag_default_bg)
+        val textColor = ContextCompat.getColor(context, R.color.text_primary)
+
+        return Chip(context).apply {
+            id = View.generateViewId()
+            tag = ADD_CHIP_TAG
+            text = context.getString(R.string.category_chip_add)
+            isCheckable = false
+            isClickable = true
+            chipBackgroundColor = ColorStateList.valueOf(Color.TRANSPARENT)
+            chipStrokeColor = ColorStateList.valueOf(strokeColor)
+            chipStrokeWidth = dpToPx(context, 2)
+            setTextColor(textColor)
+            setOnClickListener { onClick() }
+        }
+    }
+
     private fun createCategoryChip(context: Context, category: Category): Chip {
         return Chip(context).apply {
             id = View.generateViewId()

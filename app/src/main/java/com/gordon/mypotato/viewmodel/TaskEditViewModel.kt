@@ -123,6 +123,52 @@ class TaskEditViewModel(
     }
 
     /**
+     * 功能：新建分类
+     * 入参：name 分类名称，colorHex 颜色
+     * 出参：通过 onResult 回调返回新建 ID 或异常
+     */
+    fun addCategory(
+        name: String,
+        colorHex: String,
+        onResult: (Result<Long>) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val id = categoryRepository.addCategory(
+                    Category(
+                        id = 0,
+                        name = name,
+                        colorHex = colorHex,
+                        iconName = null
+                    )
+                )
+                onResult(Result.success(id))
+            } catch (e: Exception) {
+                onResult(Result.failure(e))
+            }
+        }
+    }
+
+    /**
+     * 功能：删除分类（关联任务会变为未分类）
+     * 入参：categoryId 分类 ID
+     * 出参：通过 onResult 回调返回成功或异常
+     */
+    fun deleteCategory(
+        categoryId: Long,
+        onResult: (Result<Unit>) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                categoryRepository.deleteCategory(categoryId)
+                onResult(Result.success(Unit))
+            } catch (e: Exception) {
+                onResult(Result.failure(e))
+            }
+        }
+    }
+
+    /**
      * 功能：根据分类名称获取分类 ID
      * 入参：categoryName 分类名称
      * 出参：返回分类 ID，未找到返回 0（未分类）

@@ -3,6 +3,7 @@ package com.gordon.mypotato.ui.tasks
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -11,9 +12,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gordon.mypotato.R
 import com.gordon.mypotato.databinding.ActivityTaskEditBinding
+import com.gordon.mypotato.domain.Category
 import com.gordon.mypotato.domain.TaskStep
 import com.gordon.mypotato.domain.TaskType
 import com.gordon.mypotato.ui.common.CategoryChipHelper
+import com.gordon.mypotato.ui.common.CategoryEditDialogHelper
 import com.gordon.mypotato.viewmodel.EditableStepItem
 import com.gordon.mypotato.viewmodel.TaskEditViewModel
 import com.gordon.mypotato.viewmodel.ViewModelFactory
@@ -29,6 +32,9 @@ class TaskEditActivity : AppCompatActivity() {
     private val deletedStepIds = mutableListOf<Long>()
 
     private var taskId: Long = -1
+    private var selectedCategoryId = 0L
+    private var hasRenderedTask = false
+    private var lastCategoryIds: List<Long> = emptyList()
 
     companion object {
         private const val TAG = "TaskEditActivity"
@@ -45,7 +51,6 @@ class TaskEditActivity : AppCompatActivity() {
         setupToolbar()
         setupStepList()
         setupTypeButtons()
-        setupCategoryChips()
         collectUiState()
 
         if (taskId != -1L) {
@@ -57,12 +62,6 @@ class TaskEditActivity : AppCompatActivity() {
         Log.d(TAG, "onCreate out")
     }
 
-    /**
-     * 功能：读取编辑页初始化参数。
-     * 入参：无。
-     * 出参：无。
-     * 异常：无。
-     */
     private fun readIntentExtras() {
         Log.d(TAG, "readIntentExtras in")
         val args = TaskEditActivityArgs.fromBundle(intent.extras ?: Bundle())
@@ -70,12 +69,6 @@ class TaskEditActivity : AppCompatActivity() {
         Log.d(TAG, "readIntentExtras out taskId=$taskId")
     }
 
-    /**
-     * 功能：初始化顶部 Toolbar 与保存菜单行为。
-     * 入参：无。
-     * 出参：无。
-     * 异常：无。
-     */
     private fun setupToolbar() {
         Log.d(TAG, "setupToolbar in")
         binding.toolbar.setNavigationOnClickListener {
@@ -95,12 +88,6 @@ class TaskEditActivity : AppCompatActivity() {
         Log.d(TAG, "setupToolbar out")
     }
 
-    /**
-     * 功能：保存任务和步骤修改。
-     * 入参：无。
-     * 出参：无。
-     * 异常：无。
-     */
     private fun saveTask() {
         Log.d(TAG, "saveTask in")
 
@@ -147,12 +134,6 @@ class TaskEditActivity : AppCompatActivity() {
         Log.d(TAG, "saveTask out")
     }
 
-    /**
-     * 功能：初始化步骤编辑列表与拖拽能力。
-     * 入参：无。
-     * 出参：无。
-     * 异常：无。
-     */
     private fun setupStepList() {
         Log.d(TAG, "setupStepList in")
         stepAdapter =
@@ -186,12 +167,6 @@ class TaskEditActivity : AppCompatActivity() {
         Log.d(TAG, "setupStepList out")
     }
 
-    /**
-     * 功能：初始化任务类型切换交互。
-     * 入参：无。
-     * 出参：无。
-     * 异常：无。
-     */
     private fun setupTypeButtons() {
         Log.d(TAG, "setupTypeButtons in")
         binding.groupTaskType.addOnButtonCheckedListener { _, checkedId, isChecked ->
@@ -203,23 +178,6 @@ class TaskEditActivity : AppCompatActivity() {
         Log.d(TAG, "setupTypeButtons out")
     }
 
-    /**
-     * 功能：初始化分类选择组。
-     * 入参：无。
-     * 出参：无。
-     * 异常：无。
-     */
-    private fun setupCategoryChips() {
-        Log.d(TAG, "setupCategoryChips in")
-        Log.d(TAG, "setupCategoryChips out")
-    }
-
-    /**
-     * 功能：收集 ViewModel UI 状态并渲染页面。
-     * 入参：无。
-     * 出参：无。
-     * 异常：无。
-     */
     private fun collectUiState() {
         Log.d(TAG, "collectUiState in")
         lifecycleScope.launch {
@@ -227,26 +185,93 @@ class TaskEditActivity : AppCompatActivity() {
                 if (state.isLoading) {
                     return@collect
                 }
-                CategoryChipHelper.populateCategoryChips(
-                    chipGroup = binding.groupTaskCategory,
-                    categories = state.categories,
-                    selectedCategoryId = state.task?.categoryId ?: 0L
-                )
+
+                val categoryIds = state.categories.map { it.id }
+                if (categoryIds != lastCategoryIds) {
+                    lastCategoryIds = categoryIds
+                    bindCategoryChips(state.categories)
+                }
+
                 state.task?.let { task ->
-                    renderTask(task, state.category, state.steps)
+                    if (!hasRenderedTask) {
+                        selectedCategoryId = task.categoryId
+                        renderTask(task, state.category, state.steps)
+                        bindCategoryChips(state.categories)
+                        hasRenderedTask = true
+                    }
                 }
             }
         }
         Log.d(TAG, "collectUiState out")
     }
 
-    /**
-     * 功能：渲染任务信息和步骤列表。
-     * 入参：task 任务对象，category 分类对象，steps 步骤列表。
-     * 出参：无。
-     * 异常：无。
-     */
-    private fun renderTask(task: com.gordon.mypotato.domain.Task, category: com.gordon.mypotato.domain.Category?, steps: List<TaskStep>) {
+    private fun bindCategoryChips(categories: List<Category>) {
+        CategoryChipHelper.populateCategoryChips(
+            chipGroup = binding.groupTaskCategory,
+            categories = categories,
+            selectedCategoryId = selectedCategoryId,
+            onCategorySelected = { id ->
+                selectedCategoryId = id
+            },
+            onAddCategoryClick = {
+                CategoryEditDialogHelper.showCreateDialog(
+                    context = this,
+                    existingNames = categories.map { it.name }
+                ) { name ->
+                    viewModel.addCategory(
+                        name = name,
+                        colorHex = CategoryEditDialogHelper.nextColor(categories)
+                    ) { result ->
+                        result.onSuccess { newId ->
+                            selectedCategoryId = newId
+                            val current = viewModel.uiState.value.categories
+                            if (current.any { it.id == newId }) {
+                                lastCategoryIds = current.map { it.id }
+                                bindCategoryChips(current)
+                            } else {
+                                lastCategoryIds = emptyList()
+                            }
+                            Log.d(TAG, "categoryCreated id=$newId")
+                        }.onFailure { e ->
+                            Log.e(TAG, "categoryCreateFailed", e)
+                            Toast.makeText(this, R.string.category_create_failed, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            },
+            onCategoryLongClick = { category ->
+                CategoryEditDialogHelper.showDeleteConfirmDialog(
+                    context = this,
+                    category = category
+                ) {
+                    viewModel.deleteCategory(category.id) { result ->
+                        result.onSuccess {
+                            if (selectedCategoryId == category.id) {
+                                selectedCategoryId = 0L
+                            }
+                            val current = viewModel.uiState.value.categories
+                            if (current.none { it.id == category.id }) {
+                                lastCategoryIds = current.map { it.id }
+                                bindCategoryChips(current)
+                            } else {
+                                lastCategoryIds = emptyList()
+                            }
+                            Log.d(TAG, "categoryDeleted id=${category.id}")
+                        }.onFailure { e ->
+                            Log.e(TAG, "categoryDeleteFailed", e)
+                            Toast.makeText(this, R.string.category_delete_failed, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+        )
+    }
+
+    private fun renderTask(
+        task: com.gordon.mypotato.domain.Task,
+        category: com.gordon.mypotato.domain.Category?,
+        steps: List<TaskStep>
+    ) {
         Log.d(TAG, "renderTask in")
 
         binding.tvTaskId.text = getString(R.string.task_edit_task_id_format, task.id)
@@ -276,36 +301,18 @@ class TaskEditActivity : AppCompatActivity() {
         Log.d(TAG, "renderTask out stepCount=${stepList.size}")
     }
 
-    /**
-     * 功能：根据任务类型渲染步骤编辑区显隐。
-     * 入参：isLongTask 是否长时任务。
-     * 出参：无。
-     * 异常：无。
-     */
     private fun renderStepSection(isLongTask: Boolean) {
         Log.d(TAG, "renderStepSection in isLongTask=$isLongTask")
         binding.cardSteps.visibility = if (isLongTask) View.VISIBLE else View.GONE
         Log.d(TAG, "renderStepSection out visibility=${binding.cardSteps.visibility}")
     }
 
-    /**
-     * 功能：刷新步骤区摘要文案。
-     * 入参：无。
-     * 出参：无。
-     * 异常：无。
-     */
     private fun updateStepSectionSummary() {
         Log.d(TAG, "updateStepSectionSummary in")
         binding.tvStepSummary.text = getString(R.string.task_edit_step_count_format, stepList.size)
         Log.d(TAG, "updateStepSectionSummary out summary=${binding.tvStepSummary.text}")
     }
 
-    /**
-     * 功能：配置步骤列表拖拽排序。
-     * 入参：无。
-     * 出参：无。
-     * 异常：无。
-     */
     private val itemTouchHelper =
         ItemTouchHelper(
             object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
