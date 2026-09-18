@@ -70,7 +70,8 @@ class PomodoroViewModel(
                 val isValid = task?.isLongTask() == true
                 val phase = _uiState.value.currentPhase
                 val durationMs = if (isValid) getPhaseDurationMs(phase) else 0L
-                // Task/step Flow 刷新时保留活动会话倒计时（含暂停）；冷启动不静默续跑由孤儿弹窗处理。
+                // Task/step Flow 刷新时保留活动会话倒计时（含暂停）；
+                // 冷启动静默续跑禁止，须经孤儿弹窗确认后由 resumeActiveSession 处理。
                 val preserveTimerUi = _uiState.value.sessionId != -1L
 
                 _uiState.value.copy(
@@ -96,12 +97,79 @@ class PomodoroViewModel(
     }
 
     /**
+     * 从持久化活动会话恢复 UI，并按状态续跑或保持暂停。
+     *
+     * 仅在用户冷启动确认「继续」后调用；不在 App 启动时静默恢复。
+     * 目标结束时刻按「当前墙钟 + 剩余时长」重写，不沿用库中可能已过期的旧 targetEnd。
+     */
+    fun resumeActiveSession(sessionId: Long) {
+        if (sessionId <= 0L) return
+
+        viewModelScope.launch {
+            sessionMutex.withLock {
+                val session = pomodoroRepository.getSessionById(sessionId) ?: return@withLock
+                if (!session.isActive()) return@withLock
+
+                currentTaskId = session.taskId
+                currentStepId = session.stepId
+
+                val phase = session.getPhase()
+                val plannedMs = session.plannedDurationMs.takeIf { it > 0L }
+                    ?: getPhaseDurationMs(phase)
+                val nowMs = System.currentTimeMillis()
+                val remainingMs = PomodoroTimerLogic.estimateRemainingMs(session, nowMs)
+
+                _uiState.value = _uiState.value.copy(
+                    currentPhase = phase,
+                    timeLeftMs = remainingMs,
+                    totalTimeMs = plannedMs,
+                    isRunning = false,
+                    cycleCount = session.cycles,
+                    sessionId = session.id,
+                    sessionStartedAtSec = session.startedAt,
+                    pauseStartTimeMs = if (session.isPaused()) {
+                        session.pauseStartedAtEpochMs.takeIf { it > 0L } ?: nowMs
+                    } else {
+                        0L
+                    },
+                    totalPausedDurationSec = session.pausedDurationSec.coerceAtLeast(0L),
+                    isLoading = true,
+                    errorMessage = null
+                )
+
+                if (remainingMs <= 0L) {
+                    handlePhaseCompleteLocked()
+                } else if (session.isInProgress()) {
+                    val targetEnd = nowMs + remainingMs
+                    pomodoroRepository.updateTimerState(
+                        id = session.id,
+                        status = SessionStatus.IN_PROGRESS,
+                        pausedDurationSec = session.pausedDurationSec.coerceAtLeast(0L),
+                        targetEndEpochMs = targetEnd,
+                        remainingMsWhenPaused = 0,
+                        pauseStartedAtEpochMs = 0
+                    )
+                    _uiState.value = _uiState.value.copy(
+                        isRunning = true,
+                        timeLeftMs = remainingMs,
+                        pauseStartTimeMs = 0
+                    )
+                    startCountDown(remainingMs)
+                }
+            }
+
+            // 在 sessionId 已写入后再订阅任务 Flow，避免首帧冲掉续计 UI
+            loadTask(currentTaskId)
+        }
+    }
+
+    /**
      * 启动番茄钟倒计时。
      *
      * 方法根据当前会话状态分三种情形处理：全新会话、从暂停中恢复、已有会话但非暂停态继续。
      * 所有数据库写入与 UI 状态变更均在 [sessionMutex] 互斥锁内串行执行，避免并发竞态。
-     * 目标结束时刻（targetEndEpochMs）一律按「当前墙钟时间 + 剩余时长」重新计算并覆盖写入，
-     * 不恢复数据库中的旧值（设计决策：冷启动不静默恢复倒计时）。
+     * 目标结束时刻（targetEndEpochMs）一律按「当前墙钟时间 + 剩余时长」重新计算并覆盖写入；
+     * 冷启动不静默恢复，须经用户确认后由 [resumeActiveSession] 续计。
      *
      * @throws 无显式异常；协程内异常由 viewModelScope 承载，调用方无需 try-catch。
      */

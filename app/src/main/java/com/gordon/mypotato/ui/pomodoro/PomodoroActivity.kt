@@ -24,6 +24,7 @@ class PomodoroActivity : AppCompatActivity() {
 
     private var taskId: Long = -1L
     private var taskTitle: String = ""
+    private var resumeSessionId: Long = -1L
 
     companion object {
         private const val TAG = "PomodoroActivity"
@@ -43,7 +44,9 @@ class PomodoroActivity : AppCompatActivity() {
         setupListeners()
         collectUiState()
 
-        if (taskId != -1L) {
+        if (resumeSessionId > 0L) {
+            viewModel.resumeActiveSession(resumeSessionId)
+        } else if (taskId != -1L) {
             viewModel.loadTask(taskId)
         }
     }
@@ -53,7 +56,11 @@ class PomodoroActivity : AppCompatActivity() {
         val args = PomodoroActivityArgs.fromBundle(intent.extras ?: Bundle())
         taskId = args.taskId
         taskTitle = args.taskTitle
-        Log.d(TAG, "readIntentExtras out taskId=$taskId taskTitle=$taskTitle")
+        resumeSessionId = args.resumeSessionId
+        Log.d(
+            TAG,
+            "readIntentExtras out taskId=$taskId taskTitle=$taskTitle resumeSessionId=$resumeSessionId"
+        )
     }
 
     private fun initViews() {

@@ -134,7 +134,7 @@ class TaskDetailActivity : AppCompatActivity() {
     private fun openPomodoro(taskId: Long, taskTitle: String) {
         Log.d(TAG, "openPomodoro in taskId=$taskId taskTitle=$taskTitle")
         val intent = android.content.Intent(this, PomodoroActivity::class.java).apply {
-            putExtras(PomodoroActivityArgs(taskId, taskTitle).toBundle())
+            putExtras(PomodoroActivityArgs(taskId, taskTitle, -1L).toBundle())
         }
         startActivity(intent)
         Log.d(TAG, "openPomodoro out taskId=$taskId")
