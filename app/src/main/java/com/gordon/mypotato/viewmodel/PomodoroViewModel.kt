@@ -418,6 +418,9 @@ class PomodoroViewModel(
             currentState.totalPausedDurationSec,
             currentState.cycleCount + 1
         )
+        if (currentTaskId != -1L) {
+            taskRepository.addFocusDuration(currentTaskId, currentStepId, actualFocusSec)
+        }
     }
 
     fun endSessionManually() {

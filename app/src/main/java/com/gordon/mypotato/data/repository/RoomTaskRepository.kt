@@ -119,6 +119,22 @@ class RoomTaskRepository(
         updateTaskTotalDuration(step.taskId)
     }
 
+    override suspend fun addFocusDuration(taskId: Long, stepId: Long?, durationSec: Long) {
+        if (durationSec <= 0L) return
+
+        if (stepId != null && stepId > 0L) {
+            val step = taskStepDao.getStepById(stepId)
+            if (step != null && step.taskId == taskId) {
+                taskStepDao.update(
+                    step.copy(spentDurationSec = step.spentDurationSec + durationSec)
+                )
+            }
+        }
+
+        val task = taskDao.getTaskById(taskId) ?: return
+        taskDao.update(task.copy(totalDurationSec = task.totalDurationSec + durationSec))
+    }
+
     private suspend fun updateTaskTotalDuration(taskId: Long) {
         val totalDuration = taskStepDao.sumSpentDurationByTaskIdAndStatus(
             taskId, StepStatus.COMPLETED.value

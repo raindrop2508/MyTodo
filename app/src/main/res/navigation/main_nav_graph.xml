@@ -70,6 +70,10 @@
             app:argType="string"
             android:defaultValue="" />
         <argument
+            android:name="stepId"
+            app:argType="long"
+            android:defaultValue="-1L" />
+        <argument
             android:name="resumeSessionId"
             app:argType="long"
             android:defaultValue="-1L" />

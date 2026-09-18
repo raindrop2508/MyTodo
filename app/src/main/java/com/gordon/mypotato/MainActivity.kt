@@ -137,6 +137,7 @@ class MainActivity : AppCompatActivity() {
                 PomodoroActivityArgs(
                     taskId = prompt.session.taskId,
                     taskTitle = prompt.taskTitle,
+                    stepId = prompt.session.stepId ?: -1L,
                     resumeSessionId = prompt.session.id
                 ).toBundle()
             )

@@ -24,6 +24,7 @@ class PomodoroActivity : AppCompatActivity() {
 
     private var taskId: Long = -1L
     private var taskTitle: String = ""
+    private var stepId: Long = -1L
     private var resumeSessionId: Long = -1L
 
     companion object {
@@ -47,6 +48,9 @@ class PomodoroActivity : AppCompatActivity() {
         if (resumeSessionId > 0L) {
             viewModel.resumeActiveSession(resumeSessionId)
         } else if (taskId != -1L) {
+            if (stepId > 0L) {
+                viewModel.setStep(stepId)
+            }
             viewModel.loadTask(taskId)
         }
     }
@@ -56,10 +60,11 @@ class PomodoroActivity : AppCompatActivity() {
         val args = PomodoroActivityArgs.fromBundle(intent.extras ?: Bundle())
         taskId = args.taskId
         taskTitle = args.taskTitle
+        stepId = args.stepId
         resumeSessionId = args.resumeSessionId
         Log.d(
             TAG,
-            "readIntentExtras out taskId=$taskId taskTitle=$taskTitle resumeSessionId=$resumeSessionId"
+            "readIntentExtras out taskId=$taskId taskTitle=$taskTitle stepId=$stepId resumeSessionId=$resumeSessionId"
         )
     }
 
@@ -83,6 +88,12 @@ class PomodoroActivity : AppCompatActivity() {
         }
         binding.btnReset.setOnClickListener {
             viewModel.resetTimer()
+        }
+        binding.btnSkipPhase.setOnClickListener {
+            viewModel.skipToNextPhase()
+        }
+        binding.btnEndSession.setOnClickListener {
+            viewModel.endSessionManually()
         }
         binding.ivEditTask.setOnClickListener {
             openTaskEdit()
@@ -132,6 +143,8 @@ class PomodoroActivity : AppCompatActivity() {
                 if (!state.isValidTask) {
                     binding.btnToggle.isEnabled = false
                     binding.btnReset.isEnabled = false
+                    binding.btnSkipPhase.isEnabled = false
+                    binding.btnEndSession.isEnabled = false
                     binding.tvTimer.text = "--:--"
                     binding.progressTimer.progress = 0
                     binding.tvFocusState.text = state.errorMessage ?: getString(R.string.pomodoro_invalid_task)
@@ -141,6 +154,8 @@ class PomodoroActivity : AppCompatActivity() {
 
                 binding.btnToggle.isEnabled = true
                 binding.btnReset.isEnabled = true
+                binding.btnSkipPhase.isEnabled = true
+                binding.btnEndSession.isEnabled = true
 
                 updateTimerText(state.timeLeftMs)
                 updateProgress(state.timeLeftMs, state.totalTimeMs)
@@ -181,7 +196,7 @@ class PomodoroActivity : AppCompatActivity() {
     }
 
     private fun updateCycleCount(count: Int) {
-        binding.tvPomodoroCount.text = getString(R.string.pomodoro_count_hint, count)
+        binding.tvPomodoroCount.text = getString(R.string.pomodoro_count_hint, count + 1)
     }
 
     private fun updateToggleButton(isRunning: Boolean) {

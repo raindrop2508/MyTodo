@@ -275,6 +275,37 @@
                 app:layout_constraintTop_toBottomOf="@id/btnToggle"
                 app:strokeColor="?attr/colorOutline" />
 
+            <LinearLayout
+                android:id="@+id/llSecondaryActions"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btnReset"
+                app:layout_constraintWidth_max="280dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSkipPhase"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/pomodoro_btn_skip"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEndSession"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/pomodoro_btn_end_early"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+            </LinearLayout>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 

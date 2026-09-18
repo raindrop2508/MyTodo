@@ -136,11 +136,13 @@
     <string name="pomodoro_state_long_break">🌴 长休息</string>
     <string name="pomodoro_duration_hint">专注时长 25 分钟</string>
     <string name="pomodoro_default_time">25:00</string>
-    <string name="pomodoro_count_hint">🍅 第 1 个番茄钟</string>
+    <string name="pomodoro_count_hint">🍅 第 %d 个番茄钟</string>
     <string name="pomodoro_btn_start">开始</string>
     <string name="pomodoro_btn_pause">暂停</string>
     <string name="pomodoro_btn_resume">继续</string>
     <string name="pomodoro_btn_reset">重置</string>
+    <string name="pomodoro_btn_skip">跳过本阶段</string>
+    <string name="pomodoro_btn_end_early">提前结束</string>
     <string name="pomodoro_invalid_task">无效的任务类型</string>
     <string name="pomodoro_orphan_title">未完成的番茄钟</string>
     <string name="pomodoro_orphan_message_single">检测到未完成的番茄钟：\n任务：%1$s%2$s\n阶段：%3$s\n已计时长：%4$s\n\n是否继续该次计时？若不再继续，可选择保留或不保留已计专注时长。</string>
