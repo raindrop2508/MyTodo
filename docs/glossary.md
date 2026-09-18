@@ -112,10 +112,14 @@
   开始/暂停/继续/重置/完成均先落库；全库活动会话 ≤ 1。
 - 参考文档：[StageD_番茄钟计时持久化_实际落地方案](plan/stageD/StageD_番茄钟计时持久化_实际落地方案.md)（字段权威）、[番茄钟活动计时持久化](plan/stageE/番茄钟活动计时持久化.md)（摘要）
 
-### 15. 孤儿会话收尾（Orphan Pomodoro Settlement）
+### 15. 孤儿会话收尾与续计（Orphan Pomodoro Settlement）
 
-- 定义：冷启动时对残留活动会话（`IN_PROGRESS` / `PAUSED`）的用户确认收尾流程。
-- 本项目落点：`OrphanPomodoroSettlement` + `MainActivity` 弹窗；专注阶段可选「保留时长」→ `COMPLETED`（不改 Task/Step）或「不保留」→ `INTERRUPTED`；休息阶段直接中断。
+- 定义：冷启动时对残留活动会话（`IN_PROGRESS` / `PAUSED`）的用户确认流程——可**继续计时**，或结算后结束。
+- 本项目落点：
+  - `OrphanPomodoroSettlement` + `MainActivity` 弹窗
+  - **继续计时** → `PomodoroActivity(resumeSessionId)` → `PomodoroViewModel.resumeActiveSession`（进行中重算 `targetEnd` 开表；暂停保持暂停；剩余 ≤ 0 走阶段完成）
+  - 不继续：专注「保留时长」→ `COMPLETED`（不改 Task/Step）或「不保留/结束」→ `INTERRUPTED`；休息「结束」→ `INTERRUPTED`
+  - **不**静默续跑，**不**在冷启动时自动跳转计时页
 - 参考文档：[StageD_番茄钟计时持久化_实际落地方案](plan/stageD/StageD_番茄钟计时持久化_实际落地方案.md)、[番茄钟活动计时持久化](plan/stageE/番茄钟活动计时持久化.md)
 
 ### 16. 统计口径（Statistics Scope）

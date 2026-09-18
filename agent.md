@@ -36,7 +36,7 @@ data/        → Entity / DAO / Mapper / RoomRepository / Initializer
 
 1. **仅长时任务**可进番茄钟；详情页与 `PomodoroViewModel` 双重校验。
 2. 番茄钟：**先落库再计时**；全库活动会话（`IN_PROGRESS` + `PAUSED`）≤ 1。
-3. 冷启动孤儿会话由 `OrphanPomodoroSettlement` + `MainActivity` 弹窗收尾；**不**静默恢复倒计时。
+3. 冷启动孤儿会话由 `OrphanPomodoroSettlement` + `MainActivity` 弹窗处理：可「继续计时」（`resumeActiveSession`）或保留/丢弃收尾；**不**静默恢复，**不**自动跳转计时页。
 4. 统计口径（已定、待接页）：只统计 `phase == FOCUS` 且 `status == COMPLETED`。
 5. 开发期 Room 使用 `fallbackToDestructiveMigration`；正式 Migration 发布前再补。
 
@@ -60,7 +60,7 @@ data/        → Entity / DAO / Mapper / RoomRepository / Initializer
 | 总规划 | `docs/plan/项目整体规划文档.md` |
 | Room 总结 | `docs/plan/stageC/StageC_Room数据库实现总结.md` |
 | Stage D 计划 | `docs/plan/stageD/StageD_番茄钟会话落库与统计闭环计划.md` |
-| 活动计时落地方案 | `docs/plan/stageD/StageD_番茄钟计时持久化_实际落地方案.md`（Issue #14） |
+| 活动计时落地方案 | `docs/plan/stageD/StageD_番茄钟计时持久化_实际落地方案.md`（Issue #14 / #15） |
 | 活动计时摘要 | `docs/plan/stageE/番茄钟活动计时持久化.md` |
 
 ## 改代码前建议
@@ -73,6 +73,6 @@ data/        → Entity / DAO / Mapper / RoomRepository / Initializer
 ## 明确不做（除非用户要求）
 
 - 云同步、账号体系
-- 杀进程后静默续跑番茄钟 / 自动跳转未完成番茄钟页
+- 杀进程后**静默**续跑番茄钟 / 冷启动**自动**跳转未完成番茄钟页（须用户点「继续计时」）
 - Foreground Service / AlarmManager 到点通知（当前未规划落地）
 - 未要求时不创建 git commit、不改 git config、不强推

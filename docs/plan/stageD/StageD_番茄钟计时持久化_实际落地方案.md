@@ -1,10 +1,10 @@
 # Stage D：番茄钟计时持久化 — 实际落地方案
 
-> 文档版本：v1.1  
-> 更新日期：2026-09-06  
-> 状态：已实现（收尾确认版）  
-> 适用范围：相对 `main` 的活动计时持久化与冷启动收尾实现说明  
-> 关联：GitHub [Issue #14](https://github.com/raindrop2508/MyTodo/issues/14)（完成说明）、[#9](https://github.com/raindrop2508/MyTodo/issues/9)、PR #11  
+> 文档版本：v1.2  
+> 更新日期：2026-09-18  
+> 状态：已实现（收尾确认版 + 冷启动续计）  
+> 适用范围：相对 `main` 的活动计时持久化、冷启动收尾与用户确认续计说明  
+> 关联：GitHub [Issue #14](https://github.com/raindrop2508/MyTodo/issues/14)、[#15](https://github.com/raindrop2508/MyTodo/issues/15)、[#9](https://github.com/raindrop2508/MyTodo/issues/9)；PR #11、[#17](https://github.com/raindrop2508/MyTodo/pull/17)  
 > 前置：Stage C Room 落地；Stage D1 会话历史落库已具备  
 > 简版摘要：[番茄钟活动计时持久化](../stageE/番茄钟活动计时持久化.md)
 
@@ -24,14 +24,16 @@
 | 专注时长双重扣减 | `(totalTimeMs - timeLeftMs) - pausedDuration` 在 Tick 已停表时再减暂停 |
 | 阶段机错误 | 休息结束后仍走「选短休/长休」，无法回到 `FOCUS` |
 
-### 1.2 本轮落地口径（#14）
+### 1.2 落地口径（#14 → #15）
 
-#9 原方案含活动计时持久化、**静默恢复倒计时**、阶段机与时长修复等。本轮按 **「收尾确认版」** 落地：
+#9 原方案含活动计时持久化、**静默恢复倒计时**、阶段机与时长修复等。分两轮落地：
 
-- **做**：活动字段持久化、先落库再计时、全库活动会话 ≤ 1、阶段机与时长修复、冷启动弹窗收尾
-- **不做（后置）**：杀进程后静默续跑、自动跳转番茄钟页、Foreground Service / AlarmManager
+| 轮次 | Issue | 做了什么 |
+|------|-------|----------|
+| 收尾确认版 | [#14](https://github.com/raindrop2508/MyTodo/issues/14) | 活动字段持久化、先落库再计时、全库活动会话 ≤ 1、阶段机与时长修复、冷启动「保留/不保留」收尾 |
+| 确认后续计 | [#15](https://github.com/raindrop2508/MyTodo/issues/15) / PR [#17](https://github.com/raindrop2508/MyTodo/pull/17) | 冷启动弹窗增加「继续计时」；确认后带 `resumeSessionId` 进计时页，由 `resumeActiveSession` 续跑或保持暂停 |
 
-产品取舍：冷启动时由用户确认是否**保留已计专注时长**；不静默恢复倒计时。继续未完成番茄钟（带参进计时页接着跑）另开 Issue。
+产品取舍：**不**静默恢复倒计时，也**不**在冷启动时自动跳转计时页；须用户点「继续计时」后才导航并续跑。不继续时仍走保留时长 / 丢弃收尾。
 
 ***
 
@@ -76,8 +78,8 @@ Domain / Entity / Mapper 同步扩展；`PomodoroSession.isActive()`、`getPhase
 | 新增 | 职责 |
 |------|------|
 | `domain/PomodoroPhase` | FOCUS / SHORT_BREAK / LONG_BREAK（原 ViewModel 内 enum 迁出） |
-| `domain/PomodoroTimerLogic` | `determineNextPhase`、墙钟减暂停算专注秒、`estimateElapsedFocusSec`、时长格式化 |
-| `domain/OrphanPomodoroSettlement` | 冷启动：清理旧活动行 + 组装用户确认 Prompt；保留 / 丢弃写终态 |
+| `domain/PomodoroTimerLogic` | `determineNextPhase`、墙钟减暂停算专注秒、`estimateElapsedFocusSec`、`estimateRemainingMs`（续计剩余）、时长格式化 |
+| `domain/OrphanPomodoroSettlement` | 冷启动：清理旧活动行 + 组装用户确认 Prompt；保留 / 丢弃写终态（「继续」路径不结算，由计时页续跑） |
 
 ### 2.3 ViewModel：先落库再计时
 
@@ -89,29 +91,34 @@ Domain / Entity / Mapper 同步扩展；`PomodoroSession.isActive()`、`getPhase
 4. **重置**：活动会话 → `INTERRUPTED`，再清空 UI 会话态。
 5. **完成**：专注时长用 `PomodoroTimerLogic.calculateActualFocusSec`；`COMPLETED` 的 `focusDurationSec` 存**实际专注秒**。
 6. **阶段流转**：休息结束回到 `FOCUS`；仅专注完成增加 `cycleCount`。
-7. **`loadTask`**：不静默恢复活动倒计时；冷启动由 `MainActivity` 弹窗收尾。
-8. **`onCleared`**：只取消计时器，**不改 DB**（留给冷启动 `OrphanPomodoroSettlement`）。
+7. **`loadTask`**：不静默恢复活动倒计时；冷启动由 `MainActivity` 弹窗处理（收尾或确认后续计）。
+8. **`resumeActiveSession(sessionId)`**（#15）：从库 hydrate 阶段/剩余；`IN_PROGRESS` 重写 `targetEnd` 并开表；`PAUSED` 保持暂停；剩余 ≤ 0 走阶段完成。须用户确认后调用。
+9. **`onCleared`**：只取消计时器，**不改 DB**（留给冷启动 `OrphanPomodoroSettlement` / 续计）。
 
-### 2.4 UI：冷启动收尾
+### 2.4 UI：冷启动收尾与续计（#14 + #15）
 
 `MainActivity`（仅 `savedInstanceState == null`）：
 
-1. IO 线程 `OrphanPomodoroSettlement.preparePrompt()`
-2. 休息阶段残留 → 提示后 `discard`（`INTERRUPTED`）
-3. 专注阶段 → 弹窗：
-   - 多条活动行：旧记录已自动 `INTERRUPTED`，文案提示清理条数
-   - **保留时长**（已计 > 0）→ `keepFocusDuration` → 会话 `COMPLETED`，**不修改 Task / Step**
-   - **不保留** / 已计为 0 → `discard` → `INTERRUPTED`
-4. 收尾后之后计时一律**新开会话**
+1. IO 线程 `OrphanPomodoroSettlement.preparePrompt()`（旧活动行仍自动 `INTERRUPTED`，候选保持活动）
+2. 弹窗选项：
 
-文案：`res/values/strings.xml` 中 `pomodoro_orphan_*`、`pomodoro_phase_*`。
+| 场景 | 按钮 | 行为 |
+|------|------|------|
+| 专注且已计 > 0 | **继续计时** / 保留时长 / 不保留 | 继续 → `PomodoroActivity(resumeSessionId)`；保留 → `COMPLETED`；不保留 → `INTERRUPTED` |
+| 专注且已计 = 0 | **继续计时** / 结束 | 结束 → `INTERRUPTED` |
+| 休息阶段 | **继续计时** / 结束 | 结束 → `INTERRUPTED`（不计入专注） |
+
+3. **继续计时**路径：`Intent` 携带 `taskId`、`taskTitle`、`resumeSessionId`（Safe Args）；`PomodoroActivity` 调用 `resumeActiveSession`，**不**走结算。
+4. 选择保留/丢弃/结束后，之后计时一律**新开会话**。
+
+文案：`res/values/strings.xml` 中 `pomodoro_orphan_*`（含 `pomodoro_orphan_continue`）、`pomodoro_phase_*`。导航参数见 `main_nav_graph.xml` 的 `resumeSessionId`。
 
 ### 2.5 测试
 
 | 文件 | 覆盖 |
 |------|------|
-| `app/src/test/.../PomodoroTimerLogicTest.kt` | 阶段机、墙钟时长、暂停推算、休息阶段 elapsed=0 |
-| `app/src/test/.../OrphanPomodoroSettlementTest.kt` | 多活动行清理、保留/丢弃、休息阶段 |
+| `app/src/test/.../PomodoroTimerLogicTest.kt` | 阶段机、墙钟时长、暂停推算、`estimateRemainingMs`（进行中/暂停/已到期） |
+| `app/src/test/.../OrphanPomodoroSettlementTest.kt` | 多活动行清理、保留/丢弃 |
 | `DatabaseCreationTest` | 插入会话补齐 v3 新字段 |
 
 ***
@@ -173,10 +180,12 @@ actualFocusSec = clamp( (endedAtSec - startedAtSec) - pausedDurationSec , 0 .. p
 | `data/repository/PomodoroRepository.kt` / `RoomPomodoroRepository.kt` | 接口与实现对齐 |
 | `data/mapper/EntityMapper.kt` | 字段映射 |
 | `domain/PomodoroSession.kt` | 字段与完成态时长语义 |
-| `viewmodel/PomodoroViewModel.kt` | 先落库、Mutex、阶段/时长修复 |
-| `MainActivity.kt` | 冷启动弹窗 |
-| `ui/pomodoro/PomodoroActivity.kt` | `PomodoroPhase` 包路径调整 |
-| `res/values/strings.xml` | 孤儿会话与阶段文案 |
+| `viewmodel/PomodoroViewModel.kt` | 先落库、Mutex、阶段/时长修复；`resumeActiveSession`（#15） |
+| `MainActivity.kt` | 冷启动弹窗（收尾 + 继续跳转） |
+| `ui/pomodoro/PomodoroActivity.kt` | 读取 `resumeSessionId` 并续计 |
+| `ui/tasks/TaskDetailActivity.kt` | 打开番茄钟时传入默认 `resumeSessionId = -1` |
+| `res/navigation/main_nav_graph.xml` | `pomodoro` 增加 `resumeSessionId` |
+| `res/values/strings.xml` | 孤儿会话与阶段文案（含继续计时） |
 | `androidTest/.../DatabaseCreationTest.kt` | 实体构造适配 |
 
 ***
@@ -185,25 +194,25 @@ actualFocusSec = clamp( (endedAtSec - startedAtSec) - pausedDurationSec , 0 .. p
 
 | 能力 | 说明 |
 |------|------|
-| 静默恢复倒计时 | 不根据 `targetEndEpochMs` 自动续跑 |
-| 自动跳转番茄钟页 | 冷启动不导航到未完成会话 |
-| 用户确认「继续计时」 | #14 后置：确认后带参进计时页接着倒计时 |
+| 静默恢复倒计时 | 不根据 `targetEndEpochMs` 在启动时自动续跑；须用户确认 |
+| 冷启动自动跳转番茄钟页 | 不自动导航；仅点「继续计时」后才打开计时页 |
 | Foreground Service / AlarmManager | 到点通知未规划落地 |
 | 正式 Migration | 发布前再补；当前 destructive |
 
 ***
 
-## 六、验收对照（相对 #9 / #14）
+## 六、验收对照（相对 #9 / #14 / #15）
 
-| 维度 | 本轮结果 |
-|------|----------|
+| 维度 | 结果 |
+|------|------|
 | 活动状态落库 | ✅ phase + 目标结束/暂停剩余等写入 Room |
 | 会话一致性 | ✅ 重置打断；开新会话前打断其它活动行；Mutex 降竞态 |
 | 阶段切换 | ✅ 休息 → FOCUS；仅专注加轮次 |
 | 专注时长 | ✅ 墙钟减暂停，无双重扣减；完成态存实际秒 |
-| 冷启动 | ✅ 弹窗收尾，不静默续跑 |
+| 冷启动收尾 | ✅ 保留时长 / 不保留 / 结束 |
+| 冷启动续计（#15） | ✅ 用户确认后带 `resumeSessionId` 进页续跑；暂停态不自动开表 |
+| 静默续跑 / 自动跳转 | ❌ 明确不做 |
 | 统计页接入 | ❌ 仍属 Stage D 后续（D2–D7）；口径已定 |
-| 静默恢复 / 继续计时 UX | ❌ 后置 Issue |
 
 ***
 
@@ -211,7 +220,7 @@ actualFocusSec = clamp( (endedAtSec - startedAtSec) - pausedDurationSec , 0 .. p
 
 | Stage D 步骤 | 本方案关系 |
 |--------------|------------|
-| D1 会话落库 | 在 D1 之上扩展为「活动计时持久化 + 收尾」 |
+| D1 会话落库 | 在 D1 之上扩展为「活动计时持久化 + 收尾 + 确认续计」 |
 | D2–D7 统计闭环 | 未包含；依赖本方案写出的可信 `COMPLETED` 专注时长 |
 | D8 验证 | 领域单测已补；统计侧仍待 D 步推进 |
 
@@ -219,4 +228,4 @@ actualFocusSec = clamp( (endedAtSec - startedAtSec) - pausedDurationSec , 0 .. p
 
 ***
 
-> 本文档是 Issue #14「实际落地方案」的仓库内权威整理，实施细节以代码为准；简版入口保留在 `docs/plan/stageE/番茄钟活动计时持久化.md`。
+> 本文档是 Issue #14 / #15「活动计时持久化与冷启动续计」的仓库内权威整理，实施细节以代码为准；简版入口保留在 `docs/plan/stageE/番茄钟活动计时持久化.md`。
