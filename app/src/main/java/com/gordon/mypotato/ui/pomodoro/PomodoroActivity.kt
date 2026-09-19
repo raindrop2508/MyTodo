@@ -4,17 +4,19 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.gordon.mypotato.R
 import com.gordon.mypotato.databinding.ActivityPomodoroBinding
-import com.gordon.mypotato.ui.tasks.TaskEditActivity
 import com.gordon.mypotato.domain.PomodoroPhase
+import com.gordon.mypotato.domain.PomodoroPrompt
+import com.gordon.mypotato.ui.tasks.TaskEditActivity
+import com.gordon.mypotato.ui.tasks.TaskEditActivityArgs
+import com.gordon.mypotato.viewmodel.PomodoroUiState
 import com.gordon.mypotato.viewmodel.PomodoroViewModel
 import com.gordon.mypotato.viewmodel.ViewModelFactory
-import com.gordon.mypotato.ui.tasks.TaskEditActivityArgs
-import com.gordon.mypotato.domain.TaskType
 import kotlinx.coroutines.launch
 
 class PomodoroActivity : AppCompatActivity() {
@@ -26,6 +28,8 @@ class PomodoroActivity : AppCompatActivity() {
     private var taskTitle: String = ""
     private var stepId: Long = -1L
     private var resumeSessionId: Long = -1L
+    private var shownPrompt: PomodoroPrompt? = null
+    private var phasePromptDialog: AlertDialog? = null
 
     companion object {
         private const val TAG = "PomodoroActivity"
@@ -86,14 +90,8 @@ class PomodoroActivity : AppCompatActivity() {
         binding.btnToggle.setOnClickListener {
             toggleTimer()
         }
-        binding.btnReset.setOnClickListener {
-            viewModel.resetTimer()
-        }
-        binding.btnSkipPhase.setOnClickListener {
-            viewModel.skipToNextPhase()
-        }
         binding.btnEndSession.setOnClickListener {
-            viewModel.endSessionManually()
+            onEndSessionClicked()
         }
         binding.ivEditTask.setOnClickListener {
             openTaskEdit()
@@ -109,12 +107,14 @@ class PomodoroActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * 功能：打开任务编辑页面。
-     * 入参：无。
-     * 出参：无。
-     * 异常：无。
-     */
+    private fun onEndSessionClicked() {
+        val state = viewModel.uiState.value
+        when (state.currentPhase) {
+            PomodoroPhase.FOCUS -> viewModel.endWorkSession()
+            PomodoroPhase.SHORT_BREAK, PomodoroPhase.LONG_BREAK -> viewModel.endBreakEarly()
+        }
+    }
+
     private fun openTaskEdit() {
         Log.d(TAG, "openTaskEdit in taskId=$taskId")
         if (taskId != -1L) {
@@ -142,28 +142,109 @@ class PomodoroActivity : AppCompatActivity() {
 
                 if (!state.isValidTask) {
                     binding.btnToggle.isEnabled = false
-                    binding.btnReset.isEnabled = false
-                    binding.btnSkipPhase.isEnabled = false
                     binding.btnEndSession.isEnabled = false
+                    binding.btnEndSession.visibility = View.GONE
                     binding.tvTimer.text = "--:--"
                     binding.progressTimer.progress = 0
-                    binding.tvFocusState.text = state.errorMessage ?: getString(R.string.pomodoro_invalid_task)
-                    Toast.makeText(this@PomodoroActivity, state.errorMessage, Toast.LENGTH_LONG).show()
+                    binding.tvFocusState.text =
+                        state.errorMessage ?: getString(R.string.pomodoro_invalid_task)
+                    Toast.makeText(this@PomodoroActivity, state.errorMessage, Toast.LENGTH_LONG)
+                        .show()
                     return@collect
                 }
-
-                binding.btnToggle.isEnabled = true
-                binding.btnReset.isEnabled = true
-                binding.btnSkipPhase.isEnabled = true
-                binding.btnEndSession.isEnabled = true
 
                 updateTimerText(state.timeLeftMs)
                 updateProgress(state.timeLeftMs, state.totalTimeMs)
                 updatePhaseState(state.currentPhase)
                 updateCycleCount(state.cycleCount)
-                updateToggleButton(state.isRunning)
+                updateControls(state)
+                maybeShowPhasePrompt(state.prompt)
             }
         }
+    }
+
+    private fun updateControls(state: PomodoroUiState) {
+        val prompting = state.prompt != null
+        binding.btnToggle.isEnabled = !prompting && state.isValidTask
+        binding.btnEndSession.isEnabled = !prompting && state.hasActiveSession
+
+        when {
+            prompting -> {
+                binding.btnEndSession.visibility = View.GONE
+            }
+            state.isIdle -> {
+                binding.btnEndSession.visibility = View.GONE
+            }
+            state.currentPhase == PomodoroPhase.FOCUS -> {
+                binding.btnEndSession.visibility = View.VISIBLE
+                binding.btnEndSession.setText(R.string.pomodoro_btn_end_session)
+            }
+            else -> {
+                binding.btnEndSession.visibility = View.VISIBLE
+                binding.btnEndSession.setText(R.string.pomodoro_btn_end_break_early)
+            }
+        }
+
+        updateToggleButton(state)
+    }
+
+    private fun updateToggleButton(state: PomodoroUiState) {
+        when {
+            state.isRunning -> {
+                binding.btnToggle.setText(R.string.pomodoro_btn_pause)
+                binding.btnToggle.setIconResource(R.drawable.ic_pause_24dp)
+            }
+            state.hasActiveSession -> {
+                binding.btnToggle.setText(R.string.pomodoro_btn_resume)
+                binding.btnToggle.setIconResource(R.drawable.ic_play_24dp)
+            }
+            else -> {
+                binding.btnToggle.setText(R.string.pomodoro_btn_start)
+                binding.btnToggle.setIconResource(R.drawable.ic_play_24dp)
+            }
+        }
+    }
+
+    private fun maybeShowPhasePrompt(prompt: PomodoroPrompt?) {
+        if (prompt == null) {
+            shownPrompt = null
+            phasePromptDialog?.dismiss()
+            phasePromptDialog = null
+            return
+        }
+        if (shownPrompt == prompt && phasePromptDialog?.isShowing == true) {
+            return
+        }
+        shownPrompt = prompt
+        phasePromptDialog?.dismiss()
+
+        val dialog = when (prompt) {
+            PomodoroPrompt.AFTER_FOCUS -> AlertDialog.Builder(this)
+                .setTitle(R.string.pomodoro_prompt_focus_title)
+                .setMessage(R.string.pomodoro_prompt_focus_message)
+                .setCancelable(false)
+                .setPositiveButton(R.string.pomodoro_prompt_start_break) { _, _ ->
+                    viewModel.confirmStartBreak()
+                }
+                .setNegativeButton(R.string.pomodoro_prompt_end_session) { _, _ ->
+                    viewModel.confirmEndToIdle()
+                }
+                .create()
+
+            PomodoroPrompt.AFTER_BREAK -> AlertDialog.Builder(this)
+                .setTitle(R.string.pomodoro_prompt_break_title)
+                .setMessage(R.string.pomodoro_prompt_break_message)
+                .setCancelable(false)
+                .setPositiveButton(R.string.pomodoro_prompt_next_focus) { _, _ ->
+                    viewModel.confirmStartNextFocus()
+                }
+                .setNegativeButton(R.string.pomodoro_prompt_end_session) { _, _ ->
+                    viewModel.confirmEndToIdle()
+                }
+                .create()
+        }
+        phasePromptDialog = dialog
+        dialog.show()
     }
 
     private fun updateTimerText(timeLeftMs: Long) {
@@ -174,8 +255,9 @@ class PomodoroActivity : AppCompatActivity() {
     }
 
     private fun updateProgress(timeLeftMs: Long, totalTimeMs: Long) {
-        binding.progressTimer.max = totalTimeMs.toInt()
-        binding.progressTimer.progress = timeLeftMs.toInt()
+        val max = totalTimeMs.toInt().coerceAtLeast(1)
+        binding.progressTimer.max = max
+        binding.progressTimer.progress = timeLeftMs.toInt().coerceIn(0, max)
     }
 
     private fun updatePhaseState(phase: PomodoroPhase) {
@@ -199,22 +281,6 @@ class PomodoroActivity : AppCompatActivity() {
         binding.tvPomodoroCount.text = getString(R.string.pomodoro_count_hint, count + 1)
     }
 
-    private fun updateToggleButton(isRunning: Boolean) {
-        if (isRunning) {
-            binding.btnToggle.setText(R.string.pomodoro_btn_pause)
-            binding.btnToggle.setIconResource(R.drawable.ic_pause_24dp)
-        } else {
-            binding.btnToggle.setText(R.string.pomodoro_btn_start)
-            binding.btnToggle.setIconResource(R.drawable.ic_play_24dp)
-        }
-    }
-
-    /**
-     * 功能：更新任务标签的显示状态。
-     * 入参：task Task 对象，包含任务类型、紧急/重要属性。
-     * 出参：无。
-     * 异常：无。
-     */
     private fun updateTaskTags(task: com.gordon.mypotato.domain.Task) {
         binding.tvTagType.text = if (task.isLongTask()) {
             getString(R.string.pomodoro_tag_long)
@@ -233,5 +299,11 @@ class PomodoroActivity : AppCompatActivity() {
         } else {
             View.GONE
         }
+    }
+
+    override fun onDestroy() {
+        phasePromptDialog?.dismiss()
+        phasePromptDialog = null
+        super.onDestroy()
     }
 }
