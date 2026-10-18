@@ -39,5 +39,11 @@ interface TaskRepository {
 
     suspend fun updateStepStatus(id: Long, status: StepStatus)
 
+    /**
+     * 将番茄专注时长增量累加到任务（及可选步骤）的累计用时字段。
+     * 不按已完成步骤重算，避免覆盖既有番茄累加。
+     */
+    suspend fun addFocusDuration(taskId: Long, stepId: Long?, durationSec: Long)
+
     suspend fun deleteStep(id: Long)
 }

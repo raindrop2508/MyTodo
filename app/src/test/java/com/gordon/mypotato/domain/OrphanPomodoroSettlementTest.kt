@@ -45,11 +45,11 @@ class OrphanPomodoroSettlementTest {
     }
 
     @Test
-    fun keepFocusDuration_marksSessionCompletedWithoutTouchingTask() = runBlocking {
+    fun keepFocusDuration_marksSessionCompletedAndAddsTaskDuration() = runBlocking {
         val session = activeSession(id = 5, startedAt = 100, taskId = 9)
         val pomodoroRepo = FakePomodoroRepository(mutableListOf(session))
         val taskRepo = FakeTaskRepository(
-            tasks = mutableListOf(sampleTask(9, "学习", TaskStatus.IN_PROGRESS))
+            tasks = mutableListOf(sampleTask(9, "学习", TaskStatus.IN_PROGRESS, totalDurationSec = 60))
         )
         val settlement = OrphanPomodoroSettlement(pomodoroRepo, taskRepo)
 
@@ -59,6 +59,33 @@ class OrphanPomodoroSettlementTest {
         assertEquals(SessionStatus.COMPLETED.value, updated.status)
         assertEquals(120L, updated.focusDurationSec)
         assertEquals(TaskStatus.IN_PROGRESS.value, taskRepo.tasks.first().status)
+        assertEquals(180L, taskRepo.tasks.first().totalDurationSec)
+    }
+
+    @Test
+    fun keepFocusDuration_addsStepAndTaskDurationWhenStepBound() = runBlocking {
+        val session = activeSession(id = 5, startedAt = 100, taskId = 9).copy(stepId = 3L)
+        val pomodoroRepo = FakePomodoroRepository(mutableListOf(session))
+        val step = TaskStep(
+            id = 3,
+            taskId = 9,
+            title = "草稿",
+            sortOrder = 0,
+            status = StepStatus.TODO.value,
+            completedAt = null,
+            spentDurationSec = 10,
+            createdAt = 0
+        )
+        val taskRepo = FakeTaskRepository(
+            tasks = mutableListOf(sampleTask(9, "学习", totalDurationSec = 10)),
+            steps = mutableListOf(step)
+        )
+        val settlement = OrphanPomodoroSettlement(pomodoroRepo, taskRepo)
+
+        settlement.keepFocusDuration(session, elapsedFocusSec = 90)
+
+        assertEquals(100L, taskRepo.steps.first().spentDurationSec)
+        assertEquals(100L, taskRepo.tasks.first().totalDurationSec)
     }
 
     @Test
@@ -97,7 +124,8 @@ class OrphanPomodoroSettlementTest {
     private fun sampleTask(
         id: Long,
         title: String,
-        status: TaskStatus = TaskStatus.TODO
+        status: TaskStatus = TaskStatus.TODO,
+        totalDurationSec: Long = 0
     ): Task {
         return Task(
             id = id,
@@ -112,7 +140,7 @@ class OrphanPomodoroSettlementTest {
             createdAt = 0,
             plannedStartAt = null,
             finishedAt = null,
-            totalDurationSec = 0
+            totalDurationSec = totalDurationSec
         )
     }
 
@@ -209,7 +237,7 @@ class OrphanPomodoroSettlementTest {
 
     private class FakeTaskRepository(
         val tasks: MutableList<Task> = mutableListOf(),
-        private val steps: List<TaskStep> = emptyList()
+        val steps: MutableList<TaskStep> = mutableListOf()
     ) : TaskRepository {
         override fun getTasks(): Flow<List<Task>> = MutableStateFlow(tasks)
         override suspend fun getTaskById(id: Long): Task? = tasks.find { it.id == id }
@@ -232,8 +260,22 @@ class OrphanPomodoroSettlementTest {
             updateTask(task.copy(status = status.value))
         }
         override suspend fun addStep(step: TaskStep): Long = step.id
-        override suspend fun updateStep(step: TaskStep) {}
+        override suspend fun updateStep(step: TaskStep) {
+            val i = steps.indexOfFirst { it.id == step.id }
+            if (i >= 0) steps[i] = step
+        }
         override suspend fun updateStepStatus(id: Long, status: StepStatus) {}
+        override suspend fun addFocusDuration(taskId: Long, stepId: Long?, durationSec: Long) {
+            if (durationSec <= 0L) return
+            if (stepId != null && stepId > 0L) {
+                val step = steps.firstOrNull { it.id == stepId && it.taskId == taskId }
+                if (step != null) {
+                    updateStep(step.copy(spentDurationSec = step.spentDurationSec + durationSec))
+                }
+            }
+            val task = tasks.firstOrNull { it.id == taskId } ?: return
+            updateTask(task.copy(totalDurationSec = task.totalDurationSec + durationSec))
+        }
         override suspend fun deleteStep(id: Long) {}
     }
 }

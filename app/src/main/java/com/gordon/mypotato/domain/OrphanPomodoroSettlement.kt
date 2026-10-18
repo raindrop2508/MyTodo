@@ -58,15 +58,17 @@ class OrphanPomodoroSettlement(
 
     suspend fun keepFocusDuration(session: PomodoroSession, elapsedFocusSec: Long) {
         val endedAt = System.currentTimeMillis() / 1000
+        val focusSec = elapsedFocusSec.coerceAtLeast(0L)
         pomodoroRepository.completeSession(
             id = session.id,
             status = SessionStatus.COMPLETED,
             endedAt = endedAt,
-            focusDurationSec = elapsedFocusSec.coerceAtLeast(0L),
+            focusDurationSec = focusSec,
             breakDurationSec = session.breakDurationSec,
             pausedDurationSec = session.pausedDurationSec,
             cycles = session.cycles
         )
+        taskRepository.addFocusDuration(session.taskId, session.stepId, focusSec)
     }
 
     suspend fun discard(session: PomodoroSession) {

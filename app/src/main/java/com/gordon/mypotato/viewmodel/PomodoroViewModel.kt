@@ -1,11 +1,13 @@
 package com.gordon.mypotato.viewmodel
 
 import android.os.CountDownTimer
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gordon.mypotato.data.repository.PomodoroRepository
 import com.gordon.mypotato.data.repository.TaskRepository
 import com.gordon.mypotato.domain.PomodoroPhase
+import com.gordon.mypotato.domain.PomodoroPrompt
 import com.gordon.mypotato.domain.PomodoroSession
 import com.gordon.mypotato.domain.PomodoroTimerLogic
 import com.gordon.mypotato.domain.SessionStatus
@@ -33,10 +35,17 @@ data class PomodoroUiState(
     val sessionStartedAtSec: Long = 0,
     val pauseStartTimeMs: Long = 0,
     val totalPausedDurationSec: Long = 0,
+    val prompt: PomodoroPrompt? = null,
     val isLoading: Boolean = true,
     val errorMessage: String? = null,
     val isValidTask: Boolean = true
-)
+) {
+    val isIdle: Boolean
+        get() = sessionId == -1L && !isRunning && prompt == null
+
+    val hasActiveSession: Boolean
+        get() = sessionId != -1L && prompt == null
+}
 
 class PomodoroViewModel(
     private val taskRepository: TaskRepository,
@@ -70,9 +79,8 @@ class PomodoroViewModel(
                 val isValid = task?.isLongTask() == true
                 val phase = _uiState.value.currentPhase
                 val durationMs = if (isValid) getPhaseDurationMs(phase) else 0L
-                // Task/step Flow 刷新时保留活动会话倒计时（含暂停）；
-                // 冷启动静默续跑禁止，须经孤儿弹窗确认后由 resumeActiveSession 处理。
-                val preserveTimerUi = _uiState.value.sessionId != -1L
+                val preserveTimerUi =
+                    _uiState.value.sessionId != -1L || _uiState.value.prompt != null
 
                 _uiState.value.copy(
                     task = task,
@@ -81,7 +89,15 @@ class PomodoroViewModel(
                     totalTimeMs = if (preserveTimerUi) _uiState.value.totalTimeMs else durationMs,
                     isLoading = false,
                     isValidTask = isValid,
-                    errorMessage = if (!isValid) "只有长时任务可以启动番茄钟" else null
+                    errorMessage = if (!isValid) "只有长时任务可以启动番茄钟" else null,
+                    prompt = _uiState.value.prompt,
+                    currentPhase = _uiState.value.currentPhase,
+                    isRunning = _uiState.value.isRunning,
+                    cycleCount = _uiState.value.cycleCount,
+                    sessionId = _uiState.value.sessionId,
+                    sessionStartedAtSec = _uiState.value.sessionStartedAtSec,
+                    pauseStartTimeMs = _uiState.value.pauseStartTimeMs,
+                    totalPausedDurationSec = _uiState.value.totalPausedDurationSec
                 )
             }.collect {
                 _uiState.value = it
@@ -100,7 +116,6 @@ class PomodoroViewModel(
      * 从持久化活动会话恢复 UI，并按状态续跑或保持暂停。
      *
      * 仅在用户冷启动确认「继续」后调用；不在 App 启动时静默恢复。
-     * 目标结束时刻按「当前墙钟 + 剩余时长」重写，不沿用库中可能已过期的旧 targetEnd。
      */
     fun resumeActiveSession(sessionId: Long) {
         if (sessionId <= 0L) return
@@ -133,12 +148,13 @@ class PomodoroViewModel(
                         0L
                     },
                     totalPausedDurationSec = session.pausedDurationSec.coerceAtLeast(0L),
+                    prompt = null,
                     isLoading = true,
                     errorMessage = null
                 )
 
                 if (remainingMs <= 0L) {
-                    handlePhaseCompleteLocked()
+                    finishPhaseWithPromptLocked()
                 } else if (session.isInProgress()) {
                     val targetEnd = nowMs + remainingMs
                     pomodoroRepository.updateTimerState(
@@ -158,116 +174,102 @@ class PomodoroViewModel(
                 }
             }
 
-            // 在 sessionId 已写入后再订阅任务 Flow，避免首帧冲掉续计 UI
             loadTask(currentTaskId)
         }
     }
 
-    /**
-     * 启动番茄钟倒计时。
-     *
-     * 方法根据当前会话状态分三种情形处理：全新会话、从暂停中恢复、已有会话但非暂停态继续。
-     * 所有数据库写入与 UI 状态变更均在 [sessionMutex] 互斥锁内串行执行，避免并发竞态。
-     * 目标结束时刻（targetEndEpochMs）一律按「当前墙钟时间 + 剩余时长」重新计算并覆盖写入；
-     * 冷启动不静默恢复，须经用户确认后由 [resumeActiveSession] 续计。
-     *
-     * @throws 无显式异常；协程内异常由 viewModelScope 承载，调用方无需 try-catch。
-     */
     fun startTimer() {
-        // 卫语句：已在运行或任务非长时任务，直接返回
         if (_uiState.value.isRunning) return
         if (!_uiState.value.isValidTask) return
+        if (_uiState.value.prompt != null) return
 
         viewModelScope.launch {
             sessionMutex.withLock {
-                val currentState = _uiState.value
-                val phase = currentState.currentPhase
-                // 剩余时长优先用内存已有值，否则取当前阶段的默认计划时长
-                val timeLeftMs = currentState.timeLeftMs.takeIf { it > 0 }
-                    ?: getPhaseDurationMs(phase)
-                val nowMs = System.currentTimeMillis()
-
-                // 情形一：sessionId 为 -1，说明尚无 DB 会话记录，需新建会话
-                if (currentState.sessionId == -1L) {
-                    // 先打断库内其他活动会话，保证全库最多一条活动记录
-                    interruptOtherActiveSessions()
-                    val targetEnd = nowMs + timeLeftMs
-                    val plannedMs = getPhaseDurationMs(phase)
-                    val session = PomodoroSession(
-                        id = 0,
-                        taskId = currentTaskId,
-                        stepId = currentStepId,
-                        startedAt = nowMs / 1000,
-                        endedAt = null,
-                        // 专注阶段记录计划专注秒，休息阶段记录休息秒
-                        focusDurationSec = if (phase == PomodoroPhase.FOCUS) plannedMs / 1000 else 0,
-                        breakDurationSec = if (phase != PomodoroPhase.FOCUS) plannedMs / 1000 else 0,
-                        pausedDurationSec = 0,
-                        cycles = currentState.cycleCount,
-                        status = SessionStatus.IN_PROGRESS.value,
-                        phase = phase.value,
-                        plannedDurationMs = plannedMs,
-                        targetEndEpochMs = targetEnd,
-                        remainingMsWhenPaused = 0,
-                        pauseStartedAtEpochMs = 0
-                    )
-                    val newSessionId = pomodoroRepository.addSession(session)
-                    _uiState.value = currentState.copy(
-                        sessionId = newSessionId,
-                        sessionStartedAtSec = session.startedAt,
-                        timeLeftMs = timeLeftMs,
-                        totalTimeMs = plannedMs,
-                        totalPausedDurationSec = 0,
-                        pauseStartTimeMs = 0,
-                        isRunning = true
-                    )
-                    startCountDown(timeLeftMs)
-                }
-                // 情形二：pauseStartTimeMs 非 0，说明此前已暂停，需从暂停中恢复
-                else if (currentState.pauseStartTimeMs != 0L) {
-                    // 计算本次暂停时长并累加到累计暂停秒数
-                    val pauseDurationMs = nowMs - currentState.pauseStartTimeMs
-                    val newPausedDurationSec =
-                        currentState.totalPausedDurationSec + (pauseDurationMs / 1000)
-                    // 暂停期间目标结束时间已失效，需基于当前时间顺延重算
-                    val targetEnd = nowMs + timeLeftMs
-                    pomodoroRepository.updateTimerState(
-                        id = currentState.sessionId,
-                        status = SessionStatus.IN_PROGRESS,
-                        pausedDurationSec = newPausedDurationSec,
-                        targetEndEpochMs = targetEnd,
-                        remainingMsWhenPaused = 0,
-                        pauseStartedAtEpochMs = 0
-                    )
-                    _uiState.value = currentState.copy(
-                        pauseStartTimeMs = 0,
-                        totalPausedDurationSec = newPausedDurationSec,
-                        isRunning = true,
-                        timeLeftMs = timeLeftMs
-                    )
-                    startCountDown(timeLeftMs)
-                }
-                // 情形三：已有会话且不在暂停态（DB 为 IN_PROGRESS 但内存倒计时未运行），
-                // 重新激活计时并刷新目标结束时间
-                else {
-                    val targetEnd = nowMs + timeLeftMs
-                    pomodoroRepository.updateTimerState(
-                        id = currentState.sessionId,
-                        status = SessionStatus.IN_PROGRESS,
-                        pausedDurationSec = currentState.totalPausedDurationSec,
-                        targetEndEpochMs = targetEnd,
-                        remainingMsWhenPaused = 0,
-                        pauseStartedAtEpochMs = 0
-                    )
-                    _uiState.value = currentState.copy(isRunning = true, timeLeftMs = timeLeftMs)
-                    startCountDown(timeLeftMs)
-                }
+                startTimerLocked()
             }
+        }
+    }
+
+    private suspend fun startTimerLocked() {
+        val currentState = _uiState.value
+        if (currentState.isRunning || !currentState.isValidTask || currentState.prompt != null) return
+
+        val phase = currentState.currentPhase
+        val timeLeftMs = currentState.timeLeftMs.takeIf { it > 0 }
+            ?: getPhaseDurationMs(phase)
+        val nowMs = System.currentTimeMillis()
+
+        if (currentState.sessionId == -1L) {
+            interruptOtherActiveSessions()
+            val targetEnd = nowMs + timeLeftMs
+            val plannedMs = getPhaseDurationMs(phase)
+            val session = PomodoroSession(
+                id = 0,
+                taskId = currentTaskId,
+                stepId = currentStepId,
+                startedAt = nowMs / 1000,
+                endedAt = null,
+                focusDurationSec = if (phase == PomodoroPhase.FOCUS) plannedMs / 1000 else 0,
+                breakDurationSec = if (phase != PomodoroPhase.FOCUS) plannedMs / 1000 else 0,
+                pausedDurationSec = 0,
+                cycles = currentState.cycleCount,
+                status = SessionStatus.IN_PROGRESS.value,
+                phase = phase.value,
+                plannedDurationMs = plannedMs,
+                targetEndEpochMs = targetEnd,
+                remainingMsWhenPaused = 0,
+                pauseStartedAtEpochMs = 0
+            )
+            val newSessionId = pomodoroRepository.addSession(session)
+            _uiState.value = currentState.copy(
+                sessionId = newSessionId,
+                sessionStartedAtSec = session.startedAt,
+                timeLeftMs = timeLeftMs,
+                totalTimeMs = plannedMs,
+                totalPausedDurationSec = 0,
+                pauseStartTimeMs = 0,
+                isRunning = true,
+                prompt = null
+            )
+            startCountDown(timeLeftMs)
+        } else if (currentState.pauseStartTimeMs != 0L) {
+            val pauseDurationMs = nowMs - currentState.pauseStartTimeMs
+            val newPausedDurationSec =
+                currentState.totalPausedDurationSec + (pauseDurationMs / 1000)
+            val targetEnd = nowMs + timeLeftMs
+            pomodoroRepository.updateTimerState(
+                id = currentState.sessionId,
+                status = SessionStatus.IN_PROGRESS,
+                pausedDurationSec = newPausedDurationSec,
+                targetEndEpochMs = targetEnd,
+                remainingMsWhenPaused = 0,
+                pauseStartedAtEpochMs = 0
+            )
+            _uiState.value = currentState.copy(
+                pauseStartTimeMs = 0,
+                totalPausedDurationSec = newPausedDurationSec,
+                isRunning = true,
+                timeLeftMs = timeLeftMs
+            )
+            startCountDown(timeLeftMs)
+        } else {
+            val targetEnd = nowMs + timeLeftMs
+            pomodoroRepository.updateTimerState(
+                id = currentState.sessionId,
+                status = SessionStatus.IN_PROGRESS,
+                pausedDurationSec = currentState.totalPausedDurationSec,
+                targetEndEpochMs = targetEnd,
+                remainingMsWhenPaused = 0,
+                pauseStartedAtEpochMs = 0
+            )
+            _uiState.value = currentState.copy(isRunning = true, timeLeftMs = timeLeftMs)
+            startCountDown(timeLeftMs)
         }
     }
 
     fun pauseTimer() {
         if (!_uiState.value.isRunning) return
+        if (_uiState.value.prompt != null) return
         countDownTimer?.cancel()
         countDownTimer = null
 
@@ -294,41 +296,121 @@ class PomodoroViewModel(
         }
     }
 
-    fun resetTimer() {
+    /**
+     * 专注进行中/暂停时「结束本次」：计入已走时长，回到空闲并清零轮次。
+     */
+    fun endWorkSession() {
+        if (_uiState.value.prompt != null) return
+        if (_uiState.value.currentPhase != PomodoroPhase.FOCUS) return
+        if (_uiState.value.sessionId == -1L) return
+
         countDownTimer?.cancel()
         countDownTimer = null
 
         viewModelScope.launch {
             sessionMutex.withLock {
                 val currentState = _uiState.value
-                val sessionId = currentState.sessionId
-                if (sessionId != -1L) {
+                if (currentState.sessionId != -1L) {
+                    completeFocusSessionLocked(currentState)
+                }
+                applyIdleFocusLocked(cycleCount = 0)
+            }
+        }
+    }
+
+    /**
+     * 休息进行中/暂停时「提前结束休息」：打断休息会话，弹出下一轮/结束。
+     */
+    fun endBreakEarly() {
+        if (_uiState.value.prompt != null) return
+        if (_uiState.value.currentPhase == PomodoroPhase.FOCUS) return
+        if (_uiState.value.sessionId == -1L) return
+
+        countDownTimer?.cancel()
+        countDownTimer = null
+
+        viewModelScope.launch {
+            sessionMutex.withLock {
+                val currentState = _uiState.value
+                if (currentState.sessionId != -1L) {
                     pomodoroRepository.interruptSession(
-                        sessionId,
+                        currentState.sessionId,
                         System.currentTimeMillis() / 1000
                     )
                 }
-                val phase = currentState.currentPhase
-                val durationMs = getPhaseDurationMs(phase)
                 _uiState.value = currentState.copy(
+                    isRunning = false,
+                    sessionId = -1,
+                    sessionStartedAtSec = 0,
+                    pauseStartTimeMs = 0,
+                    totalPausedDurationSec = 0,
+                    timeLeftMs = 0,
+                    prompt = PomodoroPrompt.AFTER_BREAK
+                )
+            }
+        }
+    }
+
+    /** 专注到点弹窗：去休息并立即开跑。 */
+    fun confirmStartBreak() {
+        if (_uiState.value.prompt != PomodoroPrompt.AFTER_FOCUS) return
+
+        viewModelScope.launch {
+            sessionMutex.withLock {
+                val currentState = _uiState.value
+                val breakPhase = PomodoroTimerLogic.determineNextPhase(
+                    currentPhase = PomodoroPhase.FOCUS,
+                    completedFocusCycles = currentState.cycleCount,
+                    longBreakInterval = longBreakInterval
+                )
+                val durationMs = getPhaseDurationMs(breakPhase)
+                _uiState.value = currentState.copy(
+                    currentPhase = breakPhase,
                     timeLeftMs = durationMs,
                     totalTimeMs = durationMs,
                     isRunning = false,
                     sessionId = -1,
                     sessionStartedAtSec = 0,
                     pauseStartTimeMs = 0,
-                    totalPausedDurationSec = 0
+                    totalPausedDurationSec = 0,
+                    prompt = null
                 )
+                startTimerLocked()
             }
         }
     }
 
-    fun skipToNextPhase() {
-        countDownTimer?.cancel()
-        countDownTimer = null
+    /** 休息结束后弹窗：下一轮专注并立即开跑。 */
+    fun confirmStartNextFocus() {
+        if (_uiState.value.prompt != PomodoroPrompt.AFTER_BREAK) return
+
         viewModelScope.launch {
             sessionMutex.withLock {
-                handlePhaseCompleteLocked()
+                val currentState = _uiState.value
+                val durationMs = getPhaseDurationMs(PomodoroPhase.FOCUS)
+                _uiState.value = currentState.copy(
+                    currentPhase = PomodoroPhase.FOCUS,
+                    timeLeftMs = durationMs,
+                    totalTimeMs = durationMs,
+                    isRunning = false,
+                    sessionId = -1,
+                    sessionStartedAtSec = 0,
+                    pauseStartTimeMs = 0,
+                    totalPausedDurationSec = 0,
+                    prompt = null
+                )
+                startTimerLocked()
+            }
+        }
+    }
+
+    /** 弹窗「结束本次」：回到空闲，轮次清零。 */
+    fun confirmEndToIdle() {
+        if (_uiState.value.prompt == null) return
+
+        viewModelScope.launch {
+            sessionMutex.withLock {
+                applyIdleFocusLocked(cycleCount = 0)
             }
         }
     }
@@ -346,14 +428,14 @@ class PomodoroViewModel(
             override fun onFinish() {
                 viewModelScope.launch {
                     sessionMutex.withLock {
-                        handlePhaseCompleteLocked()
+                        finishPhaseWithPromptLocked()
                     }
                 }
             }
         }.start()
     }
 
-    private suspend fun handlePhaseCompleteLocked() {
+    private suspend fun finishPhaseWithPromptLocked() {
         val currentState = _uiState.value
         val phase = currentState.currentPhase
         countDownTimer?.cancel()
@@ -361,38 +443,39 @@ class PomodoroViewModel(
 
         if (phase == PomodoroPhase.FOCUS) {
             completeFocusSessionLocked(currentState)
-        } else if (currentState.sessionId != -1L) {
-            pomodoroRepository.completeSession(
-                id = currentState.sessionId,
-                status = SessionStatus.COMPLETED,
-                endedAt = System.currentTimeMillis() / 1000,
-                focusDurationSec = 0,
-                breakDurationSec = currentState.totalTimeMs / 1000,
-                pausedDurationSec = currentState.totalPausedDurationSec,
-                cycles = currentState.cycleCount
+            val newCycleCount = currentState.cycleCount + 1
+            _uiState.value = currentState.copy(
+                timeLeftMs = 0,
+                isRunning = false,
+                cycleCount = newCycleCount,
+                sessionId = -1,
+                sessionStartedAtSec = 0,
+                pauseStartTimeMs = 0,
+                totalPausedDurationSec = 0,
+                prompt = PomodoroPrompt.AFTER_FOCUS
+            )
+        } else {
+            if (currentState.sessionId != -1L) {
+                pomodoroRepository.completeSession(
+                    id = currentState.sessionId,
+                    status = SessionStatus.COMPLETED,
+                    endedAt = System.currentTimeMillis() / 1000,
+                    focusDurationSec = 0,
+                    breakDurationSec = currentState.totalTimeMs / 1000,
+                    pausedDurationSec = currentState.totalPausedDurationSec,
+                    cycles = currentState.cycleCount
+                )
+            }
+            _uiState.value = currentState.copy(
+                timeLeftMs = 0,
+                isRunning = false,
+                sessionId = -1,
+                sessionStartedAtSec = 0,
+                pauseStartTimeMs = 0,
+                totalPausedDurationSec = 0,
+                prompt = PomodoroPrompt.AFTER_BREAK
             )
         }
-
-        val newCycleCount =
-            if (phase == PomodoroPhase.FOCUS) currentState.cycleCount + 1 else currentState.cycleCount
-        val nextPhase = PomodoroTimerLogic.determineNextPhase(
-            currentPhase = phase,
-            completedFocusCycles = newCycleCount,
-            longBreakInterval = longBreakInterval
-        )
-        val nextDuration = getPhaseDurationMs(nextPhase)
-
-        _uiState.value = currentState.copy(
-            currentPhase = nextPhase,
-            timeLeftMs = nextDuration,
-            totalTimeMs = nextDuration,
-            isRunning = false,
-            cycleCount = newCycleCount,
-            sessionId = -1,
-            sessionStartedAtSec = 0,
-            pauseStartTimeMs = 0,
-            totalPausedDurationSec = 0
-        )
     }
 
     private suspend fun completeFocusSessionLocked(currentState: PomodoroUiState) {
@@ -418,37 +501,25 @@ class PomodoroViewModel(
             currentState.totalPausedDurationSec,
             currentState.cycleCount + 1
         )
+        if (currentTaskId != -1L) {
+            taskRepository.addFocusDuration(currentTaskId, currentStepId, actualFocusSec)
+        }
     }
 
-    fun endSessionManually() {
-        countDownTimer?.cancel()
-        countDownTimer = null
-
-        viewModelScope.launch {
-            sessionMutex.withLock {
-                val currentState = _uiState.value
-                val sessionId = currentState.sessionId
-                if (sessionId != -1L && currentState.currentPhase == PomodoroPhase.FOCUS) {
-                    completeFocusSessionLocked(currentState)
-                } else if (sessionId != -1L) {
-                    pomodoroRepository.interruptSession(
-                        sessionId,
-                        System.currentTimeMillis() / 1000
-                    )
-                }
-                val phase = currentState.currentPhase
-                val durationMs = getPhaseDurationMs(phase)
-                _uiState.value = currentState.copy(
-                    isRunning = false,
-                    sessionId = -1,
-                    sessionStartedAtSec = 0,
-                    pauseStartTimeMs = 0,
-                    totalPausedDurationSec = 0,
-                    timeLeftMs = durationMs,
-                    totalTimeMs = durationMs
-                )
-            }
-        }
+    private fun applyIdleFocusLocked(cycleCount: Int) {
+        val durationMs = getPhaseDurationMs(PomodoroPhase.FOCUS)
+        _uiState.value = _uiState.value.copy(
+            currentPhase = PomodoroPhase.FOCUS,
+            timeLeftMs = durationMs,
+            totalTimeMs = durationMs,
+            isRunning = false,
+            cycleCount = cycleCount,
+            sessionId = -1,
+            sessionStartedAtSec = 0,
+            pauseStartTimeMs = 0,
+            totalPausedDurationSec = 0,
+            prompt = null
+        )
     }
 
     private suspend fun interruptOtherActiveSessions() {
@@ -487,5 +558,16 @@ class PomodoroViewModel(
         super.onCleared()
         countDownTimer?.cancel()
         countDownTimer = null
+    }
+
+    @VisibleForTesting
+    internal fun replaceUiStateForTest(state: PomodoroUiState) {
+        _uiState.value = state
+    }
+
+    @VisibleForTesting
+    internal fun setTaskContextForTest(taskId: Long, stepId: Long? = null) {
+        currentTaskId = taskId
+        currentStepId = stepId
     }
 }

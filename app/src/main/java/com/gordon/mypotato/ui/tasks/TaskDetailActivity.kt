@@ -133,11 +133,22 @@ class TaskDetailActivity : AppCompatActivity() {
      */
     private fun openPomodoro(taskId: Long, taskTitle: String) {
         Log.d(TAG, "openPomodoro in taskId=$taskId taskTitle=$taskTitle")
+        val stepId = viewModel.uiState.value.steps
+            .firstOrNull { it.status != com.gordon.mypotato.domain.StepStatus.COMPLETED.value }
+            ?.id
+            ?: -1L
         val intent = android.content.Intent(this, PomodoroActivity::class.java).apply {
-            putExtras(PomodoroActivityArgs(taskId, taskTitle, -1L).toBundle())
+            putExtras(
+                PomodoroActivityArgs(
+                    taskId = taskId,
+                    taskTitle = taskTitle,
+                    stepId = stepId,
+                    resumeSessionId = -1L
+                ).toBundle()
+            )
         }
         startActivity(intent)
-        Log.d(TAG, "openPomodoro out taskId=$taskId")
+        Log.d(TAG, "openPomodoro out taskId=$taskId stepId=$stepId")
     }
 
     private fun showAddStepDialog() {
