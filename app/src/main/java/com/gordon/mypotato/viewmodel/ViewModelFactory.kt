@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.gordon.mypotato.data.AppDatabase
 import com.gordon.mypotato.data.repository.CategoryRepository
-import com.gordon.mypotato.data.repository.MockStatisticsRepository
+import com.gordon.mypotato.data.repository.RoomStatisticsRepository
 import com.gordon.mypotato.data.repository.PomodoroRepository
 import com.gordon.mypotato.data.repository.RoomCategoryRepository
 import com.gordon.mypotato.data.repository.RoomPomodoroRepository
@@ -31,7 +31,7 @@ class ViewModelFactory(
                 val taskRepo = RoomTaskRepository(database.taskDao(), database.taskStepDao())
                 val categoryRepo = RoomCategoryRepository(database.categoryDao(), database.taskDao())
                 val pomodoroRepo = RoomPomodoroRepository(database.pomodoroSessionDao())
-                val statisticsRepo = MockStatisticsRepository()
+                val statisticsRepo = RoomStatisticsRepository(taskRepo, categoryRepo)
                 ViewModelFactory(
                     taskRepo,
                     categoryRepo,

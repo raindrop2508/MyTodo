@@ -15,24 +15,23 @@ enum class StatisticsPeriod {
 data class CompletionOverview(
     val rate: Int,
     val completedCount: Int,
-    val overdueCount: Int,
-    val pendingCount: Int,
+    val todoCount: Int,
+    val inProgressCount: Int,
 )
 
 data class TrendBucket(
     val label: String,
-    val onTimeCount: Int,
-    val overdueCount: Int,
+    val completedCount: Int,
 )
 
 data class SpanEfficiency(
-    val onTimeRate: Int,
+    val completionRate: Int,
     val averageDurationLabel: String,
     val longestStreakLabel: String,
 )
 
 data class YearEfficiency(
-    val onTimeRate: Int,
+    val completionRate: Int,
     val dailyAverageLabel: String,
     val longestStreakLabel: String,
 )
@@ -52,9 +51,9 @@ data class HeatmapData(
 )
 
 data class QualityDistribution(
-    val onTimeRate: Int,
-    val overdueRate: Int,
-    val unfinishedRate: Int,
+    val completedRate: Int,
+    val todoRate: Int,
+    val inProgressRate: Int,
 )
 
 data class CategoryRate(

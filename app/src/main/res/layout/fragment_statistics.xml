@@ -214,18 +214,18 @@
                                     android:layout_width="8dp"
                                     android:layout_height="8dp"
                                     android:background="@drawable/bg_statistics_dot"
-                                    android:backgroundTint="@color/state_error_red" />
+                                    android:backgroundTint="?attr/colorOutline" />
 
                                 <TextView
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="8dp"
                                     android:layout_weight="1"
-                                    android:text="@string/statistics_overdue"
+                                    android:text="@string/statistics_not_started"
                                     android:textColor="?attr/colorOnSurface" />
 
                                 <TextView
-                                    android:id="@+id/tv_overdue_count"
+                                    android:id="@+id/tv_todo_count"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:textColor="?attr/colorOnSurface"
@@ -244,18 +244,18 @@
                                     android:layout_width="8dp"
                                     android:layout_height="8dp"
                                     android:background="@drawable/bg_statistics_dot"
-                                    android:backgroundTint="?attr/colorOutline" />
+                                    android:backgroundTint="@color/brand_indigo" />
 
                                 <TextView
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="8dp"
                                     android:layout_weight="1"
-                                    android:text="@string/statistics_pending"
+                                    android:text="@string/statistics_in_progress"
                                     android:textColor="?attr/colorOnSurface" />
 
                                 <TextView
-                                    android:id="@+id/tv_pending_count"
+                                    android:id="@+id/tv_in_progress_count"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:textColor="?attr/colorOnSurface"
@@ -303,22 +303,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="4dp"
-                            android:text="@string/statistics_legend_on_time"
-                            android:textColor="?attr/colorOnSurfaceVariant"
-                            android:textSize="@dimen/body_small_size" />
-
-                        <View
-                            android:layout_width="8dp"
-                            android:layout_height="8dp"
-                            android:layout_marginStart="12dp"
-                            android:background="@drawable/bg_statistics_dot"
-                            android:backgroundTint="@color/state_error_red" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:text="@string/statistics_legend_overdue"
+                            android:text="@string/statistics_legend_completed"
                             android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="@dimen/body_small_size" />
                     </LinearLayout>

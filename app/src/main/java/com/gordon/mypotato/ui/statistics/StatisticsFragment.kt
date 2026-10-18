@@ -120,20 +120,19 @@ class StatisticsFragment : Fragment(R.layout.fragment_statistics) {
         binding.tvCompletionPeriod.text = periodLabel(period)
         binding.viewCompletionDonut.submitRate(page.completion.rate)
         binding.tvCompletedCount.text = page.completion.completedCount.toString()
-        binding.tvOverdueCount.text = page.completion.overdueCount.toString()
-        binding.tvPendingCount.text = page.completion.pendingCount.toString()
+        binding.tvTodoCount.text = page.completion.todoCount.toString()
+        binding.tvInProgressCount.text = page.completion.inProgressCount.toString()
         binding.viewTrendChart.submitData(
             page.trend.map { bucket ->
                 StatisticsBarItem(
                     label = bucket.label,
                     segments = listOf(
-                        StatisticsBarSegment("on_time", bucket.onTimeCount, R.color.state_success_green),
-                        StatisticsBarSegment("overdue", bucket.overdueCount, R.color.state_error_red),
+                        StatisticsBarSegment("completed", bucket.completedCount, R.color.state_success_green),
                     ),
                 )
             },
         )
-        binding.tvSpanOnTimeRate.text = getString(R.string.statistics_percent, page.efficiency.onTimeRate)
+        binding.tvSpanOnTimeRate.text = getString(R.string.statistics_percent, page.efficiency.completionRate)
         binding.tvSpanDuration.text = page.efficiency.averageDurationLabel
         binding.tvSpanStreak.text = page.efficiency.longestStreakLabel
     }
@@ -149,15 +148,15 @@ class StatisticsFragment : Fragment(R.layout.fragment_statistics) {
         binding.tvYearCompleted.text = page.heatmap.yearCompletedLabel
         binding.tvActiveDays.text = page.heatmap.activeDaysLabel
         binding.tvHeatmapStreak.text = page.heatmap.longestStreakLabel
-        binding.tvYearOnTimeRate.text = getString(R.string.statistics_percent, page.efficiency.onTimeRate)
+        binding.tvYearOnTimeRate.text = getString(R.string.statistics_percent, page.efficiency.completionRate)
         binding.tvYearDailyAverage.text = page.efficiency.dailyAverageLabel
         binding.tvYearStreak.text = page.efficiency.longestStreakLabel
-        setWeight(binding.viewQualityOnTime, page.quality.onTimeRate)
-        setWeight(binding.viewQualityOverdue, page.quality.overdueRate)
-        setWeight(binding.viewQualityUnfinished, page.quality.unfinishedRate)
-        binding.tvQualityOnTime.text = getString(R.string.statistics_quality_on_time, page.quality.onTimeRate)
-        binding.tvQualityOverdue.text = getString(R.string.statistics_quality_overdue, page.quality.overdueRate)
-        binding.tvQualityUnfinished.text = getString(R.string.statistics_quality_unfinished, page.quality.unfinishedRate)
+        setWeight(binding.viewQualityOnTime, page.quality.completedRate)
+        setWeight(binding.viewQualityOverdue, page.quality.todoRate)
+        setWeight(binding.viewQualityUnfinished, page.quality.inProgressRate)
+        binding.tvQualityOnTime.text = getString(R.string.statistics_quality_on_time, page.quality.completedRate)
+        binding.tvQualityOverdue.text = getString(R.string.statistics_quality_overdue, page.quality.todoRate)
+        binding.tvQualityUnfinished.text = getString(R.string.statistics_quality_unfinished, page.quality.inProgressRate)
     }
 
     private fun bindCategories(page: StatisticsPage.TaskPage) {
