@@ -6,16 +6,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.gordon.mypotato.data.AppDatabase
 import com.gordon.mypotato.data.repository.CategoryRepository
+import com.gordon.mypotato.data.repository.MockStatisticsRepository
 import com.gordon.mypotato.data.repository.PomodoroRepository
 import com.gordon.mypotato.data.repository.RoomCategoryRepository
 import com.gordon.mypotato.data.repository.RoomPomodoroRepository
 import com.gordon.mypotato.data.repository.RoomTaskRepository
+import com.gordon.mypotato.data.repository.StatisticsRepository
 import com.gordon.mypotato.data.repository.TaskRepository
 
 class ViewModelFactory(
     private val taskRepository: TaskRepository,
     private val categoryRepository: CategoryRepository,
     private val pomodoroRepository: PomodoroRepository,
+    private val statisticsRepository: StatisticsRepository,
     private val context: Context
 ) : ViewModelProvider.Factory {
 
@@ -28,7 +31,14 @@ class ViewModelFactory(
                 val taskRepo = RoomTaskRepository(database.taskDao(), database.taskStepDao())
                 val categoryRepo = RoomCategoryRepository(database.categoryDao(), database.taskDao())
                 val pomodoroRepo = RoomPomodoroRepository(database.pomodoroSessionDao())
-                ViewModelFactory(taskRepo, categoryRepo, pomodoroRepo, context.applicationContext).also { instance = it }
+                val statisticsRepo = MockStatisticsRepository()
+                ViewModelFactory(
+                    taskRepo,
+                    categoryRepo,
+                    pomodoroRepo,
+                    statisticsRepo,
+                    context.applicationContext
+                ).also { instance = it }
             }
         }
     }
@@ -65,6 +75,9 @@ class ViewModelFactory(
             }
             modelClass.isAssignableFrom(SettingsViewModel::class.java) -> {
                 SettingsViewModel(context) as T
+            }
+            modelClass.isAssignableFrom(StatisticsViewModel::class.java) -> {
+                StatisticsViewModel(statisticsRepository) as T
             }
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
