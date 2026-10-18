@@ -7,7 +7,7 @@
 - **名称：** MyPotato（包名 `com.gordon.mypotato`）
 - **类型：** Android 原生番茄钟 TODO，本地离线优先
 - **能力：** 四象限任务管理 + 长时任务番茄钟（专注/短休/长休）+ Room 持久化
-- **当前阶段：** Stage A–C 完成；Stage D 进行中（会话落库与活动计时已完成，**统计页仍为 Mock**）
+- **当前阶段：** Stage A–D 主体完成（统计页已接任务三态真数据）。**Stage E（第 5 阶段）未开始**（深色、i18n、测试）
 
 ## 技术栈（速查）
 
@@ -37,7 +37,7 @@ data/        → Entity / DAO / Mapper / RoomRepository / Initializer
 1. **仅长时任务**可进番茄钟；详情页与 `PomodoroViewModel` 双重校验。
 2. 番茄钟：**先落库再计时**；全库活动会话（`IN_PROGRESS` + `PAUSED`）≤ 1。
 3. 冷启动孤儿会话由 `OrphanPomodoroSettlement` + `MainActivity` 弹窗处理：可「继续计时」（`resumeActiveSession`）或保留/丢弃收尾；**不**静默恢复，**不**自动跳转计时页。
-4. 统计口径（已定、待接页）：只统计 `phase == FOCUS` 且 `status == COMPLETED`。
+4. 统计页口径：只计任务的已完成 / 未开始 / 进行中；已完成按 `finishedAt`，未开始和进行中按 `createdAt`。不统计逾期，不按番茄钟专注时长汇总。
 5. 开发期 Room 使用 `fallbackToDestructiveMigration`；正式 Migration 发布前再补。
 
 ## 编码规范

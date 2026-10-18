@@ -289,8 +289,8 @@ cd MyTodo
 | Stage A | MVP UI 骨架 + Material3 主题 | ✅ 完成          |
 | Stage B | 核心流程跑通 + FakeRepository  | ✅ 完成          |
 | Stage C | Room 数据结构落地 + 持久化        | ✅ 完成          |
-| Stage D | 番茄钟会话落库 + 统计闭环           | 🔄 进行中（D1 完成） |
-| Stage E | 深色模式 + i18n + 测试补齐       | ⏳ 待启动         |
+| Stage D | 番茄钟会话落库 + 统计页真数据          | ✅ 主体完成        |
+| Stage E | 深色模式 + i18n + 测试补齐（第 5 阶段） | ⏳ 未开始         |
 
 ***
 

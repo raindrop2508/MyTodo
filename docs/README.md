@@ -1,7 +1,7 @@
 # MyPotato 文档索引
 
 > 状态：有效  
-> 最后更新：2026-09-18  
+> 最后更新：2026-10-18  
 > 适用范围：`docs/` 全目录导航与阅读指引  
 > 目标读者：后续 AI 执行者、项目维护者、新接手开发者
 
@@ -46,14 +46,14 @@
 | Stage A | ✅ 完成 | UI 骨架（含部分验收细项未闭合） |
 | Stage B | ✅ 完成 | Repository 接口 + ViewModel + Flow/StateFlow 主链路 |
 | Stage C | ✅ 完成 | Room 业务实体落地，运行时使用 RoomRepository |
-| Stage D | ⏳ 进行中 | D1 会话落库已完成；统计三模块闭环待做 |
+| Stage D | ✅ 主体完成 | 会话落库、活动计时、统计页真数据（任务三态，见架构说明 §4.6） |
 | 活动计时持久化 | ✅ 已实现 | 活动字段落库 + 冷启动孤儿收尾与「继续计时」续计（#14 / #15；见 [Stage D 落地方案](plan/stageD/StageD_番茄钟计时持久化_实际落地方案.md)） |
-| Stage E | ⏳ 待启动 | 深色模式、i18n、测试体系等质量加固 |
+| Stage E（第 5 阶段） | ⏳ 未开始 | 深色模式、i18n、测试体系等质量加固；**未完成** |
 
 **当前实现权威口径：**
 
 - 任务 / 步骤 / 分类 / 番茄钟主流程：Room 持久化 + ViewModel 驱动
-- 统计页：仍为 Mock 数据，时间维度映射错位等问题仍在
+- 统计页：`RoomStatisticsRepository` 聚合任务与分类；维度为时间 / 任务，周期为今日 / 本周 / 本月 / 全年；只计已完成、未开始、进行中
 - FakeRepository：已从工程中移除，仅保留历史文档中的概念说明
 
 ---
@@ -67,7 +67,7 @@
 | Room 数据库实现 | [StageC_Room数据库实现总结](plan/stageC/StageC_Room数据库实现总结.md) | Entity/DAO/Repository/初始化 |
 | 番茄钟活动会话（详） | [StageD_番茄钟计时持久化_实际落地方案](plan/stageD/StageD_番茄钟计时持久化_实际落地方案.md) | Issue #14 / #15；**v3 字段含义权威**（§2.1.1）；冷启动续计见 §2.4 |
 | 番茄钟活动会话（简） | [番茄钟活动计时持久化](plan/stageE/番茄钟活动计时持久化.md) | 字段摘要、落库时机、冷启动收尾与续计 |
-| Stage D 计划 | [StageD_番茄钟会话落库与统计闭环计划](plan/stageD/StageD_番茄钟会话落库与统计闭环计划.md) | D1–D8；当前 D1 已完成 |
+| Stage D 计划 | [StageD_番茄钟会话落库与统计闭环计划](plan/stageD/StageD_番茄钟会话落库与统计闭环计划.md) | 原 D2–D8 图表方案已被统计页真数据实现替代；现状以架构说明 §4.6 为准 |
 | 领域模型 | [B1：领域数据模型定义](plan/stageB/B1：领域数据模型定义.md) | 字段表；`PomodoroSession` 含 DB v3 活动计时列 |
 | Stage B 历史总结 | [StageB_整体实现总结](plan/stageB/StageB_整体实现总结.md) | FakeRepository 时代链路，勿当现状唯一来源 |
 | 数据流方案取舍 | [数据流转方案评估](plan/stageB/数据流转方案评估.md) | 为何 Fake 先行再接 Room |
