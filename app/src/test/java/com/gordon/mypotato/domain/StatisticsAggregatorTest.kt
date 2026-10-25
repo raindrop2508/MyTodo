@@ -49,6 +49,32 @@ class StatisticsAggregatorTest {
     }
 
     @Test
+    fun emptyPeriod_hasZeroThreeStateCounts() {
+        val page = aggregate(
+            emptyList(),
+            StatisticsDimension.TIME,
+            StatisticsPeriod.WEEK,
+        ) as StatisticsPage.TimeSpanPage
+
+        assertEquals(0, page.completion.completedCount)
+        assertEquals(0, page.completion.todoCount)
+        assertEquals(0, page.completion.inProgressCount)
+        assertEquals(0, page.completion.rate)
+    }
+
+    @Test
+    fun emptyPeriod_taskDimension_hasNoCategories() {
+        val page = aggregate(
+            emptyList(),
+            StatisticsDimension.TASK,
+            StatisticsPeriod.MONTH,
+        ) as StatisticsPage.TaskPage
+
+        assertEquals(0, page.categoryTotalCount)
+        assertEquals(true, page.categories.isEmpty())
+    }
+
+    @Test
     fun heatmapLevel_capsAtFour() {
         assertEquals(0, StatisticsAggregator.heatmapLevel(0))
         assertEquals(1, StatisticsAggregator.heatmapLevel(1))
