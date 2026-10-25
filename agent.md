@@ -7,7 +7,7 @@
 - **名称：** MyPotato（包名 `com.gordon.mypotato`）
 - **类型：** Android 原生番茄钟 TODO，本地离线优先
 - **能力：** 四象限任务管理 + 长时任务番茄钟（专注/短休/长休）+ Room 持久化
-- **当前阶段：** Stage A–C 完成；Stage D 进行中（会话落库与活动计时已完成，**统计页仍为 Mock**）
+- **当前阶段：** Stage A–E 主线完成（深色 / 中英 / JSON 备份 / 统计空态 / 关键单测）。延后项见 `docs/plan/项目整体规划文档.md` §5.4
 
 ## 技术栈（速查）
 
@@ -37,7 +37,7 @@ data/        → Entity / DAO / Mapper / RoomRepository / Initializer
 1. **仅长时任务**可进番茄钟；详情页与 `PomodoroViewModel` 双重校验。
 2. 番茄钟：**先落库再计时**；全库活动会话（`IN_PROGRESS` + `PAUSED`）≤ 1。
 3. 冷启动孤儿会话由 `OrphanPomodoroSettlement` + `MainActivity` 弹窗处理：可「继续计时」（`resumeActiveSession`）或保留/丢弃收尾；**不**静默恢复，**不**自动跳转计时页。
-4. 统计口径（已定、待接页）：只统计 `phase == FOCUS` 且 `status == COMPLETED`。
+4. 统计页口径：只计任务的已完成 / 未开始 / 进行中；已完成按 `finishedAt`，未开始和进行中按 `createdAt`。不统计逾期，不按番茄钟专注时长汇总。
 5. 开发期 Room 使用 `fallbackToDestructiveMigration`；正式 Migration 发布前再补。
 
 ## 编码规范
@@ -45,7 +45,7 @@ data/        → Entity / DAO / Mapper / RoomRepository / Initializer
 - 优先匹配现有文件风格（命名、缩进、ViewBinding 模式）。
 - Fragment：`_binding` 可空 + `onDestroyView()` 置空。
 - 颜色走主题属性 `?attr/...`，避免布局硬编码色值。
-- 用户可见文案进 `strings.xml`，避免硬编码中文到 Kotlin（设置 Toast 占位等历史例外除外）。
+- 用户可见文案进 `values/strings.xml`（英文见 `values-en`）；主题/语言经 `AppPreferences` + `AppCompatDelegate`。
 - 改动保持最小范围；不做无关重构；不擅自扩大 Scope。
 - 新增文档优先放 `docs/plan/stageX/`，并更新 `docs/README.md` 权威矩阵。
 - 路径在文档中用仓库相对路径（`app/src/...`、`docs/...`）。

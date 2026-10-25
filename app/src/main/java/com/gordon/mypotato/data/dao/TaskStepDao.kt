@@ -37,4 +37,10 @@ interface TaskStepDao {
 
     @Query("DELETE FROM task_step WHERE task_id = :taskId")
     suspend fun deleteByTaskId(taskId: Long)
+
+    @Query("SELECT * FROM task_step ORDER BY id ASC")
+    suspend fun getAllOnce(): List<TaskStepEntity>
+
+    @Query("DELETE FROM task_step")
+    suspend fun deleteAll()
 }

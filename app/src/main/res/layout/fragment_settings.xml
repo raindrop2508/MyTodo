@@ -26,14 +26,13 @@
             android:textSize="@dimen/page_title_size"
             android:textStyle="bold" />
 
-        <!-- 外观设置卡片（V1 暂不开放） -->
+        <!-- 外观设置卡片 -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardAppearanceGroup"
             style="@style/Widget.MyPotato.Card.White"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:visibility="gone">
+            android:layout_marginTop="24dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -98,14 +97,13 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- 语言设置卡片（V1 暂不开放） -->
+        <!-- 语言设置卡片 -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardLanguageGroup"
             style="@style/Widget.MyPotato.Card.White"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:visibility="gone">
+            android:layout_marginTop="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -163,14 +161,13 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- 数据管理卡片（V1 暂不开放） -->
+        <!-- 数据管理卡片 -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardDataGroup"
             style="@style/Widget.MyPotato.Card.White"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:visibility="gone">
+            android:layout_marginTop="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -205,6 +202,62 @@
                             android:layout_weight="1"
                             android:text="@string/settings_item_export"
                             android:textColor="?attr/colorOnSurface"
+                            android:textSize="16sp" />
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_arrow_right"
+                            app:tint="?attr/colorOnSurfaceVariant" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardImportData"
+                    style="@style/Widget.MyPotato.Card.SettingItem"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="12dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/settings_item_import"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="16sp" />
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_arrow_right"
+                            app:tint="?attr/colorOnSurfaceVariant" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardClearData"
+                    style="@style/Widget.MyPotato.Card.SettingItem"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="12dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/settings_item_clear"
+                            android:textColor="?attr/colorError"
                             android:textSize="16sp" />
                         <ImageView
                             android:layout_width="20dp"

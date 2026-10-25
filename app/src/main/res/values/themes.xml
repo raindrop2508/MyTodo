@@ -3,7 +3,7 @@
     <style name="Theme.MyPotato" parent="Base.Theme.MyPotato" />
 
     <!-- Base application theme (Material3 - light). -->
-    <style name="Base.Theme.MyPotato" parent="Theme.Material3.Light.NoActionBar">
+    <style name="Base.Theme.MyPotato" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/brand_indigo</item>
         <item name="colorPrimaryContainer">@color/brand_fab_bg</item>
         <item name="colorOnPrimary">@color/white</item>

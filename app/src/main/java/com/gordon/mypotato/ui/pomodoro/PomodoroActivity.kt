@@ -146,10 +146,9 @@ class PomodoroActivity : AppCompatActivity() {
                     binding.btnEndSession.visibility = View.GONE
                     binding.tvTimer.text = "--:--"
                     binding.progressTimer.progress = 0
-                    binding.tvFocusState.text =
-                        state.errorMessage ?: getString(R.string.pomodoro_invalid_task)
-                    Toast.makeText(this@PomodoroActivity, state.errorMessage, Toast.LENGTH_LONG)
-                        .show()
+                    val invalidMessage = getString(R.string.pomodoro_only_long_task)
+                    binding.tvFocusState.text = invalidMessage
+                    Toast.makeText(this@PomodoroActivity, invalidMessage, Toast.LENGTH_LONG).show()
                     return@collect
                 }
 
