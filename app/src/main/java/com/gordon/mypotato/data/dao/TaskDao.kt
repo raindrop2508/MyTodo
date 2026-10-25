@@ -68,4 +68,10 @@ interface TaskDao {
 
     @Query("UPDATE task SET category_id = :newCategoryId WHERE category_id = :oldCategoryId")
     suspend fun updateCategoryId(oldCategoryId: Long, newCategoryId: Long)
+
+    @Query("SELECT * FROM task ORDER BY id ASC")
+    suspend fun getAllOnce(): List<TaskEntity>
+
+    @Query("DELETE FROM task")
+    suspend fun deleteAll()
 }

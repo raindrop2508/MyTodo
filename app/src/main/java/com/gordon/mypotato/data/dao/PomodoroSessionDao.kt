@@ -99,4 +99,10 @@ interface PomodoroSessionDao {
 
     @Query("DELETE FROM pomodoro_session WHERE task_id = :taskId")
     suspend fun deleteByTaskId(taskId: Long)
+
+    @Query("SELECT * FROM pomodoro_session ORDER BY id ASC")
+    suspend fun getAllOnce(): List<PomodoroSessionEntity>
+
+    @Query("DELETE FROM pomodoro_session")
+    suspend fun deleteAll()
 }

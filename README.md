@@ -79,20 +79,28 @@ MyPotato 是一款\*\*本地离线优先（Local First）\*\*的 Android 原生 
 - **Repository 模式**：统一数据访问入口，屏蔽底层实现
 - **响应式数据流**：Flow / StateFlow 驱动 UI 自动刷新
 
+#### 统计
+
+- **时间 / 任务双维度**：今日、本周、本月、全年
+- **任务三态聚合**：已完成 / 未开始 / 进行中（完成率、趋势、热力图等）
+- **空态**：当前周期无任务数据时展示空态文案
+
 #### 设置页
 
-- **番茄钟参数自定义**：工作时长、短休息、长休息、长休息间隔
+- **外观**：系统 / 浅色 / 深色（DayNight，重启后仍生效）
+- **语言**：跟随系统 / 简体中文 / English
+- **番茄钟参数**：工作时长、短休息、长休息、长休息间隔（步进器弹窗）
 - **声音开关**：番茄钟完成提示音开关
+- **数据管理**：JSON 导出 / 导入覆盖 / 清空并恢复默认分类
 - **版本信息**：显示当前应用版本号
 
 ### 🚧 规划中（后续版本）
 
-- 统计页面（时间段分布、完成率、类别分析）
-- 深色模式适配
-- 多语言支持（简体中文 / 英文）
-- 数据导入导出（JSON / CSV）
+- 正式 Room Migration（当前 v1 仍为 destructive fallback）
+- 列表 DiffUtil / Safe Args 统一 / Today「单次·长时」筛选（见 `docs/plan` §5.4）
 - 任务提醒与通知
 - 桌面小组件
+- 云同步（非当前目标）
 
 ***
 
@@ -167,12 +175,13 @@ MyPotato/
 │       │   │   ├── repository/             # Repository 实现
 │       │   │   └── initializer/            # 数据库初始化
 │       │   ├── domain/                     # 领域模型（纯 Kotlin）
+│       │   ├── data/backup/                # JSON 备份编解码与 Repository
 │       │   ├── ui/                         # UI 层
 │       │   │   ├── today/                  # 今日页
 │       │   │   ├── tasks/                  # 任务列表/详情/编辑
 │       │   │   ├── pomodoro/               # 番茄钟页
 │       │   │   ├── settings/               # 设置页
-│       │   │   ├── statistics/             # 统计页（暂不开放入口）
+│       │   │   ├── statistics/             # 统计页
 │       │   │   └── common/                 # 公共 UI 组件
 │       │   └── viewmodel/                  # ViewModel 层
 │       └── res/                            # 资源文件
@@ -180,11 +189,11 @@ MyPotato/
 │           ├── menu/                       # 菜单资源
 │           ├── navigation/                 # 导航图
 │           ├── drawable/                   # 矢量图与选择器
-│           ├── values/                     # 字符串、颜色、尺寸、主题
-│           └── values-night/               # 深色模式主题（待填充）
-├── docs/                                   # 项目文档
-│   ├── plan/                               # 各阶段规划文档
-│   └── stageB/ / stageC/ / stageD/         # 各阶段总结与设计
+│           ├── values/                     # 默认中文、颜色、尺寸、主题
+│           ├── values-en/                  # 英文字符串
+│           └── values-night/               # 深色色板与主题
+├── docs/                                   # 项目文档（索引见 docs/README.md）
+│   └── plan/                               # 各阶段规划与总结
 ├── gradle/
 │   └── libs.versions.toml                  # Version Catalog 依赖管理
 ├── build.gradle                            # 根构建脚本
@@ -268,7 +277,9 @@ cd MyTodo
 - 番茄钟完整功能（倒计时 / 暂停 / 继续 / 手动结束）
 - 番茄钟会话持久化（Room 数据库）
 - 分类管理（动态 Chip 生成）
-- 设置页（番茄钟参数自定义、声音开关）
+- 统计页（任务三态真数据 + 周期空态）
+- 设置页（主题、语言、番茄钟参数、JSON 备份、声音开关）
+- 深色模式与中英切换
 - Room 数据持久化，应用重启数据不丢失
 
 **架构特点**：
@@ -276,7 +287,7 @@ cd MyTodo
 - 单 Activity + 多 Fragment + MVVM
 - Repository 模式 + Room 实现
 - Flow/StateFlow 响应式数据流
-- Material Design 3 主题系统
+- Material Design 3 DayNight 主题系统
 
 ***
 
@@ -290,7 +301,7 @@ cd MyTodo
 | Stage B | 核心流程跑通 + FakeRepository  | ✅ 完成          |
 | Stage C | Room 数据结构落地 + 持久化        | ✅ 完成          |
 | Stage D | 番茄钟会话落库 + 统计页真数据          | ✅ 主体完成        |
-| Stage E | 深色模式 + i18n + 测试补齐（第 5 阶段） | ⏳ 未开始         |
+| Stage E | 深色模式 + i18n + JSON 备份 + 关键单测（第 5 阶段） | ✅ 完成          |
 
 ***
 

@@ -34,4 +34,10 @@ interface CategoryDao {
 
     @Query("DELETE FROM category WHERE id = :id")
     suspend fun deleteById(id: Long)
+
+    @Query("SELECT * FROM category ORDER BY id ASC")
+    suspend fun getAllOnce(): List<CategoryEntity>
+
+    @Query("DELETE FROM category")
+    suspend fun deleteAll()
 }

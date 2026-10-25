@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="dark_page_bg">#121212</color>
+    <color name="dark_card_bg">#1E1E1E</color>
+    <color name="dark_surface_variant">#2C2C2C</color>
+    <color name="dark_text_primary">#F5F5F5</color>
+    <color name="dark_text_secondary">#B0B0B0</color>
+    <color name="dark_outline_strong">#3A3A3A</color>
+    <color name="dark_outline_soft">#2A2A2A</color>
+    <color name="dark_brand_indigo">#4FC3F7</color>
+    <color name="dark_brand_fab_bg">#1A3A4A</color>
+    <color name="dark_overlay">#2A2A2A</color>
+
+    <!-- 覆盖浅色同名语义色，残留 @color 引用在深色下可读 -->
+    <color name="page_bg_light">@color/dark_page_bg</color>
+    <color name="card_bg_white">@color/dark_card_bg</color>
+    <color name="text_primary">@color/dark_text_primary</color>
+    <color name="text_secondary">@color/dark_text_secondary</color>
+    <color name="text_hint">#6E6E6E</color>
+    <color name="overlay">@color/dark_overlay</color>
+    <color name="brand_fab_bg">@color/dark_brand_fab_bg</color>
+
+    <color name="warm_background">@color/dark_page_bg</color>
+    <color name="warm_surface">@color/dark_card_bg</color>
+    <color name="warm_surface_variant">@color/dark_surface_variant</color>
+    <color name="ink_primary">@color/dark_text_primary</color>
+    <color name="ink_muted">@color/dark_text_secondary</color>
+    <color name="outline_strong">@color/dark_outline_strong</color>
+    <color name="outline_soft">@color/dark_outline_soft</color>
+    <color name="brand_primary">@color/dark_text_primary</color>
+    <color name="brand_primary_dark">@color/dark_text_secondary</color>
+    <color name="brand_fill_soft">@color/dark_outline_strong</color>
+
+    <!-- 分类胶囊：深底 + 浅字 -->
+    <color name="tag_work_bg">#3B2A4A</color>
+    <color name="tag_work_text">#E9D5FF</color>
+    <color name="tag_shopping_bg">#4A2F1A</color>
+    <color name="tag_shopping_text">#FED7AA</color>
+    <color name="tag_study_bg">#1E3A5F</color>
+    <color name="tag_study_text">#BFDBFE</color>
+    <color name="tag_health_bg">#4A1F33</color>
+    <color name="tag_health_text">#FBCFE8</color>
+    <color name="tag_default_bg">#2C2C2C</color>
+    <color name="tag_default_text">#D1D5DB</color>
+</resources>
