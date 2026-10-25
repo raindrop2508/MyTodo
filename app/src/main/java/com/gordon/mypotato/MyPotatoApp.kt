@@ -14,6 +14,8 @@ class MyPotatoApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        AppPreferences.applyThemeMode(AppPreferences.readThemeMode(this))
+        AppPreferences.applyLanguageMode(AppPreferences.readLanguageMode(this))
         database = AppDatabase.getDatabase(this)
         initializeDefaultData()
     }

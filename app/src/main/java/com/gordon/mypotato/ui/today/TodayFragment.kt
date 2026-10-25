@@ -221,7 +221,8 @@ class TodayFragment : Fragment(R.layout.fragment_today) {
                 binding.tvTaskTitle.alpha = if (item.isCompleted()) 0.5f else 1.0f
 
                 val category = categories[item.categoryId]
-                binding.tvCategoryTag.text = category?.name ?: "未分类"
+                binding.tvCategoryTag.text =
+                    category?.name ?: binding.root.context.getString(R.string.uncategorized)
                 bindCategoryColor(category, binding.tvCategoryTag)
 
                 binding.tvTypeTag.text =

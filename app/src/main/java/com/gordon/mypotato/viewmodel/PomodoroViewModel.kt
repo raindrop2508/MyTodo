@@ -89,7 +89,7 @@ class PomodoroViewModel(
                     totalTimeMs = if (preserveTimerUi) _uiState.value.totalTimeMs else durationMs,
                     isLoading = false,
                     isValidTask = isValid,
-                    errorMessage = if (!isValid) "只有长时任务可以启动番茄钟" else null,
+                    errorMessage = null,
                     prompt = _uiState.value.prompt,
                     currentPhase = _uiState.value.currentPhase,
                     isRunning = _uiState.value.isRunning,

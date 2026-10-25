@@ -146,7 +146,7 @@
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
             app:strokeWidth="1dp"
-            app:strokeColor="#EBEBEB"
+            app:strokeColor="?attr/colorOutlineVariant"
             android:visibility="gone">
 
             <LinearLayout
