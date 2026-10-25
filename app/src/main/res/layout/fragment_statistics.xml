@@ -115,6 +115,17 @@
             </com.google.android.material.chip.ChipGroup>
         </HorizontalScrollView>
 
+        <TextView
+            android:id="@+id/tv_statistics_empty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:gravity="center"
+            android:text="@string/statistics_period_empty"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="15sp"
+            android:visibility="gone" />
+
         <LinearLayout
             android:id="@+id/group_time_span"
             android:layout_width="match_parent"

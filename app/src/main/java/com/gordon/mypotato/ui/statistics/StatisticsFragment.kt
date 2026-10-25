@@ -102,9 +102,12 @@ class StatisticsFragment : Fragment(R.layout.fragment_statistics) {
         checkChip(binding.chipGroupDimension, dimensionChip(state.dimension))
         checkChip(binding.chipGroupPeriod, periodChip(state.period))
         binding.tvStatisticsRange.text = state.page.rangeLabel
-        binding.groupTimeSpan.isVisible = state.page is StatisticsPage.TimeSpanPage
-        binding.groupTimeYear.isVisible = state.page is StatisticsPage.TimeYearPage
-        binding.groupTask.isVisible = state.page is StatisticsPage.TaskPage
+        val empty = isPeriodEmpty(state.page)
+        binding.tvStatisticsEmpty.isVisible = empty
+        binding.groupTimeSpan.isVisible = !empty && state.page is StatisticsPage.TimeSpanPage
+        binding.groupTimeYear.isVisible = !empty && state.page is StatisticsPage.TimeYearPage
+        binding.groupTask.isVisible = !empty && state.page is StatisticsPage.TaskPage
+        if (empty) return
         when (val page = state.page) {
             is StatisticsPage.TimeSpanPage -> bindSpan(state.period, page)
             is StatisticsPage.TimeYearPage -> bindYear(page)
@@ -113,6 +116,21 @@ class StatisticsFragment : Fragment(R.layout.fragment_statistics) {
                 bindCategories(page)
                 bindPriorities(page)
             }
+        }
+    }
+
+    private fun isPeriodEmpty(page: StatisticsPage): Boolean {
+        return when (page) {
+            is StatisticsPage.TimeSpanPage -> {
+                val c = page.completion
+                c.completedCount + c.todoCount + c.inProgressCount == 0
+            }
+            is StatisticsPage.TimeYearPage -> {
+                page.quality.completedRate == 0 &&
+                    page.quality.todoRate == 0 &&
+                    page.quality.inProgressRate == 0
+            }
+            is StatisticsPage.TaskPage -> page.categories.isEmpty()
         }
     }
 
