@@ -7,7 +7,7 @@
 - **名称：** MyPotato（包名 `com.gordon.mypotato`）
 - **类型：** Android 原生番茄钟 TODO，本地离线优先
 - **能力：** 四象限任务管理 + 长时任务番茄钟（专注/短休/长休）+ Room 持久化
-- **当前阶段：** Stage A–D 主体完成（统计页已接任务三态真数据）。**Stage E（第 5 阶段）未开始**（深色、i18n、测试）
+- **当前阶段：** Stage A–E 主线完成（深色 / 中英 / JSON 备份 / 统计空态 / 关键单测）。延后项见 `docs/plan/项目整体规划文档.md` §5.4
 
 ## 技术栈（速查）
 
@@ -45,7 +45,7 @@ data/        → Entity / DAO / Mapper / RoomRepository / Initializer
 - 优先匹配现有文件风格（命名、缩进、ViewBinding 模式）。
 - Fragment：`_binding` 可空 + `onDestroyView()` 置空。
 - 颜色走主题属性 `?attr/...`，避免布局硬编码色值。
-- 用户可见文案进 `strings.xml`，避免硬编码中文到 Kotlin（设置 Toast 占位等历史例外除外）。
+- 用户可见文案进 `values/strings.xml`（英文见 `values-en`）；主题/语言经 `AppPreferences` + `AppCompatDelegate`。
 - 改动保持最小范围；不做无关重构；不擅自扩大 Scope。
 - 新增文档优先放 `docs/plan/stageX/`，并更新 `docs/README.md` 权威矩阵。
 - 路径在文档中用仓库相对路径（`app/src/...`、`docs/...`）。
